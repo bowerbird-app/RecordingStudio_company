@@ -9,9 +9,10 @@ require "rails/test_help"
 class RecordingStudioDeclarationsTest < ActiveSupport::TestCase
   test "dummy recordable declarations validate and expose parent/root introspection" do
     assert RecordingStudio.validate_recordable_declarations!
-    assert_equal ["Workspace"], RecordingStudio.root_recordable_types
+    assert_equal %w[Workspace PressCentre Agency], RecordingStudio.root_recordable_types
     assert_equal %w[Workspace Folder], RecordingStudio.allowed_parent_types_for("Folder")
     assert_equal %w[Workspace Folder], RecordingStudio.allowed_parent_types_for(Page)
+    assert_equal %w[Agency], RecordingStudio.allowed_parent_types_for(Project)
   end
 
   test "root recordable creates a root recording" do
@@ -82,15 +83,17 @@ class RecordingStudioDeclarationsTest < ActiveSupport::TestCase
     assert_equal "Page cannot be recorded under Page", error.message
   end
 
-  test "accessible is enabled on workspace and example mixin stays opt-in" do
-    assert RecordingStudio.capability_enabled?(:accessible, for: "Workspace")
-    refute RecordingStudio.capability_enabled?(:accessible, for: "Folder")
-    refute RecordingStudio.capability_enabled?(:accessible, for: "Page")
+  test "accessible is enabled on the dummy roots only" do
+    %w[Workspace PressCentre Agency].each do |type|
+      assert RecordingStudio.capability_enabled?(:accessible, for: type), "#{type} should enable accessible"
+    end
+    %w[Folder Page Project RecordingStudioCompany::Company].each do |type|
+      refute RecordingStudio.capability_enabled?(:accessible, for: type), "#{type} should not enable accessible"
+    end
+  end
 
-    assert RecordingStudio.capability_enabled?(:example, for: "Workspace")
-    refute RecordingStudio.capability_enabled?(:example, for: "Folder")
-    refute RecordingStudio.capability_enabled?(:example, for: "Page")
-    assert_equal({ label: "dummy workspace" }, RecordingStudio.capability_options(:example, for: "Workspace"))
+  test "workspace does not hold companies" do
+    refute RecordingStudio.capability_enabled?(:companies, for: "Workspace")
   end
 
   private

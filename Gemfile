@@ -2,11 +2,15 @@
 
 source "https://rubygems.org"
 
-# Specify your gem's dependencies in gem_template.gemspec
+# Specify your gem's dependencies in recording_studio_company.gemspec
 gemspec
 
-# recording_studio is not published to RubyGems; resolve the gemspec pin from GitHub.
+# Recording Studio gems are not published to RubyGems; resolve the gemspec pins from GitHub.
+gem "flat_pack", github: "bowerbird-app/flatpack", tag: "v0.1.196"
 gem "recording_studio", github: "bowerbird-app/RecordingStudio", tag: "v4.2.2"
+gem "recording_studio_accessible", github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.11.1"
+gem "recording_studio_attachable", github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.7.1"
+gem "recording_studio_trashable", github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.4.4"
 
 gem "devise"
 gem "puma"

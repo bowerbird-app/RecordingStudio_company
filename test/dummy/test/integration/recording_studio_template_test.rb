@@ -12,8 +12,10 @@ class RecordingStudioTemplateTest < ActiveSupport::TestCase
 
   test "dummy app validates recordable declarations" do
     assert RecordingStudio.validate_recordable_declarations!
-    assert_equal [ "Workspace" ], RecordingStudio.root_recordable_types
+    assert_equal [ "Workspace", "PressCentre", "Agency" ], RecordingStudio.root_recordable_types
     assert_equal [ "Workspace", "Folder" ], RecordingStudio.allowed_parent_types_for("Page")
+    assert_equal [ "Agency", "PressCentre", "Project" ],
+                 RecordingStudio.allowed_parent_types_for("RecordingStudioCompany::Company")
   end
 
   test "dummy app schema keeps accessible grants and excludes removed core tables" do
@@ -21,6 +23,11 @@ class RecordingStudioTemplateTest < ActiveSupport::TestCase
 
     assert connection.column_exists?(:recording_studio_recordings, :root_recording_id)
     assert connection.table_exists?(:recording_studio_accesses)
+    assert connection.table_exists?(:recording_studio_companies)
+    assert connection.table_exists?(:recording_studio_attachable_attachments)
+    assert connection.table_exists?(:active_storage_blobs)
+    assert connection.column_exists?(:recording_studio_recordings, :trash_root)
+    refute connection.column_exists?(:recording_studio_companies, :updated_at)
     refute connection.table_exists?(:recording_studio_access_boundaries)
     refute connection.table_exists?(:recording_studio_device_sessions)
   end
@@ -61,23 +68,50 @@ class RecordingStudioTemplateTest < ActiveSupport::TestCase
     Current.actor = nil
   end
 
-  test "workspace opts into accessible and the example mixin without enabling them globally" do
-    workspace_source = File.read(Rails.root.join("app/models/workspace.rb"))
-    example_source = File.read(GemTemplate::Engine.root.join("lib/gem_template/capabilities/example.rb"))
+  test "dummy seeds companies under a press centre, an agency, and a project once" do
+    Current.actor = nil
 
-    assert_includes workspace_source, "include RecordingStudio::Capabilities::Example.to(label: \"dummy workspace\")"
-    assert_includes example_source, "RecordingStudio::Capabilities.include_for(:example, **)"
-    refute_includes example_source, "enable_capability"
-    refute_includes example_source, "set_capability_options"
+    load Rails.root.join("db/seeds.rb").to_s
 
+    admin = User.find_by!(email: "admin@admin.com")
+    press_centre = RecordingStudio::Recording.find_by!(recordable: PressCentre.find_by!(name: "Nike Newsroom"))
+    agency = RecordingStudio::Recording.find_by!(recordable: Agency.find_by!(name: "Northwind"))
+    project = RecordingStudio::Recording.find_by!(recordable: Project.find_by!(name: "Harbour fit-out"))
+    nike = RecordingStudioCompany.company(press_centre)
+    agency_companies = RecordingStudioCompany.companies(agency)
+
+    assert_equal "Nike, Inc.", nike.recordable.name
+    assert_equal "Nike, Inc.", nike.recordable.legal_name
+    assert_equal "https://about.nike.com", nike.recordable.website_url
+    assert_equal Date.new(1964, 1, 25), nike.recordable.founded_on
+    assert_predicate nike.recordable.description, :present?
+    assert_equal "image/png", RecordingStudioCompany.logo(nike).recordable.file.content_type
+    assert_equal [ "Acme Coffee Pty Ltd", "Nike, Inc.", "Unilever" ], agency_companies.map { |company| company.recordable.name }
+    assert_equal "Unilever PLC", agency_companies.last.recordable.legal_name
+    assert_equal agency, project.parent_recording
+    assert_equal "Acme Engineering Pty Ltd", RecordingStudioCompany.company(project).recordable.name
+    assert RecordingStudioCompany.can?(:update, nike, actor: admin)
+    assert RecordingStudioCompany.can?(:create, agency, actor: admin)
+    workspace = RecordingStudio::Recording.find_by!(recordable: Workspace.find_by!(name: "Studio Workspace"))
+    assert_nil RecordingStudioCompany.allowance(workspace)
+
+    counts = lambda do
+      [ User, RecordingStudio::Recording, RecordingStudio::Event, RecordingStudioCompany::Company, ActiveStorage::Blob ]
+        .map(&:count)
+    end
+    assert_no_changes counts do
+      load Rails.root.join("db/seeds.rb").to_s
+    end
+    assert_nil Current.actor
+  ensure
+    Current.actor = nil
+  end
+
+  test "workspace opts into accessible without enabling it globally" do
     assert RecordingStudio.capability_enabled?(:accessible, for: Workspace)
-    assert RecordingStudio.capability_enabled?(:example, for: Workspace)
-    assert_equal({ label: "dummy workspace" }, RecordingStudio.capability_options(:example, for: Workspace))
     refute RecordingStudio.capability_enabled?(:accessible, for: Folder)
     refute RecordingStudio.capability_enabled?(:accessible, for: Page)
-    refute RecordingStudio.capability_enabled?(:example, for: Folder)
-    refute RecordingStudio.capability_enabled?(:example, for: Page)
-    assert_equal [ "Workspace" ], RecordingStudio.configuration.enabled_recordable_types_for(:example)
+    refute RecordingStudio.registered_capabilities.key?(:example)
     assert_includes ApplicationController.ancestors, RecordingStudio::UsesDefaultLayout
   end
 end

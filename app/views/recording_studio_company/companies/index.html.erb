@@ -1,0 +1,54 @@
+<% many = @allowance == :many %>
+<% heading = "Companies and organisations" %>
+<% home_path = company_home_path %>
+<% recording_studio_page_nav(
+  title: heading,
+  page_nav_back_url: home_path,
+  page_nav_back_label: (home_path && "Home")
+) %>
+
+<div class="flex w-full flex-col gap-6">
+  <%= render FlatPack::PageTitle::Component.new(title: heading) do |page_title| %>
+    <% if company_can?(:create, @parent) %>
+      <% page_title.slot do %>
+        <%= render FlatPack::Button::Component.new(
+          text: "+ Company",
+          style: :primary,
+          href: new_recording_company_path(@parent)
+        ) %>
+      <% end %>
+    <% end %>
+  <% end %>
+
+  <% if many %>
+    <%= render "list", parent: @parent, companies: @companies, trashed_companies: @trashed_companies %>
+  <% elsif @integrity_error %>
+    <% companies = @integrity_error.companies %>
+    <%= render FlatPack::Alert::Component.new(
+      style: :danger,
+      title: "#{@parent.name} has #{companies.size} companies",
+      description: "This #{@parent.type_label.downcase} holds one company. " \
+                   "Adding a company stays off until the extra companies are moved or purged."
+    ) %>
+    <%= render FlatPack::List::Component.new(divider: true) do %>
+      <% companies.each do |company| %>
+        <%= render FlatPack::List::Item.new do %>
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <span class="font-medium"><%= company.recordable.name %><%= " (in the trash)" if company.trashed_at %></span>
+            <%= render FlatPack::Button::Component.new(
+              text: "View",
+              style: :ghost,
+              size: :sm,
+              href: company_path(company),
+              aria: { label: "View #{company.recordable.name}" }
+            ) %>
+          </div>
+        <% end %>
+      <% end %>
+    <% end %>
+  <% elsif @company && @company.trashed_at.nil? %>
+    <%= render "list", parent: @parent, companies: [@company], trashed_companies: [] %>
+  <% else %>
+    <%= render "vacancy", parent: @parent, company: @company %>
+  <% end %>
+</div>

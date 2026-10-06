@@ -1,0 +1,128 @@
+# frozen_string_literal: true
+
+module RecordingStudioCompany
+  class Engine < ::Rails::Engine
+    isolate_namespace RecordingStudioCompany
+
+    class << self
+      def apply_model_extensions(target)
+        apply_extensions(target, extensions_for(:model, extension_keys_for(target)))
+      end
+
+      def apply_controller_extensions(target)
+        apply_extensions(target, extensions_for(:controller, extension_keys_for(target)))
+      end
+
+      private
+
+      def extensions_for(kind, names)
+        hooks = RecordingStudioCompany.configuration.hooks
+        Array(names).flat_map do |name|
+          if kind == :model
+            hooks.model_extensions_for(name)
+          else
+            hooks.controller_extensions_for(name)
+          end
+        end
+      end
+
+      def apply_extensions(target, extensions)
+        return unless target
+
+        applied = target.instance_variable_get(:@recording_studio_company_applied_extensions) || identity_hash
+
+        extensions.flatten.compact.each do |extension|
+          next if applied[extension]
+
+          target.class_eval(&extension)
+          applied[extension] = true
+        end
+
+        target.instance_variable_set(:@recording_studio_company_applied_extensions, applied)
+      end
+
+      def extension_keys_for(target)
+        names = [target.name, target.name&.demodulize].compact.uniq
+        names.map(&:to_sym)
+      end
+
+      def identity_hash
+        {}.compare_by_identity
+      end
+    end
+
+    initializer "recording_studio_company.before_initialize", before: "recording_studio_company.load_config" do |_app|
+      RecordingStudioCompany.configuration.hooks.run(:before_initialize, self)
+    end
+
+    initializer "recording_studio_company.load_config" do |app|
+      if app.respond_to?(:config_for) && app.respond_to?(:paths)
+        config_paths = app.paths["config"]
+        dir = config_paths.respond_to?(:existent) ? Array(config_paths.existent).first : nil
+        if dir && File.exist?(File.join(dir, "recording_studio_company.yml"))
+          yaml = app.config_for(:recording_studio_company)
+          RecordingStudioCompany.configuration.merge!(yaml.to_h) if yaml.respond_to?(:to_h)
+        end
+      end
+
+      if app.config.respond_to?(:x) && app.config.x.respond_to?(:recording_studio_company)
+        xcfg = app.config.x.recording_studio_company
+        RecordingStudioCompany.configuration.merge!(xcfg.to_h) if xcfg.respond_to?(:to_h)
+      end
+
+      RecordingStudioCompany.configuration.hooks.run(:on_configuration, RecordingStudioCompany.configuration)
+    end
+
+    initializer "recording_studio_company.after_initialize", after: "recording_studio_company.load_config" do |_app|
+      RecordingStudioCompany.configuration.hooks.run(:after_initialize, self)
+    end
+
+    initializer "recording_studio_company.apply_model_extensions" do
+      config.to_prepare do
+        next unless defined?(ActiveRecord::Base)
+
+        ActiveRecord::Base.descendants.each do |model|
+          next if model.abstract_class?
+
+          RecordingStudioCompany::Engine.apply_model_extensions(model)
+        end
+      end
+    end
+
+    initializer "recording_studio_company.apply_controller_extensions" do
+      config.to_prepare do
+        next unless defined?(ActionController::Base)
+
+        ActionController::Base.descendants.each do |controller|
+          RecordingStudioCompany::Engine.apply_controller_extensions(controller)
+        end
+      end
+    end
+
+    # After the host's initializers, because config.recordable_types = [...] replaces the list.
+    initializer "recording_studio_company.recordable_types", after: :load_config_initializers do
+      RecordingStudio.register_recordable_type(COMPANY_TYPE)
+    end
+
+    initializer "recording_studio_company.slots" do
+      config.to_prepare do
+        # Checked against the class, because RecordingStudio::Recording is reloadable.
+        recording = RecordingStudio::Recording
+        recording.include(Slots::Validation) unless recording.include?(Slots::Validation)
+
+        # Attachable's RemoveAttachment trashes when Trashable is loaded, and trashing
+        # needs :trashable enabled on the attachment type.
+        unless RecordingStudio.capability_enabled?(:trashable, for: LOGO_TYPE)
+          RecordingStudioAttachable::Attachment.include(RecordingStudio::Capabilities::Trashable.to)
+        end
+
+        Slots.verify!
+      end
+    end
+
+    # The helper lives in lib/ so including it at boot never autoloads a reloadable constant.
+    initializer "recording_studio_company.display_helper" do
+      ActiveSupport.on_load(:action_view) { include RecordingStudioCompany::DisplayHelper }
+    end
+  end
+end

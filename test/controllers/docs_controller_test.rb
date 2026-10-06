@@ -25,19 +25,23 @@ class DocsControllerTest < ActionDispatch::IntegrationTest
     get docs_install_path
     assert_response :success
     assert_select "h1", text: "Install"
-    assert_includes response.body, "Step 1"
-    assert_includes response.body, "Provide one section title for each step"
-    assert_includes response.body, "# Put the step instruction here."
+    assert_includes response.body, "1. Add the gem"
+    assert_includes response.body, "bin/rails generate recording_studio_company:install"
+    assert_includes response.body, "bin/rails generate recording_studio_attachable:install"
+    assert_includes response.body, "bin/rails generate recording_studio_company:migrations"
+    assert_includes response.body, "&quot;RecordingStudioCompany::Company&quot;"
+    assert_includes response.body, "include RecordingStudio::Capabilities::Companies.to(allow: :one)"
+    refute_includes response.body, "# Put the step instruction here."
   end
 
   test "config page renders successfully" do
     get docs_config_path
     assert_response :success
     assert_select "h1", text: "Config"
-    expected_placeholder = "Replace this placeholder with the configuration settings your generated gem exposes."
-
-    assert_includes response.body, expected_placeholder
-    assert_includes response.body, "# Add the config settings for the gem here."
+    assert_includes response.body, "One company or many"
+    assert_includes response.body, "include RecordingStudio::Capabilities::Companies.to(allow: :many)"
+    assert_includes response.body, "Logo options"
+    refute_includes response.body, "# Add the config settings for the gem here."
   end
 
   test "recordable types page renders configured recordables dynamically" do
@@ -99,18 +103,21 @@ class DocsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "h1", text: "Gem Views"
     assert_select "table", minimum: 1
-    refute_includes response.body, "app/views/gem_template/home/index.html.erb"
+    refute_includes response.body, "app/views/recording_studio_company/home/index.html.erb"
   end
 
   test "methods page renders successfully" do
     get docs_methods_path
     assert_response :success
     assert_select "h1", text: "Methods"
-    assert_includes response.body, "Document the public methods your addon exposes."
-    assert_includes response.body, "Example method"
-    assert_includes response.body, "recordingstudio_addon.example_method"
-    assert_includes response.body, "# Explain what this method does before the example."
-    assert_includes response.body, "Provide one section title and codeblock for each method"
+    ["Read companies", "Create and edit", "Logo", "Trash and restore", "Permissions", "Display helpers"].each do |title|
+      assert_includes response.body, title
+    end
+    %w[allowance companies company find create update set_logo remove_logo logo can?].each do |method_name|
+      assert_includes response.body, "RecordingStudioCompany.#{method_name}("
+    end
+    assert_includes response.body, "recording_studio_company_card(company)"
+    refute_includes response.body, "recordingstudio_addon.example_method"
   end
 
   test "authenticated docs pages use the recording studio default layout" do

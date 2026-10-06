@@ -1,0 +1,19 @@
+<% name = @company.recordable.name %>
+<% recording_studio_page_nav(
+  title: "Edit #{name}",
+  page_nav_back_url: company_path(@company),
+  page_nav_back_label: "Back"
+) %>
+
+<div class="flex w-full flex-col gap-6">
+  <%= render FlatPack::PageTitle::Component.new(title: "Edit company", subtitle: name) %>
+
+  <%= render "logo_field", company: @company %>
+
+  <%= render "form",
+             record: @record,
+             url: company_path(@company),
+             form_method: :patch,
+             submit_text: "Save company",
+             cancel_url: company_path(@company) %>
+</div>

@@ -1,0 +1,59 @@
+<%# locals: (company:) %>
+<% record = company.recordable %>
+<% website_href = record.website_href %>
+<% phone_href = record.phone_href %>
+<% details = record.website_url.present? || record.email.present? || record.phone.present? || record.founded_on.present? %>
+<%= render FlatPack::Card::Component.new(style: :default) do |card| %>
+  <% card.body do %>
+    <div class="flex flex-col gap-4" data-recording-studio-company-card>
+      <div class="flex items-center gap-4">
+        <%= recording_studio_company_logo(company, size: :xl) %>
+        <div class="min-w-0">
+          <p class="text-lg font-semibold leading-tight"><%= record.name %></p>
+          <% if record.legal_name.present? && record.legal_name != record.name %>
+            <p class="text-sm text-(--surface-muted-content-color)"><%= record.legal_name %></p>
+          <% end %>
+        </div>
+      </div>
+
+      <% if record.description.present? %>
+        <p class="whitespace-pre-line text-sm leading-6"><%= record.description %></p>
+      <% end %>
+
+      <% if details %>
+        <dl class="grid gap-3 text-sm sm:grid-cols-2">
+          <% if record.website_url.present? %>
+            <div>
+              <dt class="text-(--surface-muted-content-color)">Website</dt>
+              <dd class="break-words">
+                <% if website_href %>
+                  <%= link_to record.website_url, website_href, target: "_blank", rel: "noopener noreferrer" %>
+                <% else %>
+                  <%= record.website_url %>
+                <% end %>
+              </dd>
+            </div>
+          <% end %>
+          <% if record.email.present? %>
+            <div>
+              <dt class="text-(--surface-muted-content-color)">Email</dt>
+              <dd class="break-words"><%= mail_to record.email %></dd>
+            </div>
+          <% end %>
+          <% if record.phone.present? %>
+            <div>
+              <dt class="text-(--surface-muted-content-color)">Phone</dt>
+              <dd><%= phone_href ? link_to(record.phone, phone_href) : record.phone %></dd>
+            </div>
+          <% end %>
+          <% if record.founded_on.present? %>
+            <div>
+              <dt class="text-(--surface-muted-content-color)">Founded</dt>
+              <dd><%= l(record.founded_on, format: :long) %></dd>
+            </div>
+          <% end %>
+        </dl>
+      <% end %>
+    </div>
+  <% end %>
+<% end %>
