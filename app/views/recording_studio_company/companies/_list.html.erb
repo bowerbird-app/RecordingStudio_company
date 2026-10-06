@@ -1,8 +1,15 @@
 <%# locals: (parent:, companies:, trashed_companies:) %>
 <% if companies.any? %>
-  <%= render FlatPack::Table::Component.new(data: companies) do |table| %>
-    <% table.column(title: "Company") { |company| company_list_name(company) } %>
-    <% table.column(title: "Actions") { |company| company_list_actions(company) } %>
+  <%= render FlatPack::Card::Component.new(style: :default) do |card| %>
+    <% card.body(padding: :none) do %>
+      <%= render FlatPack::List::Component.new(divider: true) do %>
+        <% companies.each do |company| %>
+          <%= render FlatPack::List::Item.new(href: company_path(company), hover: true) do %>
+            <%= company.recordable.name %>
+          <% end %>
+        <% end %>
+      <% end %>
+    <% end %>
   <% end %>
 <% else %>
   <%= render FlatPack::EmptyState::Component.new(

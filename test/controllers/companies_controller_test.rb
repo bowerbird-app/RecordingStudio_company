@@ -16,9 +16,10 @@ class CompaniesControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "body[data-recording-studio-default-layout='true']", count: 1
-    assert_select "h1", text: "Company"
+    assert_select "h1", text: "Companies and organisations"
     assert_includes page_text, "No company yet"
-    assert_select "a[href=?]", routes.new_recording_company_path(newsroom), text: "Add company"
+    refute_includes page_text, "Nike Newsroom"
+    assert_select "a[href=?]", routes.new_recording_company_path(newsroom), text: "+ Company"
   end
 
   test "a press centre with a company shows it with view and edit, and no Add" do
@@ -28,10 +29,11 @@ class CompaniesControllerTest < ActionDispatch::IntegrationTest
     get routes.recording_companies_path(newsroom)
 
     assert_response :success
-    assert_select "[data-recording-studio-company-card]", count: 1
-    assert_select "a[href=?]", routes.company_path(nike), text: "View company"
-    assert_select "a[href=?]", routes.edit_company_path(nike), text: "Edit company"
-    assert_select "a", text: "Add company", count: 0
+    assert_select "h1", text: "Companies and organisations"
+    assert_select "[data-recording-studio-company-card]", count: 0
+    assert_select "a[href=?]", routes.company_path(nike), text: "Nike, Inc."
+    refute_includes page_text, "Nike Newsroom"
+    assert_select "a", text: "+ Company", count: 0
   end
 
   test "new redirects when the press centre already has a company" do
@@ -54,7 +56,7 @@ class CompaniesControllerTest < ActionDispatch::IntegrationTest
     assert_includes page_text, "Nike, Inc. is in the trash"
     assert_select "form[action=?][method=post] button[type=submit]", routes.restore_company_path(nike),
                   text: "Restore company"
-    assert_select "a", text: "Add company", count: 0
+    assert_select "a", text: "+ Company", count: 0
   end
 
   test "a press centre with two companies states the integrity error and offers no Add" do
@@ -69,7 +71,7 @@ class CompaniesControllerTest < ActionDispatch::IntegrationTest
     assert_includes page_text, "This press centre holds one company."
     assert_select "a[href=?]", routes.company_path(nike), text: "View"
     assert_select "a[href=?]", routes.company_path(adidas), text: "View"
-    assert_select "a", text: "Add company", count: 0
+    assert_select "a", text: "+ Company", count: 0
   end
 
   test "posting a company to a press centre with two companies redirects with the integrity error" do
@@ -94,18 +96,12 @@ class CompaniesControllerTest < ActionDispatch::IntegrationTest
     get routes.recording_companies_path(northwind)
 
     assert_response :success
-    assert_select "h1", text: "Companies"
-    assert_select "a[href=?]", routes.new_recording_company_path(northwind), text: "Add company"
-    assert_select "table tbody tr", count: 2
-    assert_select "th", text: "Company"
-    assert_select "th", text: "Legal name", count: 0
-    assert_select "th", text: "Website", count: 0
-    assert_select "button[aria-label=?]", "Actions for Nike, Inc."
-    assert_select "button[aria-label=?]", "Actions for Unilever"
-    assert_select "[data-flat-pack--icon-name-value=?]", "ellipsis-vertical", count: 2
+    assert_select "h1", text: "Companies and organisations"
+    refute_includes page_text, "Northwind"
+    assert_select "a[href=?]", routes.new_recording_company_path(northwind), text: "+ Company"
+    assert_select "table", count: 0
     assert_select "a[href=?]", routes.company_path(nike), text: "Nike, Inc."
-    assert_select "a[href=?][role=menuitem]", routes.company_path(nike), text: "View"
-    assert_select "a[href=?][role=menuitem]", routes.edit_company_path(unilever), text: "Edit"
+    assert_select "a[href=?]", routes.company_path(unilever), text: "Unilever"
     refute_includes page_text, "Unilever PLC"
     refute_includes page_text, "www.unilever.com"
     assert_includes page_text, "In trash"
@@ -120,7 +116,7 @@ class CompaniesControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_includes page_text, "No companies yet"
-    assert_select "a[href=?]", routes.new_recording_company_path(northwind), text: "Add company"
+    assert_select "a[href=?]", routes.new_recording_company_path(northwind), text: "+ Company"
   end
 
   test "the form has an input for every field, with the model's length limits" do
@@ -273,7 +269,7 @@ class CompaniesControllerTest < ActionDispatch::IntegrationTest
     get routes.recording_companies_path(newsroom)
 
     assert_response :success
-    assert_select "a", text: "View company"
+    assert_select "a[href=?]", routes.company_path(nike), text: "Nike, Inc."
     assert_select "a", text: "Edit company", count: 0
 
     get routes.company_path(nike)
@@ -302,7 +298,7 @@ class CompaniesControllerTest < ActionDispatch::IntegrationTest
 
     get routes.recording_companies_path(northwind)
 
-    assert_select "a", text: "Add company", count: 0
+    assert_select "a", text: "+ Company", count: 0
 
     get routes.new_recording_company_path(northwind)
 

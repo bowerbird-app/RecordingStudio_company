@@ -23,6 +23,6 @@ The first release of RecordingStudioCompany. The repository started from the Rec
 
 ### Changed
 
-- A many-company list shows each company by name. View and Edit are in a row menu. Legal name and website stay on the company page.
+- The company index is titled "Companies and organisations". + Company sits under the title when another company can be added. Companies are names in a card, and each name opens that company.
 
 [0.1.0]: https://github.com/bowerbird-app/RecordingStudio_company/releases/tag/v0.1.0

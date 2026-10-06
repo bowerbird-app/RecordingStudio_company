@@ -1,18 +1,18 @@
 <% many = @allowance == :many %>
-<% heading = many ? "Companies" : "Company" %>
+<% heading = "Companies and organisations" %>
 <% home_path = company_home_path %>
 <% recording_studio_page_nav(
-  title: "#{heading} · #{@parent.name}",
+  title: heading,
   page_nav_back_url: home_path,
   page_nav_back_label: (home_path && "Home")
 ) %>
 
 <div class="flex w-full flex-col gap-6">
-  <%= render FlatPack::PageTitle::Component.new(title: heading, subtitle: company_parent_subtitle(@parent)) do |page_title| %>
-    <% if many && company_can?(:create, @parent) %>
+  <%= render FlatPack::PageTitle::Component.new(title: heading) do |page_title| %>
+    <% if company_can?(:create, @parent) %>
       <% page_title.slot do %>
         <%= render FlatPack::Button::Component.new(
-          text: "Add company",
+          text: "+ Company",
           style: :primary,
           href: new_recording_company_path(@parent)
         ) %>
@@ -47,17 +47,7 @@
       <% end %>
     <% end %>
   <% elsif @company && @company.trashed_at.nil? %>
-    <%= recording_studio_company_card(@company) %>
-    <div class="flex flex-wrap gap-3">
-      <%= render FlatPack::Button::Component.new(text: "View company", style: :primary, href: company_path(@company)) %>
-      <% if company_can?(:update, @company) %>
-        <%= render FlatPack::Button::Component.new(
-          text: "Edit company",
-          style: :secondary,
-          href: edit_company_path(@company)
-        ) %>
-      <% end %>
-    </div>
+    <%= render "list", parent: @parent, companies: [@company], trashed_companies: [] %>
   <% else %>
     <%= render "vacancy", parent: @parent, company: @company %>
   <% end %>

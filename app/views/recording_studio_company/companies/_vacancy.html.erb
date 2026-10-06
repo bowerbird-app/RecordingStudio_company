@@ -18,15 +18,5 @@
   <%= render FlatPack::EmptyState::Component.new(
     title: "No company yet",
     description: "This #{parent.type_label.downcase} holds one company."
-  ) do |empty_state| %>
-    <% if company_can?(:create, parent) %>
-      <% empty_state.slot do %>
-        <%= render FlatPack::Button::Component.new(
-          text: "Add company",
-          style: :primary,
-          href: new_recording_company_path(parent)
-        ) %>
-      <% end %>
-    <% end %>
-  <% end %>
+  ) %>
 <% end %>

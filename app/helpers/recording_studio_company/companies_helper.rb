@@ -24,23 +24,6 @@ module RecordingStudioCompany
       record.errors.full_messages_for(field).to_sentence.presence
     end
 
-    def company_list_name(company)
-      tag.div(class: "flex items-center gap-3") do
-        safe_join([
-                    recording_studio_company_logo(company, size: :sm),
-                    link_to(company.recordable.name, company_path(company), class: "font-medium")
-                  ])
-      end
-    end
-
-    def company_list_actions(company)
-      tag.div(class: "flex justify-end") do
-        render FlatPack::Button::Dropdown::Component.new(**company_actions_menu(company)) do |dropdown|
-          company_action_items(dropdown, company)
-        end
-      end
-    end
-
     def company_logo_form_data
       options = company_logo_upload_options
       values = {
@@ -60,25 +43,6 @@ module RecordingStudioCompany
     end
 
     private
-
-    def company_actions_menu(company)
-      {
-        text: "",
-        icon: "dots",
-        style: :ghost,
-        size: :sm,
-        show_chevron: false,
-        placement: :bottom_right,
-        trigger_attributes: { aria: { label: "Actions for #{company.recordable.name}" } }
-      }
-    end
-
-    def company_action_items(dropdown, company)
-      dropdown.menu_item(text: "View", icon: "eye", href: company_path(company))
-      return unless company_can?(:update, company)
-
-      dropdown.menu_item(text: "Edit", icon: "pencil", href: edit_company_path(company))
-    end
 
     def company_logo_upload_options
       configured = RecordingStudio.capability_options(:attachable, for: Company.name).to_h
