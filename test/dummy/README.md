@@ -35,6 +35,8 @@ Run the commands from the dummy app directory, not the repository root. Then sig
 
 The admin user owns the press centre and the agency through Accessible. Running `bin/rails db:seed` again adds no users, recordings, or companies, because each company is created with a fixed idempotency key.
 
+Those rows belong to the development database. The test database sets `seeds: false`, and `rake test:all` prepares that database with `RAILS_ENV=test`. Examples that read every recording, including the home page before the demo exists and the recordings tree, start from an empty database.
+
 ## Useful routes
 
 - `/` shows the three company parents and links to their company pages

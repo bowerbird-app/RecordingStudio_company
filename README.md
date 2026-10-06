@@ -287,7 +287,7 @@ bundle exec rake test:all   # gem tests, dummy app tests, and the database-backe
 bundle exec rubocop
 ```
 
-`rake test:all` needs PostgreSQL. It runs each database-backed file in `test/companies` and `test/controllers` under the dummy app's bundle.
+`rake test:all` needs PostgreSQL. It prepares the test database with `RAILS_ENV=test` and does not load `db/seeds.rb` (the test config sets `seeds: false`). It runs each database-backed file in `test/companies` and `test/controllers` under the dummy app's bundle. Demo companies are created inside the examples that need them.
 
 ## Documentation
 

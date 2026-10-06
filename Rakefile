@@ -68,8 +68,10 @@ namespace :test do
   desc "Run dummy app integration tests under the dummy app bundle"
   task :dummy do
     Dir.chdir(DUMMY_APP_ROOT) do
-      env = dummy_bundle_env
+      env = dummy_bundle_env.merge("RAILS_ENV" => "test")
 
+      # Prepare the test database only. The test config sets seeds: false so demo
+      # rows from db/seeds.rb stay out of examples that read the whole tree.
       run_command!(env, "bundle", "exec", "bin/rails", "db:prepare")
       run_command!(env, "bundle", "exec", "bin/rails", "test")
       DUMMY_TEST_FILES.each do |test_file|
