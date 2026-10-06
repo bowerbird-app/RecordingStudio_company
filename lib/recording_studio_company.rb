@@ -1,12 +1,11 @@
 # frozen_string_literal: true
 
 require "recording_studio"
-require "gem_template/version"
-require "gem_template/engine"
-require "gem_template/configuration"
-require "gem_template/capabilities/example"
+require "recording_studio_company/version"
+require "recording_studio_company/engine"
+require "recording_studio_company/configuration"
 
-module GemTemplate
+module RecordingStudioCompany
   class << self
     def configuration
       @configuration ||= Configuration.new

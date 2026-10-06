@@ -2,32 +2,26 @@
 
 require "rails/generators"
 
-module GemTemplate
+module RecordingStudioCompany
   module Generators
     class InstallGenerator < Rails::Generators::Base
       source_root File.expand_path("templates", __dir__)
 
-      desc "Installs GemTemplate engine into your application"
+      desc "Installs RecordingStudioCompany engine into your application"
 
       class_option(
         :mount_path,
         type: :string,
-        default: "/gem_template",
+        default: "/recording_studio_company",
         desc: "Route prefix used when mounting the engine"
       )
 
       def mount_engine
-        route %(mount GemTemplate::Engine, at: "#{options[:mount_path]}")
+        route %(mount RecordingStudioCompany::Engine, at: "#{options[:mount_path]}")
       end
 
       def copy_initializer
-        template "gem_template_initializer.rb", "config/initializers/gem_template.rb"
-      end
-
-      def add_yaml_config
-        return unless yes?("Would you like to add `config/gem_template.yml` for environment-specific settings? [y/N]")
-
-        template "gem_template.yml", "config/gem_template.yml"
+        template "recording_studio_company_initializer.rb", "config/initializers/recording_studio_company.rb"
       end
 
       def add_tailwind_source
@@ -38,7 +32,7 @@ module GemTemplate
         missing_lines = missing_tailwind_source_lines(tailwind_content)
 
         if missing_lines.empty?
-          say "Tailwind already configured to include GemTemplate and FlatPack sources.", :green
+          say "Tailwind already configured to include RecordingStudioCompany and FlatPack sources.", :green
           return
         end
 
@@ -72,13 +66,13 @@ module GemTemplate
         inject_into_file tailwind_css_path, after: "@import \"tailwindcss\";\n" do
           "#{formatted_tailwind_source_block(missing_lines)}\n"
         end
-        say "Added GemTemplate and FlatPack sources to Tailwind CSS configuration.", :green
+        say "Added RecordingStudioCompany and FlatPack sources to Tailwind CSS configuration.", :green
         say "Run 'bin/rails tailwindcss:build' to rebuild your CSS.", :green
       end
 
       def formatted_tailwind_source_block(missing_lines)
         [
-          "\n/* Include GemTemplate engine views for Tailwind CSS */",
+          "\n/* Include RecordingStudioCompany engine views for Tailwind CSS */",
           missing_lines.first(2),
           "\n/* Include FlatPack component sources for Tailwind CSS */",
           missing_lines.drop(2)
@@ -94,11 +88,12 @@ module GemTemplate
       end
 
       def tailwind_source_lines
+        bundler_gems = "../../../../../../usr/local/bundle/ruby/**/bundler/gems"
         [
-          '@source "../../vendor/bundle/**/gem_template/app/views/**/*.erb";',
-          '@source "../../../../../../usr/local/bundle/ruby/**/bundler/gems/gem_template-*/app/views/**/*.erb";',
+          '@source "../../vendor/bundle/**/recording_studio_company/app/views/**/*.erb";',
+          %(@source "#{bundler_gems}/recording_studio_company-*/app/views/**/*.erb";),
           '@source "../../vendor/bundle/**/flatpack/app/components/**/*.{rb,erb}";',
-          '@source "../../../../../../usr/local/bundle/ruby/**/bundler/gems/flatpack-*/app/components/**/*.{rb,erb}";'
+          %(@source "#{bundler_gems}/flatpack-*/app/components/**/*.{rb,erb}";)
         ]
       end
     end
