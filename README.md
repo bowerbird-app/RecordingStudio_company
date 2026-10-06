@@ -248,6 +248,8 @@ The engine serves these pages under its mount path. Link to a parent's page with
 
 The index is titled "Companies and organisations" and has no parent subtitle. + Company sits under the title when another company can be added. Live companies are names in a list inside a card, and each name opens that company. On a wide screen the list sits in the first column of a two-column grid. Legal name and website stay on the company page. On a one-company parent, a trashed company offers Restore and no + Company. When that parent holds more than one company, the page says so and offers no + Company. A trash section with Restore follows a many-company list.
 
+The edit page shows the logo beside Upload logo, or Change logo and Remove logo when a logo is already set, then the company fields. The logo has no card and no heading of its own.
+
 An unknown parent, a parent whose type holds no companies, and a parent or company the actor cannot view all return 404. A denied write returns 403.
 
 ## Capabilities

@@ -1,40 +1,33 @@
 <%# locals: (company:) %>
 <% logo = RecordingStudioCompany.logo(company) %>
-<%= render FlatPack::Card::Component.new(style: :default) do |card| %>
-  <% card.header do %>
-    <%= render FlatPack::SectionTitle::Component.new(title: "Logo", subtitle: "One image for the company.") %>
-  <% end %>
-  <% card.body do %>
-    <div class="flex flex-wrap items-center gap-4">
-      <%= recording_studio_company_logo(company, size: :xl) %>
+<div class="flex flex-wrap items-center gap-4">
+  <%= recording_studio_company_logo(company, size: :xl) %>
 
-      <%= form_with url: logo_company_path(company),
-                    method: :patch,
-                    class: "inline-flex flex-col gap-2",
-                    data: company_logo_form_data do %>
-        <%= hidden_field_tag "logo[signed_blob_id]", "",
-                             id: nil,
-                             data: { recording_studio_attachable__attachment_revision_upload_target: "signedBlobInput" } %>
-        <input type="file"
-               class="hidden"
-               accept="<%= company_logo_accept %>"
-               data-recording-studio-attachable--attachment-revision-upload-target="fileInput"
-               data-action="change->recording-studio-attachable--attachment-revision-upload#fileSelected">
-        <%= render FlatPack::Button::Component.new(
-          text: logo ? "Change logo" : "Upload logo",
-          style: :secondary,
-          type: "button",
-          data: { action: "recording-studio-attachable--attachment-revision-upload#browse" }
-        ) %>
-        <p class="hidden text-sm text-(--surface-muted-content-color)"
-           data-recording-studio-attachable--attachment-revision-upload-target="status"></p>
-      <% end %>
-
-      <% if logo %>
-        <%= form_with url: logo_company_path(company), method: :delete, class: "inline-flex" do %>
-          <%= render FlatPack::Button::Component.new(text: "Remove logo", style: :ghost, type: "submit") %>
-        <% end %>
-      <% end %>
-    </div>
+  <%= form_with url: logo_company_path(company),
+                method: :patch,
+                class: "inline-flex flex-col gap-2",
+                data: company_logo_form_data do %>
+    <%= hidden_field_tag "logo[signed_blob_id]", "",
+                         id: nil,
+                         data: { recording_studio_attachable__attachment_revision_upload_target: "signedBlobInput" } %>
+    <input type="file"
+           class="hidden"
+           accept="<%= company_logo_accept %>"
+           data-recording-studio-attachable--attachment-revision-upload-target="fileInput"
+           data-action="change->recording-studio-attachable--attachment-revision-upload#fileSelected">
+    <%= render FlatPack::Button::Component.new(
+      text: logo ? "Change logo" : "Upload logo",
+      style: :secondary,
+      type: "button",
+      data: { action: "recording-studio-attachable--attachment-revision-upload#browse" }
+    ) %>
+    <p class="hidden text-sm text-(--surface-muted-content-color)"
+       data-recording-studio-attachable--attachment-revision-upload-target="status"></p>
   <% end %>
-<% end %>
+
+  <% if logo %>
+    <%= form_with url: logo_company_path(company), method: :delete, class: "inline-flex" do %>
+      <%= render FlatPack::Button::Component.new(text: "Remove logo", style: :ghost, type: "submit") %>
+    <% end %>
+  <% end %>
+</div>

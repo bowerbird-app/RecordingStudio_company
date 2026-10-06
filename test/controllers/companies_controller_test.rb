@@ -200,6 +200,8 @@ class CompaniesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "input[name='company[name]'][value=?]", "Nike"
     assert_select "button", text: "Upload logo"
+    assert_select "h2", text: "Logo", count: 0
+    assert_select "p", text: "One image for the company.", count: 0
     assert_select "input[name=idempotency_key]", count: 0
 
     patch routes.company_path(nike), params: { company: { name: "Nike, Inc.", founded_on: "1964-01-25" } }
@@ -356,6 +358,8 @@ class CompaniesControllerTest < ActionDispatch::IntegrationTest
 
     assert_select "img[alt=?]", "Nike, Inc. logo"
     assert_select "button", text: "Change logo"
+    assert_select "h2", text: "Logo", count: 0
+    assert_select "p", text: "One image for the company.", count: 0
     assert_select "form[action=?] input[name=_method][value=delete]", routes.logo_company_path(nike)
 
     patch routes.logo_company_path(nike), params: { logo: { signed_blob_id: png_blob("logo-2.png").signed_id } }
