@@ -9,7 +9,6 @@
           <%= render FlatPack::List::Item.new(
             href: company_path(company),
             hover: true,
-            class: "items-center",
             link_arguments: { class: "items-center" }
           ) do %>
             <%= company.recordable.name %>
