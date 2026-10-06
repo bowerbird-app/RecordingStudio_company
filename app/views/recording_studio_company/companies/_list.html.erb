@@ -1,4 +1,6 @@
 <%# locals: (parent:, companies:, trashed_companies:) %>
+<%= render FlatPack::Grid::Component.new(cols: 2, align: :start) do %>
+<div>
 <% if companies.any? %>
   <%= render FlatPack::Card::Component.new(style: :default) do |card| %>
     <% card.body(padding: :none) do %>
@@ -40,4 +42,6 @@
       <% end %>
     <% end %>
   <% end %>
+<% end %>
+</div>
 <% end %>

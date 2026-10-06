@@ -32,6 +32,7 @@ class CompaniesControllerTest < ActionDispatch::IntegrationTest
     assert_select "h1", text: "Companies and organisations"
     assert_select "[data-recording-studio-company-card]", count: 0
     assert_select "a[href=?]", routes.company_path(nike), text: "Nike, Inc."
+    assert_select "[class*=?]", "md:grid-cols-2"
     refute_includes page_text, "Nike Newsroom"
     assert_select "a", text: "+ Company", count: 0
   end
@@ -102,6 +103,7 @@ class CompaniesControllerTest < ActionDispatch::IntegrationTest
     assert_select "table", count: 0
     assert_select "a[href=?]", routes.company_path(nike), text: "Nike, Inc."
     assert_select "a[href=?]", routes.company_path(unilever), text: "Unilever"
+    assert_select "[class*=?]", "md:grid-cols-2"
     refute_includes page_text, "Unilever PLC"
     refute_includes page_text, "www.unilever.com"
     assert_includes page_text, "In trash"

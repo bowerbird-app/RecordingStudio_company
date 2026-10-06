@@ -246,7 +246,7 @@ The engine serves these pages under its mount path. Link to a parent's page with
 | PATCH | `/companies/:id/logo` | Set the logo from `logo[signed_blob_id]` |
 | DELETE | `/companies/:id/logo` | Remove the logo |
 
-The index is titled "Companies and organisations" and has no parent subtitle. + Company sits under the title when another company can be added. Live companies are names in a list inside a card, and each name opens that company. Legal name and website stay on the company page. On a one-company parent, a trashed company offers Restore and no + Company. When that parent holds more than one company, the page says so and offers no + Company. A trash section with Restore follows a many-company list.
+The index is titled "Companies and organisations" and has no parent subtitle. + Company sits under the title when another company can be added. Live companies are names in a list inside a card, and each name opens that company. On a wide screen the list sits in the first column of a two-column grid. Legal name and website stay on the company page. On a one-company parent, a trashed company offers Restore and no + Company. When that parent holds more than one company, the page says so and offers no + Company. A trash section with Restore follows a many-company list.
 
 An unknown parent, a parent whose type holds no companies, and a parent or company the actor cannot view all return 404. A denied write returns 403.
 
