@@ -1,0 +1,33 @@
+<%# locals: (parent:, company:) %>
+<%# The one-company place is free (company is nil) or held by a trashed company, which only a restore frees up. %>
+<% if company %>
+  <% name = company.recordable.name %>
+  <%= render FlatPack::Alert::Component.new(
+    style: :warning,
+    title: "#{name} is in the trash",
+    description: "This #{parent.type_label.downcase} holds one company. Restore #{name} to use it again."
+  ) %>
+  <div class="flex flex-wrap gap-3">
+    <% if company_can?(:restore, company) %>
+      <%= form_with url: restore_company_path(company), method: :post, class: "inline-flex" do %>
+        <%= render FlatPack::Button::Component.new(text: "Restore company", style: :primary, type: "submit") %>
+      <% end %>
+    <% end %>
+    <%= render FlatPack::Button::Component.new(text: "View company", style: :secondary, href: company_path(company)) %>
+  </div>
+<% else %>
+  <%= render FlatPack::EmptyState::Component.new(
+    title: "No company yet",
+    description: "This #{parent.type_label.downcase} holds one company."
+  ) do |empty_state| %>
+    <% if company_can?(:create, parent) %>
+      <% empty_state.slot do %>
+        <%= render FlatPack::Button::Component.new(
+          text: "Add company",
+          style: :primary,
+          href: new_recording_company_path(parent)
+        ) %>
+      <% end %>
+    <% end %>
+  <% end %>
+<% end %>

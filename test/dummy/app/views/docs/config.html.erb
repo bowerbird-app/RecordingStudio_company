@@ -3,14 +3,54 @@
 <div class="flex w-full flex-col gap-6">
   <%= render FlatPack::PageTitle::Component.new(
     title: "Config",
-    subtitle: "Replace this placeholder with the configuration settings your generated gem exposes.",
+    subtitle: "Companies are configured on each parent type. The engine initializer only holds boot hooks.",
     variant: :h1
+  ) %>
+
+  <%= render FlatPack::SectionTitle::Component.new(
+    title: "One company or many",
+    subtitle: "allow: is required. A trashed company still holds a one-company place until it is purged."
   ) %>
 
   <%= render FlatPack::CodeBlock::Component.new(
     language: :ruby,
     code: <<~'CODE'
-      # Add the config settings for the gem here.
+      # Each press centre holds at most one company.
+      include RecordingStudio::Capabilities::Companies.to(allow: :one)
+
+      # Each agency holds any number of companies.
+      include RecordingStudio::Capabilities::Companies.to(allow: :many)
+
+      RecordingStudioCompany.allowance(press_centre_recording) # => :one
+      RecordingStudioCompany.allowance(workspace_recording)    # => nil, companies are not enabled
+    CODE
+  ) %>
+
+  <%= render FlatPack::SectionTitle::Component.new(
+    title: "Logo options",
+    subtitle: "The company type enables Attachable for one image of up to 10 MB."
+  ) %>
+
+  <%= render FlatPack::CodeBlock::Component.new(
+    language: :ruby,
+    code: <<~'CODE'
+      RecordingStudio.capability_options(:attachable, for: "RecordingStudioCompany::Company")
+      # => { allowed_content_types: ["image/*"], enabled_attachment_kinds: [:image],
+      #      max_file_size: 10485760, max_file_count: 1, auth_roles: { upload: :edit, ... } }
+    CODE
+  ) %>
+
+  <%= render FlatPack::SectionTitle::Component.new(
+    title: "Engine hooks",
+    subtitle: "config/initializers/recording_studio_company.rb"
+  ) %>
+
+  <%= render FlatPack::CodeBlock::Component.new(
+    language: :ruby,
+    code: <<~'CODE'
+      RecordingStudioCompany.configure do |config|
+        config.hooks.after_initialize { |engine| Rails.logger.info("Companies ready") }
+      end
     CODE
   ) %>
 </div>

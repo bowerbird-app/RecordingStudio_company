@@ -184,17 +184,4 @@ class CompanyReadsTest < ActiveSupport::TestCase
 
     assert_equal "Unknown action :delete; expected one of view, create, update, trash, restore", error.message
   end
-
-  private
-
-  # Skips the slot validation, as rows written before a parent type switched to allow: :one would.
-  def record_unchecked_company(parent, name)
-    recording = RecordingStudio::Recording.new(
-      root_recording: parent.root_recording,
-      parent_recording: parent,
-      recordable: RecordingStudioCompany::Company.create!(name:)
-    )
-    recording.save!(validate: false)
-    recording
-  end
 end

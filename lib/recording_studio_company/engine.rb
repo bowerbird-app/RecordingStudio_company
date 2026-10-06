@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 module RecordingStudioCompany
+  # rubocop:disable-next Metrics/ClassLength
   class Engine < ::Rails::Engine
     isolate_namespace RecordingStudioCompany
 
@@ -140,6 +141,11 @@ module RecordingStudioCompany
 
         Slots.verify!
       end
+    end
+
+    # The helper lives in lib/ so including it at boot never autoloads a reloadable constant.
+    initializer "recording_studio_company.display_helper" do
+      ActiveSupport.on_load(:action_view) { include RecordingStudioCompany::DisplayHelper }
     end
   end
 end

@@ -61,6 +61,17 @@ module CompanyTestSupport
     RecordingStudioCompany.create(parent, actor: owner, name:, **fields)
   end
 
+  # Skips the slot validation, as rows written before a parent type switched to allow: :one would.
+  def record_unchecked_company(parent, name)
+    recording = RecordingStudio::Recording.new(
+      root_recording: parent.root_recording,
+      parent_recording: parent,
+      recordable: RecordingStudioCompany::Company.create!(name:)
+    )
+    recording.save!(validate: false)
+    recording
+  end
+
   def names(company_recordings)
     company_recordings.map { |company| company.recordable.name }
   end

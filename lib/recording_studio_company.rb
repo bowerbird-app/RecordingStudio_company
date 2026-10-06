@@ -9,6 +9,7 @@ require "recording_studio_trashable"
 require "flat_pack"
 require "recording_studio_company/version"
 require "recording_studio_company/configuration"
+require "recording_studio_company/display_helper"
 require "recording_studio_company/engine"
 
 # Companies (corporate or legal organizations) under Recording Studio recordings.

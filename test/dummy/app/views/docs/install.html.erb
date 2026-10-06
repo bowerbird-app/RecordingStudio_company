@@ -3,19 +3,87 @@
 <div class="flex w-full flex-col gap-6">
   <%= render FlatPack::PageTitle::Component.new(
     title: "Install",
-    subtitle: "Host-app setup for the mounted RecordingStudioCompany engine and its sample migrations.",
+    subtitle: "Host app setup for RecordingStudioCompany and the capability gems it builds on.",
     variant: :h1
   ) %>
 
   <%= render FlatPack::SectionTitle::Component.new(
-    title: "Step 1",
-    subtitle: "Provide one section title for each step",
+    title: "1. Add the gem",
+    subtitle: "Recording Studio, Accessible, Attachable, Trashable, and FlatPack come with it."
+  ) %>
+
+  <%= render FlatPack::CodeBlock::Component.new(
+    language: :ruby,
+    code: <<~'CODE'
+      # Gemfile
+      gem "recording_studio_company"
+    CODE
+  ) %>
+
+  <%= render FlatPack::SectionTitle::Component.new(
+    title: "2. Run the install generators",
+    subtitle: "Attachable serves logo previews and provides the logo upload controller."
   ) %>
 
   <%= render FlatPack::CodeBlock::Component.new(
     language: :bash,
     code: <<~CODE
-      # Put the step instruction here.
+      bin/rails generate recording_studio_company:install     # mounts the engine at /recording_studio_company
+      bin/rails generate recording_studio_attachable:install  # mounts Attachable and pins its Stimulus controllers
+    CODE
+  ) %>
+
+  <%= render FlatPack::SectionTitle::Component.new(
+    title: "3. Install the migrations",
+    subtitle: "The company table, plus Active Storage, Trashable, Attachable, and Accessible."
+  ) %>
+
+  <%= render FlatPack::CodeBlock::Component.new(
+    language: :bash,
+    code: <<~CODE
+      bin/rails active_storage:install
+      bin/rails generate recording_studio_trashable:migrations
+      bin/rails generate recording_studio_attachable:migrations
+      bin/rails generate recording_studio_accessible:migrations
+      bin/rails generate recording_studio_company:migrations
+      bin/rails db:migrate
+    CODE
+  ) %>
+
+  <%= render FlatPack::SectionTitle::Component.new(
+    title: "4. Register the types",
+    subtitle: "List the company and attachment types next to your own recordables."
+  ) %>
+
+  <%= render FlatPack::CodeBlock::Component.new(
+    language: :ruby,
+    code: <<~'CODE'
+      # config/initializers/recording_studio.rb
+      config.recordable_types = [
+        "PressCentre", "Agency", "Project",
+        "RecordingStudioCompany::Company",
+        "RecordingStudioAttachable::Attachment"
+      ]
+    CODE
+  ) %>
+
+  <%= render FlatPack::SectionTitle::Component.new(
+    title: "5. Turn on companies for each parent type",
+    subtitle: "Each parent type allows one company or many."
+  ) %>
+
+  <%= render FlatPack::CodeBlock::Component.new(
+    language: :ruby,
+    code: <<~'CODE'
+      class PressCentre < ApplicationRecord
+        recording_studio_recordable label: "Press centre", root: true
+        include RecordingStudio::Capabilities::Companies.to(allow: :one)
+      end
+
+      class Agency < ApplicationRecord
+        recording_studio_recordable label: "Agency", root: true
+        include RecordingStudio::Capabilities::Companies.to(allow: :many)
+      end
     CODE
   ) %>
 </div>

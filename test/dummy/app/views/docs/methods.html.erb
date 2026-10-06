@@ -3,30 +3,103 @@
 <div class="flex w-full flex-col gap-6">
   <%= render FlatPack::PageTitle::Component.new(
     title: "Methods",
-    subtitle: "Document the public methods your addon exposes.",
+    subtitle: "Every public method takes and returns company recordings. Store the recording id, never the recordable id.",
     variant: :h1
   ) %>
 
   <%= render FlatPack::SectionTitle::Component.new(
-    title: "Example method",
-    subtitle: "recordingstudio_addon.example_method",
+    title: "Read companies",
+    subtitle: "RecordingStudioCompany.allowance, .companies, .company, and .find"
   ) %>
 
   <%= render FlatPack::CodeBlock::Component.new(
     language: :ruby,
     code: <<~'CODE'
-      # Explain what this method does before the example.
-      result = RecordingstudioAddon.example_method(
-        # Replace with the real arguments this method accepts.
-        input: "demo value"
-      )
+      RecordingStudioCompany.allowance(agency_recording)  # => :many
+      RecordingStudioCompany.companies(agency_recording)  # => live companies by name, then created_at
+      RecordingStudioCompany.companies(agency_recording, include_trashed: true)
 
-      # Show what the method returns or what side effect it creates.
-      puts result
+      # One-company parents only. nil when there is none; a trashed company only with include_trashed.
+      RecordingStudioCompany.company(press_centre_recording)
+
+      # A stored company recording id. Raises RecordingStudioCompany::NotFound.
+      RecordingStudioCompany.find(press_release.company_recording_id)
     CODE
   ) %>
 
-  <p class="text-sm text-(--body-muted-content-color)">
-    Provide one section title and codeblock for each method
-  </p>
+  <%= render FlatPack::SectionTitle::Component.new(
+    title: "Create and edit",
+    subtitle: "RecordingStudioCompany.create and .update"
+  ) %>
+
+  <%= render FlatPack::CodeBlock::Component.new(
+    language: :ruby,
+    code: <<~'CODE'
+      nike = RecordingStudioCompany.create(
+        press_centre_recording,
+        actor: Current.actor,
+        idempotency_key: "seed:nike-inc", # the same key under the same parent returns the same company
+        name: "Nike, Inc.",
+        website_url: "https://about.nike.com",
+        founded_on: "1964-01-25"
+      )
+
+      # A second company under a one-company parent raises CompanyAlreadyExists.
+      RecordingStudioCompany.update(nike, actor: Current.actor, description: "Athletic footwear and apparel.")
+    CODE
+  ) %>
+
+  <%= render FlatPack::SectionTitle::Component.new(
+    title: "Logo",
+    subtitle: "RecordingStudioCompany.set_logo, .remove_logo, and .logo"
+  ) %>
+
+  <%= render FlatPack::CodeBlock::Component.new(
+    language: :ruby,
+    code: <<~'CODE'
+      RecordingStudioCompany.set_logo(nike, signed_blob_id: blob.signed_id, actor: Current.actor)
+      RecordingStudioCompany.logo(nike)        # => the live logo attachment recording, or nil
+      RecordingStudioCompany.remove_logo(nike, actor: Current.actor)
+    CODE
+  ) %>
+
+  <%= render FlatPack::SectionTitle::Component.new(
+    title: "Trash and restore",
+    subtitle: "Trashable's own methods"
+  ) %>
+
+  <%= render FlatPack::CodeBlock::Component.new(
+    language: :ruby,
+    code: <<~'CODE'
+      nike.recording_studio_trashable_trash!(actor: Current.actor)
+      nike.recording_studio_trashable_restore!(actor: Current.actor)
+    CODE
+  ) %>
+
+  <%= render FlatPack::SectionTitle::Component.new(
+    title: "Permissions",
+    subtitle: "RecordingStudioCompany.can?"
+  ) %>
+
+  <%= render FlatPack::CodeBlock::Component.new(
+    language: :ruby,
+    code: <<~'CODE'
+      # :view, :create, :update, :trash, or :restore
+      RecordingStudioCompany.can?(:create, agency_recording, actor: Current.actor)
+    CODE
+  ) %>
+
+  <%= render FlatPack::SectionTitle::Component.new(
+    title: "Display helpers",
+    subtitle: "recording_studio_company_logo and recording_studio_company_card"
+  ) %>
+
+  <%= render FlatPack::CodeBlock::Component.new(
+    language: :ruby,
+    code: <<~'CODE'
+      # In any view. The logo is a FlatPack avatar that falls back to the company's initials.
+      recording_studio_company_logo(company, size: :sm)
+      recording_studio_company_card(company)
+    CODE
+  ) %>
 </div>

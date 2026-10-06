@@ -1,0 +1,38 @@
+<%# locals: (parent:, companies:, trashed_companies:) %>
+<% if companies.any? %>
+  <%= render FlatPack::Table::Component.new(data: companies) do |table| %>
+    <% table.column(title: "Company") { |company| company_list_name(company) } %>
+    <% table.column(title: "Legal name") { |company| company.recordable.legal_name } %>
+    <% table.column(title: "Website") { |company| company_website_host(company.recordable) } %>
+    <% table.column(title: "Actions") { |company| company_list_actions(company) } %>
+  <% end %>
+<% else %>
+  <%= render FlatPack::EmptyState::Component.new(
+    title: "No companies yet",
+    description: "Companies added to #{parent.name} are listed here."
+  ) %>
+<% end %>
+
+<% if trashed_companies.any? %>
+  <%= render FlatPack::SectionTitle::Component.new(title: "In trash", subtitle: "Restore a company to list it again.") %>
+  <%= render FlatPack::List::Component.new(divider: true) do %>
+    <% trashed_companies.each do |company| %>
+      <%= render FlatPack::List::Item.new do %>
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <%= link_to company.recordable.name, company_path(company), class: "font-medium" %>
+          <% if company_can?(:restore, company) %>
+            <%= form_with url: restore_company_path(company), method: :post, class: "inline-flex" do %>
+              <%= render FlatPack::Button::Component.new(
+                text: "Restore",
+                style: :secondary,
+                size: :sm,
+                type: "submit",
+                aria: { label: "Restore #{company.recordable.name}" }
+              ) %>
+            <% end %>
+          <% end %>
+        </div>
+      <% end %>
+    <% end %>
+  <% end %>
+<% end %>

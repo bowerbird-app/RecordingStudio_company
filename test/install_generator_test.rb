@@ -37,6 +37,17 @@ class InstallGeneratorTest < Minitest::Test
     assert_equal ["mount RecordingStudioCompany::Engine, at: \"/addons/recording\""], routes
   end
 
+  def test_mount_engine_defaults_to_recording_studio_company
+    generator = build_generator("/tmp")
+    routes = []
+
+    generator.stub(:route, ->(value) { routes << value }) do
+      generator.mount_engine
+    end
+
+    assert_equal ["mount RecordingStudioCompany::Engine, at: \"/recording_studio_company\""], routes
+  end
+
   def test_add_tailwind_source_injects_engine_and_flatpack_sources
     with_temp_app do |dir|
       css_path = File.join(dir, "app/assets/tailwind/application.css")
@@ -143,6 +154,20 @@ class InstallGeneratorTest < Minitest::Test
     assert_includes install_guide, "auth, layout, and current actor integration"
     assert_includes install_guide, "recording_studio_recordable"
     refute_includes install_guide, "RecordingStudio v3"
+  end
+
+  def test_install_guide_lists_company_types_sibling_migrations_and_attachable
+    install_guide = File.read(INSTALL_TEMPLATE_PATH)
+
+    assert_includes install_guide, '"RecordingStudioCompany::Company" and "RecordingStudioAttachable::Attachment"'
+    assert_includes install_guide, "config.recordable_types"
+    assert_includes install_guide, "bin/rails active_storage:install"
+    %w[trashable attachable accessible].each do |gem_name|
+      assert_includes install_guide, "bin/rails generate recording_studio_#{gem_name}:migrations"
+    end
+    assert_includes install_guide, "bin/rails generate recording_studio_attachable:install"
+    assert_includes install_guide, "Companies.to(allow: :one)"
+    assert_includes install_guide, "recording_companies_path"
   end
 
   private

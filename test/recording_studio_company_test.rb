@@ -188,45 +188,71 @@ class RecordingStudioCompanyTest < Minitest::Test
     refute_includes initializer_source, "v3"
   end
 
-  def test_dummy_readme_explains_dummy_app_purpose
-    readme_path = File.expand_path("dummy/README.md", __dir__)
-    readme_source = File.read(readme_path)
+  def test_dummy_readme_describes_the_company_demo
+    readme_source = File.read(File.expand_path("dummy/README.md", __dir__))
 
-    assert_includes readme_source, "This Rails app exists to validate the Recording Studio addon template"
-    assert_includes readme_source, "/recording_studio"
+    assert_includes readme_source, "This Rails app is the host used to develop and test RecordingStudioCompany"
+    assert_includes readme_source, "/recording_studio_company"
     assert_includes readme_source, "redirects to `/`"
+    ["Nike Newsroom", "Northwind", "Harbour fit-out", "Acme Engineering Pty Ltd"].each do |name|
+      assert_includes readme_source, name
+    end
+    refute_includes readme_source, "addon template"
     refute_includes readme_source, "flat_pack_sidebar"
   end
 
-  def test_product_readme_is_the_template_guide
+  def test_readme_documents_companies
     readme = File.read(File.expand_path("../README.md", __dir__))
 
-    assert_includes readme, "RecordingStudio"
-    assert_includes readme, "dummy GitHub tag `v4.2.2`"
-    assert_includes readme, "dummy GitHub tag `v0.1.196`"
-    assert_includes readme, "dummy GitHub tag `v0.10.1`"
-    assert_includes readme, "dummy GitHub tag `v0.5.1`"
-    refute_includes readme, "dummy GitHub tag `v4.2.1`"
-    refute_includes readme, "dummy GitHub tag `v4.2.0`"
-    refute_includes readme, "v0.1.177"
-    refute_includes readme, "v0.9.1"
-    refute_includes readme, "v0.5.0"
-    refute_includes readme, "v0.1.133"
-    refute_includes readme, "v3 declarations"
-    refute_includes readme, "RecordingStudio v3"
+    assert_includes readme, "`RecordingStudioCompany::Company` is a generic, non-root recordable"
+    assert_includes readme, "It is not tied to Workspace or to any root type"
+    assert_includes readme, "include RecordingStudio::Capabilities::Companies.to(allow: :one)"
+    assert_includes readme, "include RecordingStudio::Capabilities::Companies.to(allow: :many)"
+    assert_includes readme, '"RecordingStudioCompany::Company"'
+    assert_includes readme, "Store the recording id, `company.id`"
+    assert_includes readme, "Brands are not in this gem"
+    assert_includes readme, "People are not in this gem"
+    assert_includes readme, "Locations are not in this gem"
+    assert_includes readme, "# Not part of this gem. A future brand gem could list Unilever's brands here."
+    assert_includes readme, "bin/rails generate recording_studio_company:install"
+    assert_includes readme, "bundle exec rake test:all"
+    assert_operator readme.index("## Install"), :<, readme.index("## Use companies")
+    refute_includes readme, "—"
     refute_includes readme, "ExampleService"
-    refute_includes readme, "recording_studio/v3.0.0"
+    refute_includes readme, "Internal template"
   end
 
-  def test_dummy_home_page_uses_demo_title_only
-    view_path = File.expand_path("dummy/app/views/home/index.html.erb", __dir__)
-    view_source = File.read(view_path)
+  def test_readme_headings_use_sentence_case
+    readme = File.read(File.expand_path("../README.md", __dir__))
+    headings = readme.scan(/^##+ (.+)$/).flatten
 
-    assert_includes view_source, 'title: "Template Demo"'
-    assert_includes view_source, 'subtitle: "This dummy app is the browser-facing demo surface for the template."'
+    refute_empty headings
+    headings.each do |heading|
+      later_words = heading.split.drop(1).reject { |word| word.start_with?("`") }
+
+      assert later_words.none? { |word| word.match?(/\A[A-Z][a-z]/) }, "Use sentence case in #{heading.inspect}"
+    end
+  end
+
+  def test_changelog_starts_at_the_first_company_release
+    changelog = File.read(File.expand_path("../CHANGELOG.md", __dir__))
+
+    assert_includes changelog, "## [0.1.0] - 2026-10-06"
+    assert_includes changelog, "The repository started from the Recording Studio gem template."
+    assert_includes changelog, "`RecordingStudioCompany::Company`"
+    refute_match(/## \[0\.2\./, changelog)
+  end
+
+  def test_dummy_home_page_links_to_the_company_pages
+    view_source = File.read(File.expand_path("dummy/app/views/home/index.html.erb", __dir__))
+
+    assert_includes view_source, 'title: "Company demo"'
+    assert_includes view_source, "recording_studio_company.recording_companies_path(parent)"
+    assert_includes view_source, "recording_studio_company_logo"
     assert_includes view_source, "FlatPack::Card::Component"
     assert_includes view_source, "dummy_page_nav"
-    refute_includes view_source, 'title: "Demo"'
+    refute_includes view_source, "Template Demo"
+    refute_includes view_source, "Next steps"
     refute_includes view_source, "FlatPack::Breadcrumb::Component"
   end
 

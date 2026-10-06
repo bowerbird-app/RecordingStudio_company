@@ -1,172 +1,294 @@
 # RecordingStudioCompany
 
-Internal template for building Rails engine addons on top of Recording Studio 4.x.
+Companies for Recording Studio apps. A company is a corporate or legal organization, such as Nike, Inc. or Unilever PLC.
 
-## What's Included
+`RecordingStudioCompany::Company` is a generic, non-root recordable. It is not tied to Workspace or to any root type. A host app turns companies on for the parent types it chooses, and each parent type allows one company or many. A parent can be a root recording, such as a press centre or an agency, or a recording inside one, such as a project in an agency.
 
-- **Recording Studio** 4.x gem pinned and configured
-- **Devise** authentication with a pre-seeded admin user
-- **Workspace**, **Folder**, and **Page** recordables seeded into the dummy host app
-- **FlatPack** UI component library for all views
-- **Dummy app** (`test/dummy/`) with a FlatPack sign-in screen, a home page on Recording Studio's default layout, mounted Recording Studio routes, and FlatPack's built-in rounded theme
+## Company, brand, person, and location
 
-Authenticated dummy pages use Recording Studio's shared default layout (`RecordingStudio::UsesDefaultLayout`) plus FlatPack CSS and JS. Devise keeps its own sign-in layout. Dummy `/docs/*` pages stay in the dummy app as a host-app sandbox; they are not the product README.
+This gem records companies and nothing else.
 
-## Quick Start
+- A company is a corporate or legal organization, such as Nike, Inc. or Unilever PLC.
+- A brand is a name a company sells under, such as Dove. Brands are not in this gem.
+- A person is an individual, such as a press contact. People are not in this gem.
+- A location is an office or an address. Locations are not in this gem, and a company has no address fields.
 
-### Cursor Cloud Agent (Recommended)
+## Example
 
-A Cloud Agent boots this repo into a ready-to-use dev environment with no manual steps. The setup lives in `.cursor/`:
+The dummy app records this tree. Each parent holds its own company recordings, so the Nike, Inc. under Nike Newsroom and the Nike, Inc. under Northwind are separate companies.
 
-- `install.sh` provisions Ruby (pinned by `.ruby-version`), PostgreSQL 16, all gems, the seeded dummy database, and compiled CSS at build time, then fetches Recording Studio skills.
-- `start.sh` starts PostgreSQL on every boot.
-- `environment.json` runs the `rails-server` and `tailwind-watch` terminals and exposes port 3000.
-
-Open port 3000 and sign in at `/users/sign_in`. No environment variables are required — the dummy app's `database.yml` defaults match the provisioned PostgreSQL cluster.
-
-### GitHub Codespaces
-
-1. Click **Code** → **Codespaces** → **Create codespace**
-2. Wait for setup to complete
-3. Run:
-   ```bash
-   cd test/dummy
-   bin/rails db:setup
-   bin/dev
-   ```
-4. Open port 3000 — you'll land on the dummy app home page and can sign in at `/users/sign_in`
-
-The dummy app is intended as a host-app validation surface for authentication, FlatPack rendering, Tailwind source scanning, and Recording Studio route wiring.
-
-Dummy credentials (`test/dummy/config/credentials.yml.enc`) are encrypted with the shared RecordingStudio_* development master key. Set `RAILS_MASTER_KEY` or put that key in `test/dummy/config/master.key` (gitignored). Keep the encrypted file; do not generate a per-repo dummy key.
-
-### Login Credentials
-
-| Field    | Value             |
-|----------|-------------------|
-| Email    | admin@admin.com   |
-| Password | Password          |
-
-The login form is prefilled with these credentials for fast access.
-
-### Useful Routes
-
-- `/` — dummy app home page
-- `/users/sign_in` — Devise sign-in page
-- `/recording_studio` — redirect to `/` while the mounted Recording Studio engine remains data/API-focused
-- `/docs/install`, `/docs/config`, `/docs/recordable_types`, `/docs/recordings_tree`, `/docs/gem_views`, `/docs/methods` — dummy-only starter pages
-
-The home page in `test/dummy/app/views/home/index.html.erb` is a starting point for a minimal demo of the gem's primary behavior. Keep deeper explanations on the dummy docs pages, not in this README.
-
-## Architecture
-
-### Root Recording Pattern
-
-This template follows Recording Studio's root recording pattern:
-
-- **Workspace** is the top-level recordable
-- **Folder** and **Page** demonstrate nested recordables under the workspace root
-- Each configured recordable declares `recording_studio_recordable(...)`; strict declaration validation stays enabled
-- A root `RecordingStudio::Recording` wraps the Workspace
-- `Current.actor` is set from `current_user` (Devise) in `ApplicationController`
-
-### Extending Recording Studio
-
-To add new recordable types:
-
-1. Create your model (e.g., `Page`, `Comment`)
-2. Register it in `config/initializers/recording_studio.rb`:
-   ```ruby
-   RecordingStudio.configure do |config|
-     config.recordable_types = ["Workspace", "YourNewType"]
-   end
-   ```
-3. Declare whether the model can be a root and which parents may contain it:
-   ```ruby
-   class YourNewType < ApplicationRecord
-     recording_studio_recordable label: "Your new type",
-                                 root: false,
-                                 allowed_parent_types: ["Workspace", "Folder"]
-   end
-   ```
-4. Validate declarations and create recordings under the root:
-   ```ruby
-   RecordingStudio.validate_recordable_declarations!
-   root_recording = RecordingStudio.root_recording_for(workspace)
-   root_recording.record(YourNewType) do |record|
-     record.title = "Example"
-   end
-   ```
-
-### Recordable Declarations
-
-Every configured ActiveRecord recordable type must declare its hierarchy rules. Declarations are required; they are not version-specific.
-
-- `Workspace` declares `root: true`
-- `Folder` and `Page` declare `root: false, allowed_parent_types: ["Workspace", "Folder"]`
-- `config.require_recordable_declarations = true` remains enabled in the dummy app initializer
-
-Useful console checks:
-
-```ruby
-RecordingStudio.validate_recordable_declarations!
-RecordingStudio.root_recordable_types
-RecordingStudio.allowed_parent_types_for("Page")
+```text
+Nike Newsroom (press centre, allow: :one)
+  Nike, Inc.
+Northwind (agency, allow: :many)
+  Acme Coffee Pty Ltd
+  Nike, Inc.
+  Unilever
+    # Not part of this gem. A future brand gem could list Unilever's brands here.
+    #   Dove
+    #   Hellmann's
+    #   Lipton
+  Harbour fit-out (project, allow: :one)
+    Acme Engineering Pty Ltd
 ```
 
-### Capabilities
+## Install
 
-Capability mixins are opt-in. Installing this gem does not enable mixins on host types.
-
-The dummy Workspace enables Accessible because that addon is bundled:
+Add the gem. Recording Studio gems are not published to RubyGems, so resolve the gem and its dependencies from GitHub tags.
 
 ```ruby
-RecordingStudio.enable_capability(:accessible, on: Workspace)
+# Gemfile
+gem "recording_studio_company", github: "bowerbird-app/RecordingStudio_company", tag: "v0.1.0"
+
+gem "flat_pack", github: "bowerbird-app/flatpack", tag: "v0.1.196"
+gem "recording_studio", github: "bowerbird-app/RecordingStudio", tag: "v4.2.2"
+gem "recording_studio_accessible", github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.11.1"
+gem "recording_studio_attachable", github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.7.1"
+gem "recording_studio_trashable", github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.4.4"
 ```
 
-The template also ships one example mixin that uses core 4.2.0's `include_for` factory:
+Run the install generators and the migrations.
+
+```sh
+bin/rails generate recording_studio_company:install     # mounts the engine at /recording_studio_company
+bin/rails generate recording_studio_attachable:install  # mounts Attachable, pins its Stimulus controllers, starts Active Storage
+
+bin/rails active_storage:install
+bin/rails generate recording_studio_trashable:migrations
+bin/rails generate recording_studio_attachable:migrations
+bin/rails generate recording_studio_accessible:migrations
+bin/rails generate recording_studio_company:migrations  # creates recording_studio_companies
+bin/rails db:migrate
+```
+
+List the company and attachment types in the Recording Studio initializer. The engine also registers the company type after your initializers run, but listing it keeps the configuration in one place.
 
 ```ruby
-include RecordingStudio::Capabilities::Example.to(label: "dummy workspace")
+# config/initializers/recording_studio.rb
+RecordingStudio.configure do |config|
+  config.recordable_types = [
+    "PressCentre", "Agency", "Project",
+    "RecordingStudioCompany::Company",
+    "RecordingStudioAttachable::Attachment"
+  ]
+end
 ```
 
-`.to` wraps `RecordingStudio::Capabilities.include_for`. It does not add a fourth verb and it does not call `enable_capability` / `set_capability_options` itself. Folder and Page stay without the example mixin.
+The company pages inherit the host's `ApplicationController`, so its authentication and `Current.actor` setup run first. The pages act as `Current.actor` when the host defines it, and as `current_user` otherwise. They render in `recording_studio/default_layout` with FlatPack components.
 
-Use core `RecordingStudio::Hooks` and `RecordingStudio::Services::BaseService`. Do not copy those classes into a new addon.
+## Turn on companies for a parent type
 
-### FlatPack UI Components
+Include `RecordingStudio::Capabilities::Companies.to` in each parent recordable type that holds companies. `allow: :one` limits each recording of the type to one company. `allow: :many` sets no limit.
 
-All views use FlatPack ViewComponents. Available components include:
+```ruby
+class PressCentre < ApplicationRecord
+  recording_studio_recordable label: "Press centre", root: true
+  RecordingStudio.enable_capability(:accessible, on: self)
+  include RecordingStudio::Capabilities::Companies.to(allow: :one)
+end
 
-- `FlatPack::Button::Component` — Buttons (`:primary`, `:secondary`, `:ghost`)
-- `FlatPack::Card::Component` — Cards (`:default`, `:elevated`, `:outlined`)
-- `FlatPack::Alert::Component` — Alerts (`:success`, `:error`, `:warning`, `:info`)
-- `FlatPack::Badge::Component` — Status badges
-- `FlatPack::Table::Component` — Data tables
-- `FlatPack::TextInput::Component`, `EmailInput`, `PasswordInput` — Form inputs
-- `FlatPack::PageNav::Component` — Default-layout page navigation
-- `FlatPack::PageTitle::Component` — Page titles
+class Agency < ApplicationRecord
+  recording_studio_recordable label: "Agency", root: true
+  RecordingStudio.enable_capability(:accessible, on: self)
+  include RecordingStudio::Capabilities::Companies.to(allow: :many)
+end
 
-Use the live FlatPack demo app at [flatpack.bowerbird.io](https://flatpack.bowerbird.io/) as the approved UI reference for current shared patterns. Its component table is the fastest way to discover available FlatPack components before introducing new custom UI.
+class Project < ApplicationRecord
+  recording_studio_recordable label: "Project", root: false, allowed_parent_types: ["Agency"]
+  include RecordingStudio::Capabilities::Companies.to(allow: :one)
+end
+```
 
-See the [FlatPack README](https://github.com/bowerbird-app/flatpack) for full documentation.
+`allow:` is required. Leaving it out, or passing anything other than `:one` or `:many`, raises `RecordingStudioCompany::ConfigurationError` when the class loads. Shared roots cannot hold companies. A type that does not include the capability, such as the dummy app's Workspace, holds no companies, and its company page returns 404.
 
-## Tech Stack
+With `allow: :one`, a trashed company still holds the place until it is purged. The page offers Restore instead of Add, so restoring can never produce a second live company.
 
-| Component       | Version |
-|-----------------|---------|
-| Ruby            | 3.3+    |
-| Rails           | 8.1+    |
-| PostgreSQL      | 16      |
-| TailwindCSS     | 4       |
-| RecordingStudio | 4.x (`~> 4.2` in the gemspec; dummy GitHub tag `v4.2.2`) |
-| Accessible      | dummy GitHub tag `v0.10.1` |
-| Root Switchable | dummy GitHub tag `v0.5.1` |
-| FlatPack        | dummy GitHub tag `v0.1.196` |
-| Devise          | latest  |
+## Use companies
 
-The dummy Gemfile keeps `github:` sources so Bundler can fetch those gems. The gemspec still pins `recording_studio` to `~> 4.2` so copied addons declare the core dependency even when GitHub is the fetch source.
+### The company recording
+
+A company is a `RecordingStudio::Recording` whose `recordable_type` is `"RecordingStudioCompany::Company"`. Every public method takes and returns these company recordings, and the fields live on `company.recordable`.
+
+Store the recording id, `company.id`, when another record points at a company. The recordable id changes on every edit, because each edit inserts a new snapshot.
+
+```ruby
+class PressRelease < ApplicationRecord
+  # company_recording_id holds company.id
+  def company
+    RecordingStudioCompany.find(company_recording_id)
+  rescue RecordingStudioCompany::NotFound
+    nil
+  end
+end
+```
+
+### Fields
+
+| Field | Notes |
+|---|---|
+| `name` | Required, up to 200 characters |
+| `legal_name` | Up to 255 characters |
+| `description` | Up to 5,000 characters |
+| `website_url` | Up to 2,048 characters. `website_href` returns a safe http or https link, or nil |
+| `email` | Up to 320 characters |
+| `phone` | Up to 50 characters. `phone_href` returns a `tel:` link, or nil |
+| `founded_on` | A date. Blank means unknown |
+| Logo | One image of up to 10 MB, set with `set_logo` |
+
+Surrounding whitespace is stripped, and blank values are stored as nil. Website, email, and phone are not format-checked. `RecordingStudioCompany::Company::FIELDS` lists the fields, and `RecordingStudioCompany::Company::LIMITS` holds the lengths that the validations and the form's `maxlength` attributes read.
+
+### Create
+
+```ruby
+nike = RecordingStudioCompany.create(
+  press_centre,
+  actor: Current.actor,
+  idempotency_key: "seed:nike-inc",
+  name: "Nike, Inc.",
+  legal_name: "Nike, Inc.",
+  website_url: "https://about.nike.com",
+  founded_on: "1964-01-25"
+)
+
+RecordingStudioCompany.create(press_centre, actor: Current.actor, name: "Converse")
+# raises RecordingStudioCompany::CompanyAlreadyExists, and error.company == nike
+```
+
+Creating needs Accessible `:edit` on the parent, and the host's `config.authorize_write` still runs inside `RecordingStudio.record!`. Within one parent, an idempotency key that already created a company returns that company. `create` raises these errors:
+
+- `ParentNotAllowed` when the parent's type does not turn on companies
+- `NotAuthorized` without `:edit` on the parent, or when the host denies the write
+- `Invalid` when a field is invalid, with the unsaved company in `error.record`
+- `CompanyAlreadyExists` when a one-company parent already holds a company, live or trashed
+- `CompanyIntegrityError` when a one-company parent already holds more than one company
+
+The one-company limit is a validation on `RecordingStudio::Recording`. It runs inside `RecordingStudio.record!` after the parent row is locked, so every write path enforces it, not only `create`.
+
+### Read
+
+```ruby
+RecordingStudioCompany.allowance(agency)                        # :one, :many, or nil
+RecordingStudioCompany.companies(agency)                        # live companies by name, then creation
+RecordingStudioCompany.companies(agency, include_trashed: true)
+RecordingStudioCompany.company(press_centre)                    # the company or nil, on one-company parents
+RecordingStudioCompany.company(press_centre, include_trashed: true)
+RecordingStudioCompany.find(id)                                 # raises NotFound
+RecordingStudioCompany.find(id, include_trashed: true)
+```
+
+Reads do not authorize. `company` raises `ManyCompaniesAllowed` on a many-company parent. It raises `CompanyIntegrityError` when a one-company parent holds more than one company recording, live or trashed, and never picks one of them. The extra companies have to be moved or purged.
+
+### Edit
+
+```ruby
+RecordingStudioCompany.update(nike, actor: Current.actor, description: "Athletic footwear and apparel.")
+```
+
+`update` revises the given fields through Recording Studio's `revise`. The recording id stays the same, and earlier snapshots stay in `company.recordables`. When nothing changes, it records nothing. It needs `:edit` on the company and raises `NotAuthorized`, `Invalid`, or `Trashed`.
+
+### Logo
+
+```ruby
+blob = ActiveStorage::Blob.create_and_upload!(io: File.open("nike.png"), filename: "nike.png")
+RecordingStudioCompany.set_logo(nike, signed_blob_id: blob.signed_id, actor: Current.actor)
+RecordingStudioCompany.logo(nike) # the live logo attachment recording, or nil
+RecordingStudioCompany.remove_logo(nike, actor: Current.actor)
+```
+
+A company has one logo, an image of up to 10 MB stored as an Attachable attachment named "logo". `set_logo` replaces the file of the existing logo instead of adding a second attachment, and `remove_logo` moves the logo to the trash. The next `set_logo` restores the same logo recording with the new file. A file that Attachable rejects raises `LogoRejected`.
+
+Logo images are served by Attachable's preview route, so Attachable has to be mounted and the viewer needs `:view` access.
+
+### Trash and restore
+
+Trash and restore are Trashable's own methods.
+
+```ruby
+nike.recording_studio_trashable_trash!(actor: Current.actor)
+nike.recording_studio_trashable_restore!(actor: Current.actor)
+```
+
+Trashing a company also trashes its logo, and restoring the company restores the logo. A trashed company cannot be edited until it is restored.
+
+### Permissions
+
+`RecordingStudioCompany.can?(action, recording, actor:)` says whether an action is available now. The company pages use it to show or hide their buttons.
+
+- `:view` needs Accessible `:view` on the recording
+- `:create` needs a parent type that turns on companies, a free place on a one-company parent, and `:edit` on the parent
+- `:update` needs a live company and `:edit`
+- `:trash` needs a live company and Trashable's trash authorization
+- `:restore` needs a trashed company and Trashable's restore authorization
+
+### Display a company on any page
+
+```erb
+<%= recording_studio_company_logo(company, size: :sm) %>
+<%= recording_studio_company_card(company) %>
+```
+
+`recording_studio_company_logo` renders a FlatPack avatar with the live logo, or the company's initials when it has none. `recording_studio_company_card` renders a read-only profile with the logo, name, legal name when it differs, description, website, email, phone, and founded date, and leaves blank fields out. The card links nothing in the company pages, so other gems can render it on their own pages.
+
+## Company pages
+
+The engine serves these pages under its mount path. Link to a parent's page with `recording_studio_company.recording_companies_path(parent)`.
+
+| Verb | Path | Page or action |
+|---|---|---|
+| GET | `/recordings/:recording_id/companies` | The parent's company or companies |
+| GET | `/recordings/:recording_id/companies/new` | Add a company |
+| POST | `/recordings/:recording_id/companies` | Create |
+| GET | `/companies/:id` | View a company |
+| GET | `/companies/:id/edit` | Edit a company and its logo |
+| PATCH | `/companies/:id` | Save |
+| DELETE | `/companies/:id` | Move to the trash |
+| POST | `/companies/:id/restore` | Restore |
+| PATCH | `/companies/:id/logo` | Set the logo from `logo[signed_blob_id]` |
+| DELETE | `/companies/:id/logo` | Remove the logo |
+
+On a one-company parent, the page offers Add when there is no company. It shows a live company with View and Edit, and a trashed company with Restore and no Add. When the parent holds more than one company, the page says so and offers no Add. On a many-company parent, the page lists the companies with Add, View, and Edit, followed by a trash section with Restore.
+
+An unknown parent, a parent whose type holds no companies, and a parent or company the actor cannot view all return 404. A denied write returns 403.
+
+## Capabilities
+
+The company type turns on these capabilities:
+
+- Trashable, for trash and restore
+- Attachable, for the logo, limited to one image of up to 10 MB, with `:edit` needed to upload, replace, remove, or restore it
+
+The engine also turns on Trashable for `RecordingStudioAttachable::Attachment` when the host has not, so removing a logo moves it to the trash.
+
+These capabilities are left out on purpose:
+
+- Accessible is not turned on for companies. Access comes from grants on the parent recording or its ancestors, and creating is authorized against the parent.
+- Duplicatable is left out because a company is an identity, and a copy would bypass the one-company limit.
+- Orderable is left out because company lists sort by name, then by creation.
+
+## Dummy app
+
+`test/dummy` is the host app used to develop and test the gem. It keeps the template's Workspace, Folder, and Page recordables and adds the press centre, agency, and project from the example tree. Workspace does not turn on companies.
+
+```bash
+cd test/dummy
+bin/rails db:setup   # creates, migrates, and seeds the database
+bin/dev
+```
+
+Sign in at `/users/sign_in` with `admin@admin.com` and `Password`. The home page links to each parent's company page. `bin/rails db:seed` can run again without adding users, recordings, or companies.
+
+Dummy credentials (`test/dummy/config/credentials.yml.enc`) are encrypted with the shared RecordingStudio development master key. Set `RAILS_MASTER_KEY`, or put the key in `test/dummy/config/master.key`, which is gitignored.
+
+## Tests
+
+```bash
+bundle exec rake test       # gem tests that need no database
+bundle exec rake test:all   # gem tests, dummy app tests, and the database-backed company tests
+bundle exec rubocop
+```
+
+`rake test:all` needs PostgreSQL. It runs each database-backed file in `test/companies` and `test/controllers` under the dummy app's bundle.
 
 ## Documentation
 
-The original gem template documentation is preserved in `docs/recording_studio_company/` as architectural reference material. Use it as background on the engine conventions; this README and the dummy app are the source of truth for the Recording Studio addon workflow.
+`docs/gem_template/` keeps the Recording Studio gem template's documentation as background on the engine conventions. This README and the dummy app describe the company gem.
