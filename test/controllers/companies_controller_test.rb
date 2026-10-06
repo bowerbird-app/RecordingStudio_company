@@ -104,6 +104,8 @@ class CompaniesControllerTest < ActionDispatch::IntegrationTest
     assert_select "a[href=?]", routes.company_path(nike), text: "Nike, Inc."
     assert_select "a[href=?]", routes.company_path(unilever), text: "Unilever"
     assert_select "[class*=?]", "md:grid-cols-2"
+    assert_select "a.flat-pack-list-item-link[class*=?]", "items-center"
+    assert_select "a.flat-pack-list-item-link[class*=?]", "items-start", count: 0
     refute_includes page_text, "Unilever PLC"
     refute_includes page_text, "www.unilever.com"
     assert_includes page_text, "In trash"
