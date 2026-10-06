@@ -120,5 +120,26 @@ module RecordingStudioCompany
         end
       end
     end
+
+    # After the host's initializers, because config.recordable_types = [...] replaces the list.
+    initializer "recording_studio_company.recordable_types", after: :load_config_initializers do
+      RecordingStudio.register_recordable_type(COMPANY_TYPE)
+    end
+
+    initializer "recording_studio_company.slots" do
+      config.to_prepare do
+        # Checked against the class, because RecordingStudio::Recording is reloadable.
+        recording = RecordingStudio::Recording
+        recording.include(Slots::Validation) unless recording.include?(Slots::Validation)
+
+        # Attachable's RemoveAttachment trashes when Trashable is loaded, and trashing
+        # needs :trashable enabled on the attachment type.
+        unless RecordingStudio.capability_enabled?(:trashable, for: LOGO_TYPE)
+          RecordingStudioAttachable::Attachment.include(RecordingStudio::Capabilities::Trashable.to)
+        end
+
+        Slots.verify!
+      end
+    end
   end
 end

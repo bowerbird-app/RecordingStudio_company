@@ -12,8 +12,10 @@ class RecordingStudioTemplateTest < ActiveSupport::TestCase
 
   test "dummy app validates recordable declarations" do
     assert RecordingStudio.validate_recordable_declarations!
-    assert_equal [ "Workspace" ], RecordingStudio.root_recordable_types
+    assert_equal [ "Workspace", "PressCentre", "Agency" ], RecordingStudio.root_recordable_types
     assert_equal [ "Workspace", "Folder" ], RecordingStudio.allowed_parent_types_for("Page")
+    assert_equal [ "Agency", "PressCentre", "Project" ],
+                 RecordingStudio.allowed_parent_types_for("RecordingStudioCompany::Company")
   end
 
   test "dummy app schema keeps accessible grants and excludes removed core tables" do
@@ -21,6 +23,11 @@ class RecordingStudioTemplateTest < ActiveSupport::TestCase
 
     assert connection.column_exists?(:recording_studio_recordings, :root_recording_id)
     assert connection.table_exists?(:recording_studio_accesses)
+    assert connection.table_exists?(:recording_studio_companies)
+    assert connection.table_exists?(:recording_studio_attachable_attachments)
+    assert connection.table_exists?(:active_storage_blobs)
+    assert connection.column_exists?(:recording_studio_recordings, :trash_root)
+    refute connection.column_exists?(:recording_studio_companies, :updated_at)
     refute connection.table_exists?(:recording_studio_access_boundaries)
     refute connection.table_exists?(:recording_studio_device_sessions)
   end

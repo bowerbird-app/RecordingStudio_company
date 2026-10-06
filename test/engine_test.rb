@@ -292,6 +292,7 @@ class EngineTest < Minitest::Test
     child_defined = parent.const_defined?(child_name, false)
     previous_child = parent.const_get(child_name) if child_defined
 
+    parent.send(:remove_const, child_name) if child_defined
     parent.const_set(child_name, value)
     yield
   ensure

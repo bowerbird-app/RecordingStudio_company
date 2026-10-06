@@ -27,6 +27,23 @@ class RecordingStudioCompanyTest < Minitest::Test
     assert_includes gemspec, 'spec.add_dependency "recording_studio", "~> 4.2"'
   end
 
+  def test_gemspec_depends_on_the_capability_gems_companies_use
+    spec = Gem::Specification.load(File.expand_path("../recording_studio_company.gemspec", __dir__))
+    requirements = spec.runtime_dependencies.to_h { |dependency| [dependency.name, dependency.requirement.to_s] }
+
+    assert_equal(
+      {
+        "flat_pack" => ">= 0.1.196",
+        "rails" => "~> 8.1.0",
+        "recording_studio" => "~> 4.2",
+        "recording_studio_accessible" => "~> 0.11",
+        "recording_studio_attachable" => "~> 0.7",
+        "recording_studio_trashable" => "~> 0.4"
+      },
+      requirements
+    )
+  end
+
   def test_gemspec_excludes_cursor_config
     spec = Gem::Specification.load(File.expand_path("../recording_studio_company.gemspec", __dir__))
     cursor_files = spec.files.select { |path| path == ".cursor" || path.split("/").include?(".cursor") }
@@ -55,9 +72,12 @@ class RecordingStudioCompanyTest < Minitest::Test
     gemfile = File.read(File.expand_path("dummy/Gemfile", __dir__))
 
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio", tag: "v4.2.2"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.10.1"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.11.1"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.7.1"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.4.4"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_root_switchable", tag: "v0.5.1"'
     assert_includes gemfile, 'github: "bowerbird-app/flatpack", tag: "v0.1.196"'
+    refute_includes gemfile, 'tag: "v0.10.1"'
     refute_includes gemfile, "recording_studio/v3.0.0"
     refute_includes gemfile, 'tag: "v4.2.1"'
     refute_includes gemfile, 'tag: "v4.2.0"'
@@ -155,7 +175,14 @@ class RecordingStudioCompanyTest < Minitest::Test
     initializer_source = File.read(initializer_path)
 
     assert_includes initializer_source, "config.require_recordable_declarations = true"
-    assert_includes initializer_source, "config.recordable_types = [ \"Workspace\", \"Folder\", \"Page\" ]"
+    assert_includes initializer_source, <<~RUBY.gsub(/^/, "  ")
+      config.recordable_types = [
+        "Workspace", "Folder", "Page",
+        "PressCentre", "Agency", "Project",
+        "RecordingStudioCompany::Company",
+        "RecordingStudioAttachable::Attachment"
+      ]
+    RUBY
     refute_includes initializer_source, "config.include_children"
     refute_includes initializer_source, "config.features."
     refute_includes initializer_source, "v3"
