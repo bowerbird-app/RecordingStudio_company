@@ -45,8 +45,6 @@ class HomePageTest < ActionDispatch::IntegrationTest
 
   private
 
-  # db:prepare can seed the database CI tests run against. Hide those parents
-  # inside this test so the empty state does not depend on suite order.
   def hide_seeded_company_parents
     HomeController::SEEDED_COMPANY_PARENTS.each do |type, name|
       type.constantize.where(name: name).update_all(name: "#{name} (hidden for empty state)")

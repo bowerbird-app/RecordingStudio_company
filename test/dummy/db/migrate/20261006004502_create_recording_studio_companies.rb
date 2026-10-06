@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-# Company snapshots. Each edit inserts a new row through RecordingStudio revisions, so there is
-# no unique key and no updated_at. Lookups reach companies through recording_studio_recordings.
 class CreateRecordingStudioCompanies < ActiveRecord::Migration[8.1]
   def change
     create_table :recording_studio_companies, id: :uuid do |t|

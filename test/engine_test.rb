@@ -39,13 +39,7 @@ class EngineTest < Minitest::Test
       hook_payload = cfg
     end
 
-    xcfg = Struct.new(:recording_studio_company).new({ label: "from_x" })
-    app_config = Struct.new(:x).new(xcfg)
-    app = Struct.new(:config) do
-      def config_for(_name)
-        { label: "from_yaml", timeout: 12 }
-      end
-    end.new(app_config)
+    app = config_app(x_config: { label: "from_x" }, yaml: { label: "from_yaml", timeout: 12 })
 
     find_initializer("recording_studio_company.load_config").block.call(app)
 
@@ -55,46 +49,22 @@ class EngineTest < Minitest::Test
     assert_equal 12, RecordingStudioCompany.configuration.timeout
   end
 
-  def test_load_config_handles_errors_and_each_pair_fallback
-    pair_config = Class.new do
-      def each_pair
-        yield(:timeout, 15)
-      end
-    end.new
-
-    xcfg = Struct.new(:recording_studio_company).new(pair_config)
-    app_config = Struct.new(:x).new(xcfg)
-
-    app = Struct.new(:config) do
-      def config_for(_name)
-        raise "missing file"
-      end
-    end.new(app_config)
+  def test_load_config_skips_a_missing_yaml_file
+    app = config_app(x_config: { timeout: 15 })
 
     find_initializer("recording_studio_company.load_config").block.call(app)
 
     assert_equal 15, RecordingStudioCompany.configuration.timeout
+    assert_nil RecordingStudioCompany.configuration.label
   end
 
-  def test_load_config_swallow_each_pair_errors
-    bad_pair_config = Class.new do
-      def each_pair
-        raise "bad pair"
-      end
-    end.new
+  def test_load_config_ignores_config_that_is_not_a_hash
+    app = config_app(x_config: Object.new, yaml: "from_yaml")
 
-    xcfg = Struct.new(:recording_studio_company).new(bad_pair_config)
-    app_config = Struct.new(:x).new(xcfg)
-    app = Struct.new(:config) do
-      def config_for(_name)
-        { label: "ok" }
-      end
-    end.new(app_config)
-
-    # Should not raise even if xcfg.each_pair fails.
     find_initializer("recording_studio_company.load_config").block.call(app)
 
-    assert_equal "ok", RecordingStudioCompany.configuration.label
+    assert_nil RecordingStudioCompany.configuration.label
+    assert_nil RecordingStudioCompany.configuration.timeout
   end
 
   def test_load_config_is_noop_without_config_sources
@@ -104,29 +74,6 @@ class EngineTest < Minitest::Test
 
     assert_nil RecordingStudioCompany.configuration.label
     assert_nil RecordingStudioCompany.configuration.timeout
-  end
-
-  def test_load_config_ignores_non_enumerable_yaml_and_merge_errors
-    yaml = Class.new do
-      def each
-        raise "bad yaml"
-      end
-    end.new
-
-    xcfg = Struct.new(:recording_studio_company).new({ timeout: 22 })
-    app_config = Struct.new(:x).new(xcfg)
-    app = Struct.new(:config) do
-      attr_accessor :yaml
-
-      def config_for(_name)
-        @yaml
-      end
-    end.new(app_config)
-    app.yaml = yaml
-
-    find_initializer("recording_studio_company.load_config").block.call(app)
-
-    assert_equal 22, RecordingStudioCompany.configuration.timeout
   end
 
   def test_apply_extension_initializers_register_active_support_on_load_callbacks
@@ -303,5 +250,21 @@ class EngineTest < Minitest::Test
 
   def find_initializer(name)
     RecordingStudioCompany::Engine.initializers.find { |initializer| initializer.name == name }
+  end
+
+  def config_app(x_config:, yaml: nil)
+    dir = nil
+    if yaml
+      dir = Dir.mktmpdir
+      File.write(File.join(dir, "recording_studio_company.yml"), "")
+    end
+
+    xcfg = Struct.new(:recording_studio_company).new(x_config)
+    app = Struct.new(:config).new(Struct.new(:x).new(xcfg))
+    app.define_singleton_method(:paths) do
+      dir ? { "config" => Struct.new(:existent).new([dir]) } : {}
+    end
+    app.define_singleton_method(:config_for) { |_name| yaml }
+    app
   end
 end

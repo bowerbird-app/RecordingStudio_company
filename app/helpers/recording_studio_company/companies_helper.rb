@@ -3,7 +3,6 @@
 require "uri"
 
 module RecordingStudioCompany
-  # Helpers for the company management pages. Pages elsewhere use DisplayHelper.
   module CompaniesHelper
     LOGO_UPLOAD_CONTROLLER = "recording-studio-attachable--attachment-revision-upload"
     LOGO_UPLOAD_OPTIONS = %i[
@@ -15,17 +14,14 @@ module RecordingStudioCompany
       image_processing_quality
     ].freeze
 
-    # The host's root path, when it has one.
     def company_home_path
       main_app.root_path if main_app.respond_to?(:root_path)
     end
 
-    # "Nike Newsroom · Press centre"
     def company_parent_subtitle(parent)
       [parent.name, parent.type_label].compact_blank.uniq.join(" · ")
     end
 
-    # "about.nike.com" for a website that can be linked, otherwise nil.
     def company_website_host(record)
       href = record.website_href
       URI.parse(href).host if href
@@ -53,8 +49,6 @@ module RecordingStudioCompany
       tag.div(safe_join(buttons), class: "flex justify-end gap-2")
     end
 
-    # Data attributes for Attachable's revision upload Stimulus controller on the logo form.
-    # It uploads the chosen image directly, then submits the form with logo[signed_blob_id].
     def company_logo_form_data
       options = company_logo_upload_options
       values = {
@@ -79,7 +73,6 @@ module RecordingStudioCompany
       render FlatPack::Button::Component.new(text:, style: :ghost, size: :sm, href:, aria: { label: })
     end
 
-    # Company's Attachable options, falling back to Attachable's configuration.
     def company_logo_upload_options
       configured = RecordingStudio.capability_options(:attachable, for: Company.name).to_h
       LOGO_UPLOAD_OPTIONS.index_with do |option|

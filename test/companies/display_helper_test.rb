@@ -2,7 +2,6 @@
 
 require_relative "support"
 
-# Renders the helpers through the host's ApplicationController, as a page in another gem would.
 class DisplayHelperTest < ActiveSupport::TestCase
   include CompanyTestSupport
 

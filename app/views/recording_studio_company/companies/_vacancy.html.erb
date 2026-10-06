@@ -1,5 +1,4 @@
 <%# locals: (parent:, company:) %>
-<%# The one-company place is free (company is nil) or held by a trashed company, which only a restore frees up. %>
 <% if company %>
   <% name = company.recordable.name %>
   <%= render FlatPack::Alert::Component.new(

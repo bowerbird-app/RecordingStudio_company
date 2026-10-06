@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 module RecordingStudioCompany
-  # Inherits the host's ApplicationController so the host's authentication and Current.actor setup run first.
   class ApplicationController < (defined?(::ApplicationController) ? ::ApplicationController : ActionController::Base)
     include RecordingStudio::UsesDefaultLayout
 
@@ -13,7 +12,6 @@ module RecordingStudioCompany
 
     protect_from_forgery with: :exception
 
-    # A missing :view grant answers 404 as well, so a page never reveals what it would have shown.
     rescue_from NotFound, ParentNotAllowed, with: :render_not_found
     rescue_from NotAuthorized, with: :render_forbidden
     rescue_from Trashed, with: :redirect_to_trashed_company
@@ -38,7 +36,6 @@ module RecordingStudioCompany
       raise NotAuthorized, "#{action.to_s.capitalize} is not allowed for #{recording.recordable.name}"
     end
 
-    # The non-blank string at a params path, or nil when the value is missing or not a string.
     def string_param(*path)
       value = path.reduce(params) { |scope, key| scope[key] if scope.is_a?(ActionController::Parameters) }
       value.presence if value.is_a?(String)

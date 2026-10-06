@@ -3,16 +3,12 @@
 require "uri"
 
 module RecordingStudioCompany
-  # One immutable snapshot of a company's fields. Edits insert a new row through
-  # RecordingStudio revisions, so the table has no unique business key and no updated_at.
   class Company < ApplicationRecord
     self.table_name = "recording_studio_companies"
     self.record_timestamps = false
 
-    # The single field list. Strong params, unknown-field checks, and update's change check use it.
     FIELDS = %i[name legal_name description website_url email phone founded_on].freeze
 
-    # The only length map. Validations and form maxlength attributes read it.
     LIMITS = {
       name: 200,
       legal_name: 255,
@@ -41,8 +37,6 @@ module RecordingStudioCompany
 
     before_create { self.created_at ||= Time.current }
 
-    # An http(s) URL for website_url, or nil when it cannot be linked safely. A bare host such as
-    # "nike.com" links as "https://nike.com"; "javascript:alert(1)" gives nil. The stored value is unchanged.
     def website_href
       return if website_url.blank?
 
@@ -53,7 +47,6 @@ module RecordingStudioCompany
       nil
     end
 
-    # "tel:" with the phone's leading "+" and digits, or nil when it has fewer than three digits.
     def phone_href
       digits = phone.to_s.gsub(/\D/, "")
       return if digits.length < 3

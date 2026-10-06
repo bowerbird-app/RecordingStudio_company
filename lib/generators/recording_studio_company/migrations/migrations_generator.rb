@@ -5,14 +5,6 @@ require "rails/generators/active_record"
 
 module RecordingStudioCompany
   module Generators
-    # Generator to install RecordingStudioCompany migrations into the host application.
-    #
-    # Usage:
-    #   rails generate recording_studio_company:migrations
-    #
-    # Options:
-    #   --skip-existing  Skip migrations that already exist in the host app
-    #
     class MigrationsGenerator < Rails::Generators::Base
       include ActiveRecord::Generators::Migration
 
@@ -42,7 +34,6 @@ module RecordingStudioCompany
 
         migration_files.each do |source_path|
           filename = File.basename(source_path)
-          # Extract migration name without timestamp (e.g., "create_recording_studio_companies.rb")
           migration_name = filename.sub(/^\d+_/, "")
 
           if options[:skip_existing] && migration_exists?(migration_name)
@@ -50,16 +41,12 @@ module RecordingStudioCompany
             next
           end
 
-          # Generate new timestamp for the host app
           timestamp = next_migration_number
           destination_filename = "#{timestamp}_#{migration_name}"
           destination_path = File.join("db/migrate", destination_filename)
 
           copy_file source_path, destination_path
           say "  create  #{destination_path}", :green
-
-          # Small delay to ensure unique timestamps
-          sleep 0.1
         end
 
         say "\nRun 'bin/rails db:migrate' to apply the migrations.", :green
@@ -72,9 +59,7 @@ module RecordingStudioCompany
       end
 
       def next_migration_number
-        ActiveRecord::Migration.next_migration_number(
-          Time.now.utc.strftime("%Y%m%d%H%M%S")
-        )
+        @migration_number = @migration_number ? @migration_number.succ : Time.now.utc.strftime("%Y%m%d%H%M%S")
       end
     end
   end

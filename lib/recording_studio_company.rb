@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-# Attachable's services name ActiveRecord classes while they load.
 require "active_record"
 require "recording_studio"
 require "recording_studio_accessible"
@@ -57,7 +56,6 @@ module RecordingStudioCompany
   end
 
   class Invalid < Error
-    # The unsaved RecordingStudioCompany::Company, with errors, for re-rendering a form.
     attr_reader :record
 
     def initialize(record:)
@@ -117,7 +115,6 @@ module RecordingStudioCompany
       occupant if occupant && (include_trashed || occupant.trashed_at.nil?)
     end
 
-    # Resolves a stored company recording id.
     def find(id, include_trashed: false)
       recording = RecordingStudio::Recording.unscoped.find_by(id:, recordable_type: COMPANY_TYPE) if id.present?
       raise NotFound, "No company #{id.inspect}" if recording.nil? || (recording.trashed_at && !include_trashed)
@@ -290,7 +287,6 @@ module RecordingStudioCompany
       scope.joins(join).reorder(companies[:name].lower, recordings[:created_at], recordings[:id])
     end
 
-    # The company under parent whose "created" event carries key, or nil.
     def created_with_key(parent, key)
       return if key.nil?
 
@@ -375,12 +371,6 @@ module RecordingStudioCompany
     end
   end
 
-  # The one-or-many rule and the single-logo rule. Hosts cannot reach RecordingStudioCompany::Slots.
-  #
-  # A place under a parent holds at most one child recording of a type. Any such child occupies
-  # it, live or trashed, until it is purged.
-  #   RecordingStudioCompany::Company        under a parent whose type allows :one
-  #   RecordingStudioAttachable::Attachment  under a company (the logo)
   module Slots
     ALLOWANCES = %i[one many].freeze
     MESSAGES = {
@@ -390,7 +380,6 @@ module RecordingStudioCompany
 
     module_function
 
-    # :one or :many. ConfigurationError for anything else, naming the type when known.
     def parse!(value, type: nil)
       allowance = value.to_s.strip.downcase.to_sym if value.is_a?(Symbol) || value.is_a?(String)
       return allowance if ALLOWANCES.include?(allowance)
@@ -399,7 +388,6 @@ module RecordingStudioCompany
             "Companies#{" on #{type}" if type} need allow: :one or allow: :many (got #{value.inspect})"
     end
 
-    # Boot check run from the engine's to_prepare.
     def verify!
       RecordingStudio.recordable_declarations
       unless RecordingStudio.configuration.recordable_types.include?(COMPANY_TYPE)
@@ -420,7 +408,6 @@ module RecordingStudioCompany
       RecordingStudio::Recording.unscoped.where(parent_recording_id: parent.id, recordable_type: type)
     end
 
-    # The child of type holding the place under parent: earliest created, trashed included.
     def occupant(parent, type, except: nil)
       scope = children(parent, type)
       scope = scope.where.not(id: except) if except
@@ -446,7 +433,6 @@ module RecordingStudioCompany
       RecordingStudio::Recording.unscoped.lock.find(parent.id)
     end
 
-    # :company, :logo, or nil for a new child of child_type under parent.
     def slot_for(child_type, parent)
       case child_type
       when COMPANY_TYPE then :company if RecordingStudioCompany.allowance(parent) == :one
@@ -465,7 +451,6 @@ module RecordingStudioCompany
 
       private
 
-      # New recordings and moves. Revisions, trashing, and restoring never take a place.
       def recording_studio_company_slot_candidate?
         parent_recording_id.present? && [COMPANY_TYPE, LOGO_TYPE].include?(recordable_type) &&
           (new_record? || will_save_change_to_parent_recording_id?)
@@ -487,9 +472,7 @@ module RecordingStudioCompany
   end
   private_constant :Slots
 
-  # Public only as RecordingStudio::Capabilities::Companies. It is defined in this lexical scope
-  # so .to can reach the private Slots parser.
-  companies_capability = Module.new do
+  module Companies
     # include RecordingStudio::Capabilities::Companies.to(allow: :one) or .to(allow: :many)
     #   allow: :one  each recording of the including type holds at most one company, trashed included
     #   allow: :many no limit
@@ -501,9 +484,9 @@ module RecordingStudioCompany
     end
   end
   unless RecordingStudio::Capabilities.const_defined?(:Companies, false)
-    RecordingStudio::Capabilities.const_set(:Companies, companies_capability)
+    RecordingStudio::Capabilities.const_set(:Companies, Companies)
   end
+  private_constant :Companies
 
-  # Company is a capability-owned child: its allowed parents are the types that enable :companies.
   RecordingStudio.register_capability(:companies, source: "recording_studio_company", child_recordables: [COMPANY_TYPE])
 end

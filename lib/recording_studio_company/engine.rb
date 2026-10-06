@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 module RecordingStudioCompany
-  # rubocop:disable-next Metrics/ClassLength
   class Engine < ::Rails::Engine
     isolate_namespace RecordingStudioCompany
 
@@ -52,53 +51,32 @@ module RecordingStudioCompany
       end
     end
 
-    # Run before_initialize hooks
     initializer "recording_studio_company.before_initialize", before: "recording_studio_company.load_config" do |_app|
       RecordingStudioCompany.configuration.hooks.run(:before_initialize, self)
     end
 
     initializer "recording_studio_company.load_config" do |app|
-      # Load config/recording_studio_company.yml via Rails config_for if present
-      if app.respond_to?(:config_for)
-        begin
-          yaml = begin
-            app.config_for(:recording_studio_company)
-          rescue StandardError
-            nil
-          end
-          RecordingStudioCompany.configuration.merge!(yaml) if yaml.respond_to?(:each)
-        rescue StandardError => _e
-          # ignore load errors; host app can provide initializer overrides
+      if app.respond_to?(:config_for) && app.respond_to?(:paths)
+        config_paths = app.paths["config"]
+        dir = config_paths.respond_to?(:existent) ? Array(config_paths.existent).first : nil
+        if dir && File.exist?(File.join(dir, "recording_studio_company.yml"))
+          yaml = app.config_for(:recording_studio_company)
+          RecordingStudioCompany.configuration.merge!(yaml.to_h) if yaml.respond_to?(:to_h)
         end
       end
 
-      # Merge Rails.application.config.x.recording_studio_company if present
       if app.config.respond_to?(:x) && app.config.x.respond_to?(:recording_studio_company)
         xcfg = app.config.x.recording_studio_company
-        if xcfg.respond_to?(:to_h)
-          RecordingStudioCompany.configuration.merge!(xcfg.to_h)
-        else
-          begin
-            # try converting OrderedOptions
-            hash = {}
-            xcfg.each_pair { |k, v| hash[k] = v } if xcfg.respond_to?(:each_pair)
-            RecordingStudioCompany.configuration.merge!(hash) if hash&.any?
-          rescue StandardError => _e
-            # ignore
-          end
-        end
+        RecordingStudioCompany.configuration.merge!(xcfg.to_h) if xcfg.respond_to?(:to_h)
       end
 
-      # Run on_configuration hooks after config is loaded
       RecordingStudioCompany.configuration.hooks.run(:on_configuration, RecordingStudioCompany.configuration)
     end
 
-    # Run after_initialize hooks
     initializer "recording_studio_company.after_initialize", after: "recording_studio_company.load_config" do |_app|
       RecordingStudioCompany.configuration.hooks.run(:after_initialize, self)
     end
 
-    # Apply model extensions when models are loaded
     initializer "recording_studio_company.apply_model_extensions" do
       config.to_prepare do
         next unless defined?(ActiveRecord::Base)
@@ -111,7 +89,6 @@ module RecordingStudioCompany
       end
     end
 
-    # Apply controller extensions
     initializer "recording_studio_company.apply_controller_extensions" do
       config.to_prepare do
         next unless defined?(ActionController::Base)

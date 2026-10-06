@@ -3,13 +3,10 @@
 require "securerandom"
 
 module RecordingStudioCompany
-  # Companies under a parent recording: list, add, view, edit, trash, restore, and the logo.
   class CompaniesController < ApplicationController
     before_action :set_parent, only: %i[index new create]
     before_action :set_company, except: %i[index new create]
 
-    # One company: none, live, trashed, or more than one recorded (an integrity error).
-    # Many companies: the live list and the trashed list.
     def index
       @allowance = RecordingStudioCompany.allowance(@parent)
       if @allowance == :many
@@ -22,7 +19,6 @@ module RecordingStudioCompany
       @integrity_error = e
     end
 
-    # The form posts the idempotency key back, so a double submit creates one company.
     def new
       unless company_can?(:create, @parent)
         return redirect_to(recording_companies_path(@parent), alert: "A company can't be added here.")
@@ -64,7 +60,6 @@ module RecordingStudioCompany
       render :edit, status: :unprocessable_content
     end
 
-    # Moves the company to the trash.
     def destroy
       unless @company.trashed_at
         authorize_company!(:trash, @company)

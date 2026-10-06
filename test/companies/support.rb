@@ -7,8 +7,6 @@ require_relative "../dummy/config/environment"
 require "rails/test_help"
 require "zlib"
 
-# Builds parents the way the dummy host does: a root recordable, an owner granted through
-# Accessible, then calls into RecordingStudioCompany as a host would.
 module CompanyTestSupport
   PASSWORD = "CompanyTestPassword!2026"
 
@@ -61,7 +59,6 @@ module CompanyTestSupport
     RecordingStudioCompany.create(parent, actor: owner, name:, **fields)
   end
 
-  # Skips the slot validation, as rows written before a parent type switched to allow: :one would.
   def record_unchecked_company(parent, name)
     recording = RecordingStudio::Recording.new(
       root_recording: parent.root_recording,
@@ -109,7 +106,6 @@ module CompanyTestSupport
                                            content_type: "text/plain")
   end
 
-  # A 2x2 opaque PNG, built here so the repository carries no binary fixture.
   def png_bytes
     row = "\x00".b + ("\x1F\x4E\x79\xFF".b * 2)
     chunk = lambda do |type, data|

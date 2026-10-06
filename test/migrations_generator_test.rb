@@ -45,6 +45,15 @@ class MigrationsGeneratorTest < Minitest::Test
     end
   end
 
+  def test_migration_numbers_advance_within_the_same_second
+    generator = RecordingStudioCompany::Generators::MigrationsGenerator.new([], { quiet: true })
+    first = generator.send(:next_migration_number)
+    second = generator.send(:next_migration_number)
+
+    assert_match(/\A\d{14}\z/, first)
+    assert_equal first.succ, second
+  end
+
   def test_does_not_copy_template_migrations
     Dir.mktmpdir do |dir|
       run_generator(dir)
@@ -59,7 +68,7 @@ class MigrationsGeneratorTest < Minitest::Test
     messages = []
     generator = RecordingStudioCompany::Generators::MigrationsGenerator.new([], { quiet: true }, destination_root: dir)
     generator.stub(:say, ->(message, color = nil) { messages << [message, color] }) do
-      generator.stub(:sleep, nil) { generator.invoke_all }
+      generator.invoke_all
     end
     messages
   end

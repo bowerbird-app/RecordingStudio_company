@@ -27,7 +27,6 @@ grant_owner_access = lambda do |actor, root_recording|
   raise "Owner access for #{root_recording.name} failed: #{result.error}" if result.failure?
 end
 
-# The idempotency key makes a second run return the company the first run created under the same parent.
 seed_company = lambda do |actor, parent_recording, **fields|
   RecordingStudioCompany.create(
     parent_recording,
@@ -37,7 +36,6 @@ seed_company = lambda do |actor, parent_recording, **fields|
   )
 end
 
-# A 64x64 placeholder logo (an orange disc on black), built here so the repository carries no binary file.
 placeholder_logo_png = lambda do
   size = 64
   center = (size - 1) / 2.0
@@ -56,20 +54,17 @@ placeholder_logo_png = lambda do
     chunk.call("IEND".b, "".b)
 end
 
-# Create the admin user
 user = User.find_or_create_by!(email: "admin@admin.com") do |u|
   u.password = "Password"
   u.password_confirmation = "Password"
 end
 
-# Create the workspace recordables
 workspace = Workspace.find_or_create_by!(name: "Studio Workspace")
 accessible_workspace = Workspace.find_or_create_by!(name: "Client Workspace")
 private_workspace = Workspace.find_or_create_by!(name: "Private Workspace")
 folder = Folder.find_or_create_by!(name: "Product Docs")
 page = Page.find_or_create_by!(title: "Getting Started")
 
-# Create the company parents: a press centre holds one company, an agency many, and a project one.
 press_centre = PressCentre.find_or_create_by!(name: "Nike Newsroom")
 agency = Agency.find_or_create_by!(name: "Northwind")
 project = Project.find_or_create_by!(name: "Harbour fit-out")
@@ -78,7 +73,6 @@ previous_actor = Current.actor
 Current.actor = user
 
 begin
-  # Create the root recording
   root_recording = RecordingStudio.root_recording_for(workspace)
   accessible_root_recording = RecordingStudio.root_recording_for(accessible_workspace)
   private_root_recording = RecordingStudio.root_recording_for(private_workspace)
@@ -130,18 +124,13 @@ begin
     email: "projects@acmeengineering.example"
   )
 
-  # Skipped when Active Storage cannot store the file. A removed logo comes back on the next run.
   if RecordingStudioCompany.logo(nike).nil?
-    begin
-      blob = ActiveStorage::Blob.create_and_upload!(
-        io: StringIO.new(placeholder_logo_png.call),
-        filename: "nike-logo.png",
-        content_type: "image/png"
-      )
-      RecordingStudioCompany.set_logo(nike, signed_blob_id: blob.signed_id, actor: user)
-    rescue StandardError => e
-      puts "Skipped the #{nike.recordable.name} logo: #{e.message}"
-    end
+    blob = ActiveStorage::Blob.create_and_upload!(
+      io: StringIO.new(placeholder_logo_png.call),
+      filename: "nike-logo.png",
+      content_type: "image/png"
+    )
+    RecordingStudioCompany.set_logo(nike, signed_blob_id: blob.signed_id, actor: user)
   end
 ensure
   Current.actor = previous_actor

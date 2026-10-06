@@ -11,7 +11,6 @@ class HomeController < ApplicationController
 
   private
 
-  # The live recording db/seeds.rb created, or nil before the seeds have run.
   def seeded_recording(type, name)
     RecordingStudio::Recording.find_by(
       recordable_type: type,

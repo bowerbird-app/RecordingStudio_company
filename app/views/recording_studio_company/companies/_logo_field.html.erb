@@ -1,5 +1,4 @@
 <%# locals: (company:) %>
-<%# Every logo write goes through PATCH or DELETE /companies/:id/logo, so the company keeps one logo. %>
 <% logo = RecordingStudioCompany.logo(company) %>
 <%= render FlatPack::Card::Component.new(style: :default) do |card| %>
   <% card.header do %>
