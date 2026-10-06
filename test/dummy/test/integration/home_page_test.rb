@@ -29,6 +29,8 @@ class HomePageTest < ActionDispatch::IntegrationTest
   end
 
   test "home page explains how to add the demo records before the seeds run" do
+    hide_seeded_company_parents
+
     user = User.find_or_create_by!(email: "home-page-test@example.com") do |record|
       record.password = "Password123!"
       record.password_confirmation = "Password123!"
@@ -42,6 +44,14 @@ class HomePageTest < ActionDispatch::IntegrationTest
   end
 
   private
+
+  # db:prepare can seed the database CI tests run against. Hide those parents
+  # inside this test so the empty state does not depend on suite order.
+  def hide_seeded_company_parents
+    HomeController::SEEDED_COMPANY_PARENTS.each do |type, name|
+      type.constantize.where(name: name).update_all(name: "#{name} (hidden for empty state)")
+    end
+  end
 
   def seeded_recording(type, name)
     RecordingStudio::Recording.find_by!(recordable: type.find_by!(name: name))
