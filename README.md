@@ -246,7 +246,7 @@ The engine serves these pages under its mount path. Link to a parent's page with
 | PATCH | `/companies/:id/logo` | Set the logo from `logo[signed_blob_id]` |
 | DELETE | `/companies/:id/logo` | Remove the logo |
 
-On a one-company parent, the page offers Add when there is no company. It shows a live company with View and Edit, and a trashed company with Restore and no Add. When the parent holds more than one company, the page says so and offers no Add. On a many-company parent, the page lists the companies with Add, View, and Edit, followed by a trash section with Restore.
+On a one-company parent, the page offers Add when there is no company. It shows a live company with View and Edit, and a trashed company with Restore and no Add. When the parent holds more than one company, the page says so and offers no Add. On a many-company parent, the page lists each company by name and offers Add. View and Edit sit in a menu on the row. Legal name and website stay on the company page. A trash section with Restore follows the list.
 
 An unknown parent, a parent whose type holds no companies, and a parent or company the actor cannot view all return 404. A denied write returns 403.
 

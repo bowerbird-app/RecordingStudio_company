@@ -2,8 +2,6 @@
 <% if companies.any? %>
   <%= render FlatPack::Table::Component.new(data: companies) do |table| %>
     <% table.column(title: "Company") { |company| company_list_name(company) } %>
-    <% table.column(title: "Legal name") { |company| company.recordable.legal_name } %>
-    <% table.column(title: "Website") { |company| company_website_host(company.recordable) } %>
     <% table.column(title: "Actions") { |company| company_list_actions(company) } %>
   <% end %>
 <% else %>

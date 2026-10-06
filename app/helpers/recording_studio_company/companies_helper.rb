@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "uri"
-
 module RecordingStudioCompany
   module CompaniesHelper
     LOGO_UPLOAD_CONTROLLER = "recording-studio-attachable--attachment-revision-upload"
@@ -22,11 +20,6 @@ module RecordingStudioCompany
       [parent.name, parent.type_label].compact_blank.uniq.join(" · ")
     end
 
-    def company_website_host(record)
-      href = record.website_href
-      URI.parse(href).host if href
-    end
-
     def company_field_error(record, field)
       record.errors.full_messages_for(field).to_sentence.presence
     end
@@ -41,12 +34,11 @@ module RecordingStudioCompany
     end
 
     def company_list_actions(company)
-      name = company.recordable.name
-      buttons = [company_list_button("View", company_path(company), "View #{name}")]
-      if company_can?(:update, company)
-        buttons << company_list_button("Edit", edit_company_path(company), "Edit #{name}")
+      tag.div(class: "flex justify-end") do
+        render FlatPack::Button::Dropdown::Component.new(**company_actions_menu(company)) do |dropdown|
+          company_action_items(dropdown, company)
+        end
       end
-      tag.div(safe_join(buttons), class: "flex justify-end gap-2")
     end
 
     def company_logo_form_data
@@ -69,8 +61,23 @@ module RecordingStudioCompany
 
     private
 
-    def company_list_button(text, href, label)
-      render FlatPack::Button::Component.new(text:, style: :ghost, size: :sm, href:, aria: { label: })
+    def company_actions_menu(company)
+      {
+        text: "",
+        icon: "dots",
+        style: :ghost,
+        size: :sm,
+        show_chevron: false,
+        placement: :bottom_right,
+        trigger_attributes: { aria: { label: "Actions for #{company.recordable.name}" } }
+      }
+    end
+
+    def company_action_items(dropdown, company)
+      dropdown.menu_item(text: "View", icon: "eye", href: company_path(company))
+      return unless company_can?(:update, company)
+
+      dropdown.menu_item(text: "Edit", icon: "pencil", href: edit_company_path(company))
     end
 
     def company_logo_upload_options

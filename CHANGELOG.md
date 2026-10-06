@@ -21,4 +21,8 @@ The first release of RecordingStudioCompany. The repository started from the Rec
 - The `recording_studio_companies` migration and an install generator that mounts the engine at `/recording_studio_company`.
 - A dummy app with a press centre, an agency, and a project, plus seeds that can run more than once.
 
+### Changed
+
+- A many-company list shows each company by name. View and Edit are in a row menu. Legal name and website stay on the company page.
+
 [0.1.0]: https://github.com/bowerbird-app/RecordingStudio_company/releases/tag/v0.1.0

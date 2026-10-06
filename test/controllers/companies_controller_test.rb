@@ -97,10 +97,17 @@ class CompaniesControllerTest < ActionDispatch::IntegrationTest
     assert_select "h1", text: "Companies"
     assert_select "a[href=?]", routes.new_recording_company_path(northwind), text: "Add company"
     assert_select "table tbody tr", count: 2
-    assert_select "a[href=?]", routes.company_path(nike), text: "View"
-    assert_select "a[href=?]", routes.edit_company_path(unilever), text: "Edit"
-    assert_includes page_text, "Unilever PLC"
-    assert_includes page_text, "www.unilever.com"
+    assert_select "th", text: "Company"
+    assert_select "th", text: "Legal name", count: 0
+    assert_select "th", text: "Website", count: 0
+    assert_select "button[aria-label=?]", "Actions for Nike, Inc."
+    assert_select "button[aria-label=?]", "Actions for Unilever"
+    assert_select "[data-flat-pack--icon-name-value=?]", "ellipsis-vertical", count: 2
+    assert_select "a[href=?]", routes.company_path(nike), text: "Nike, Inc."
+    assert_select "a[href=?][role=menuitem]", routes.company_path(nike), text: "View"
+    assert_select "a[href=?][role=menuitem]", routes.edit_company_path(unilever), text: "Edit"
+    refute_includes page_text, "Unilever PLC"
+    refute_includes page_text, "www.unilever.com"
     assert_includes page_text, "In trash"
     assert_select "form[action=?] button[aria-label=?]", routes.restore_company_path(acme),
                   "Restore Acme Coffee Pty Ltd", text: "Restore"
