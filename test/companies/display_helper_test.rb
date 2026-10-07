@@ -39,21 +39,18 @@ class DisplayHelperTest < ActiveSupport::TestCase
       press_centre,
       "Nike",
       description: "Athletic footwear and apparel.",
-      website_url: "about.nike.com",
-      phone: "+1 (503) 671-6453"
+      website_url: "about.nike.com"
     )
 
     card = render_card(nike)
     text = card.text.squish
 
-    ["Nike", "Athletic footwear and apparel.", "about.nike.com", "+1 (503) 671-6453"].each do |value|
+    ["Nike", "Athletic footwear and apparel.", "about.nike.com"].each do |value|
       assert_includes text, value
     end
     assert_equal "https://about.nike.com", card.at_css("a[target=_blank]")["href"]
     assert_equal "noopener noreferrer", card.at_css("a[target=_blank]")["rel"]
-    assert card.at_css("a[href='tel:+15036716453']")
-    refute_includes text, "Email"
-    refute_includes text, "Founded"
+    %w[Phone Email Founded].each { |label| refute_includes text, label }
   end
 
   test "the card leaves out blank fields" do

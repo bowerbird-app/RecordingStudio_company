@@ -70,7 +70,7 @@ bin/rails generate recording_studio_company:migrations
 bin/rails db:migrate
 ```
 
-The migration drops `legal_name`, `email`, and `founded_on` from `recording_studio_companies`. Those values are not kept. Stop passing them to `RecordingStudioCompany.create` and `.update`. Name, description, website, phone, and the logo stay.
+The migration drops `legal_name`, `email`, `phone`, and `founded_on` from `recording_studio_companies`. Those values are not kept. Stop passing them to `RecordingStudioCompany.create` and `.update`. Name, description, website, and the logo stay. The edit form asks for the name, then the website, then the description.
 
 Delete sits on the edit page, under a divider. It moves the company to the trash. Restore stays on the company page.
 
@@ -142,10 +142,9 @@ end
 | `name` | Required, up to 200 characters |
 | `description` | Up to 5,000 characters |
 | `website_url` | Up to 2,048 characters. `website_href` returns a safe http or https link, or nil |
-| `phone` | Up to 50 characters. `phone_href` returns a `tel:` link, or nil |
 | Logo | One image of up to 10 MB, set with `set_logo` |
 
-Surrounding whitespace is stripped, and blank values are stored as nil. Website and phone are not format-checked. `RecordingStudioCompany::Company::FIELDS` lists the fields, and `RecordingStudioCompany::Company::LIMITS` holds the lengths that the validations and the form's `maxlength` attributes read.
+Surrounding whitespace is stripped, and blank values are stored as nil. Website is not format-checked. `RecordingStudioCompany::Company::FIELDS` lists the fields, and `RecordingStudioCompany::Company::LIMITS` holds the lengths that the validations and the form's `maxlength` attributes read.
 
 ### Create
 
@@ -155,8 +154,7 @@ nike = RecordingStudioCompany.create(
   actor: Current.actor,
   idempotency_key: "seed:nike-inc",
   name: "Nike, Inc.",
-  website_url: "https://about.nike.com",
-  phone: "+1 503 671 6453"
+  website_url: "https://about.nike.com"
 )
 
 RecordingStudioCompany.create(press_centre, actor: Current.actor, name: "Converse")
@@ -236,7 +234,7 @@ Trashing a company also trashes its logo, and restoring the company restores the
 <%= recording_studio_company_card(company) %>
 ```
 
-`recording_studio_company_logo` renders a FlatPack avatar with the live logo, or the company's initials when it has none. `recording_studio_company_card` renders a read-only profile with the logo, name, description, website, and phone, and leaves blank fields out. The card links nothing in the company pages, so other gems can render it on their own pages.
+`recording_studio_company_logo` renders a FlatPack avatar with the live logo, or the company's initials when it has none. `recording_studio_company_card` renders a read-only profile with the logo, name, description, and website, and leaves blank fields out. The card links nothing in the company pages, so other gems can render it on their own pages.
 
 ## Company pages
 
@@ -255,7 +253,7 @@ The engine serves these pages under its mount path. Link to a parent's page with
 | PATCH | `/companies/:id/logo` | Set the logo from `logo[signed_blob_id]` |
 | DELETE | `/companies/:id/logo` | Remove the logo |
 
-The index is titled "Companies and organisations" and has no parent subtitle. + Company sits under the title when another company can be added. Live companies are names in a list inside a card, and each name opens that company. On a wide screen the list sits in the first column of a two-column grid. Website and phone stay on the company page. On a one-company parent, a trashed company offers Restore and no + Company. When that parent holds more than one company, the page says so and offers no + Company. A trash section with Restore follows a many-company list.
+The index is titled "Companies and organisations" and has no parent subtitle. + Company sits under the title when another company can be added. Live companies are names in a list inside a card, and each name opens that company. On a wide screen the list sits in the first column of a two-column grid. The website stays on the company page. On a one-company parent, a trashed company offers Restore and no + Company. When that parent holds more than one company, the page says so and offers no + Company. A trash section with Restore follows a many-company list.
 
 The edit page shows the logo beside Upload logo, or Change logo and Remove logo when a logo is already set, then the company fields. The logo has no card and no heading of its own. Below the fields, a divider and Delete move the company to the trash. The company page itself has no delete button. Restore stays there when the company is in the trash.
 

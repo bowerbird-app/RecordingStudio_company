@@ -8,13 +8,18 @@ class CompanyCreateTest < ActiveSupport::TestCase
   test "a press centre records its company under itself" do
     newsroom = press_centre
 
-    nike = create_company(newsroom, "Nike, Inc.", website_url: "https://about.nike.com", phone: "+1 503 671 6453")
+    nike = create_company(
+      newsroom,
+      "Nike, Inc.",
+      website_url: "https://about.nike.com",
+      description: "Athletic footwear."
+    )
 
     assert_equal newsroom, nike.parent_recording
     assert_equal newsroom, nike.root_recording
     assert_equal "Nike, Inc.", nike.recordable.name
     assert_equal "https://about.nike.com", nike.recordable.website_url
-    assert_equal "+1 503 671 6453", nike.recordable.phone
+    assert_equal "Athletic footwear.", nike.recordable.description
     assert_equal ["created"], nike.events.map(&:action)
     assert_equal owner, nike.events.first.actor
   end
@@ -189,16 +194,15 @@ class CompanyCreateTest < ActiveSupport::TestCase
   end
 
   test "blank optional fields are stored as unknown" do
-    nike = create_company(press_centre, "Nike, Inc.", phone: " ", website_url: "")
+    nike = create_company(press_centre, "Nike, Inc.", description: " ", website_url: "")
 
-    assert_nil nike.recordable.phone
+    assert_nil nike.recordable.description
     assert_nil nike.recordable.website_url
   end
 
-  test "phone and website are stored as typed" do
-    nike = create_company(press_centre, "Nike, Inc.", phone: "ext. 12", website_url: "nike.com")
+  test "website is stored as typed" do
+    nike = create_company(press_centre, "Nike, Inc.", website_url: "nike.com")
 
-    assert_equal "ext. 12", nike.recordable.phone
     assert_equal "nike.com", nike.recordable.website_url
   end
 
@@ -211,11 +215,12 @@ class CompanyCreateTest < ActiveSupport::TestCase
         "Nike, Inc.",
         legal_name: "Nike, Inc.",
         email: "press@nike.example",
+        phone: "+1 503 671 6453",
         founded_on: "1964-01-25"
       )
     end
 
-    assert_equal "Unknown company field(s): legal_name, email, founded_on", error.message
+    assert_equal "Unknown company field(s): legal_name, email, phone, founded_on", error.message
     assert_equal 0, company_children(newsroom).count
   end
 

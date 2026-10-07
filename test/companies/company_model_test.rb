@@ -15,10 +15,10 @@ class CompanyModelTest < ActiveSupport::TestCase
 
     assert_equal text_fields.sort, Company::LIMITS.keys.sort
     assert_equal(
-      { name: 200, description: 5_000, website_url: 2_048, phone: 50 },
+      { name: 200, description: 5_000, website_url: 2_048 },
       Company::LIMITS
     )
-    %w[legal_name email founded_on].each do |column|
+    %w[legal_name email phone founded_on].each do |column|
       refute_includes Company.column_names, column
     end
     Company::LIMITS.each do |field, maximum|
@@ -28,18 +28,18 @@ class CompanyModelTest < ActiveSupport::TestCase
   end
 
   test "a field one character past its limit is invalid" do
-    company = Company.new(name: "N" * 201, phone: "1" * 50)
+    company = Company.new(name: "N" * 201, website_url: "a" * 2_048)
 
     assert_not company.valid?
     assert_equal ["is too long (maximum is 200 characters)"], company.errors[:name]
-    assert_empty company.errors[:phone]
+    assert_empty company.errors[:website_url]
   end
 
   test "blank strings become nil and the rest is stripped" do
-    company = Company.new(name: "  Nike, Inc. ", phone: " ", description: "\n")
+    company = Company.new(name: "  Nike, Inc. ", website_url: " ", description: "\n")
 
     assert_equal "Nike, Inc.", company.name
-    assert_nil company.phone
+    assert_nil company.website_url
     assert_nil company.description
   end
 
@@ -69,13 +69,6 @@ class CompanyModelTest < ActiveSupport::TestCase
     company.website_href
 
     assert_equal "nike.com", company.website_url
-  end
-
-  test "phone href keeps a leading plus and the digits" do
-    assert_equal "tel:+15036716453", Company.new(name: "Nike", phone: "+1 (503) 671-6453").phone_href
-    assert_equal "tel:0298765432", Company.new(name: "Nike", phone: "02 9876 5432").phone_href
-    assert_nil Company.new(name: "Nike", phone: "ext 12").phone_href
-    assert_nil Company.new(name: "Nike").phone_href
   end
 
   test "created at is set when the snapshot is inserted" do

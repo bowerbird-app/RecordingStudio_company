@@ -107,8 +107,7 @@ begin
       user,
       agency_recording,
       name: "Acme Coffee Pty Ltd",
-      description: "A coffee roaster and Northwind client.",
-      phone: "+61 2 5550 0100"
+      description: "A coffee roaster and Northwind client."
     )
   ]
 

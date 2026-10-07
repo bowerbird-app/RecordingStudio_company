@@ -35,11 +35,11 @@ class CompanyUpdateTest < ActiveSupport::TestCase
   end
 
   test "nil clears an optional field" do
-    nike = create_company(press_centre, "Nike, Inc.", phone: "+1 503 671 6453")
+    nike = create_company(press_centre, "Nike, Inc.", website_url: "https://about.nike.com")
 
-    revised = RecordingStudioCompany.update(nike, actor: owner, phone: nil)
+    revised = RecordingStudioCompany.update(nike, actor: owner, website_url: nil)
 
-    assert_nil revised.recordable.phone
+    assert_nil revised.recordable.website_url
     assert_equal "Nike, Inc.", revised.recordable.name
   end
 
@@ -48,11 +48,11 @@ class CompanyUpdateTest < ActiveSupport::TestCase
 
     assert_no_difference -> { RecordingStudioCompany::Company.count } do
       error = assert_raises(RecordingStudioCompany::Invalid) do
-        RecordingStudioCompany.update(nike, actor: owner, name: "", phone: "1" * 51)
+        RecordingStudioCompany.update(nike, actor: owner, name: "", description: "d" * 5_001)
       end
 
-      assert_equal "Name can't be blank and Phone is too long (maximum is 50 characters)", error.message
-      assert_equal "1" * 51, error.record.phone
+      assert_equal "Name can't be blank and Description is too long (maximum is 5000 characters)", error.message
+      assert_equal "d" * 5_001, error.record.description
     end
     assert_equal "Nike, Inc.", nike.reload.recordable.name
   end

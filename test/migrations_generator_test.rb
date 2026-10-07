@@ -40,6 +40,7 @@ class MigrationsGeneratorTest < Minitest::Test
       upgrade = File.read(upgrade_path)
       assert_includes upgrade, "remove_column :recording_studio_companies, :legal_name, :string"
       assert_includes upgrade, "remove_column :recording_studio_companies, :email, :string"
+      assert_includes upgrade, "remove_column :recording_studio_companies, :phone, :string"
       assert_includes upgrade, "remove_column :recording_studio_companies, :founded_on, :date"
     end
   end

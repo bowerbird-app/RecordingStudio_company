@@ -7,13 +7,12 @@ module RecordingStudioCompany
     self.table_name = "recording_studio_companies"
     self.record_timestamps = false
 
-    FIELDS = %i[name description website_url phone].freeze
+    FIELDS = %i[name description website_url].freeze
 
     LIMITS = {
       name: 200,
       description: 5_000,
-      website_url: 2_048,
-      phone: 50
+      website_url: 2_048
     }.freeze
 
     recording_studio_recordable label: "Company", plural_label: "Companies", root: false
@@ -42,13 +41,6 @@ module RecordingStudioCompany
       candidate if uri.is_a?(URI::HTTP) && uri.host.present?
     rescue URI::InvalidURIError
       nil
-    end
-
-    def phone_href
-      digits = phone.to_s.gsub(/\D/, "")
-      return if digits.length < 3
-
-      "tel:#{'+' if phone.start_with?('+')}#{digits}"
     end
   end
 end

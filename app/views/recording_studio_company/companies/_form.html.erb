@@ -22,15 +22,6 @@
     error: company_field_error(record, :name)
   ) %>
 
-  <%= render FlatPack::TextArea::Component.new(
-    name: "company[description]",
-    value: record.description,
-    label: "Description",
-    rows: 4,
-    maxlength: limits[:description],
-    error: company_field_error(record, :description)
-  ) %>
-
   <%= render FlatPack::UrlInput::Component.new(
     name: "company[website_url]",
     value: record.website_url,
@@ -40,12 +31,13 @@
     error: company_field_error(record, :website_url)
   ) %>
 
-  <%= render FlatPack::PhoneInput::Component.new(
-    name: "company[phone]",
-    value: record.phone,
-    label: "Phone",
-    maxlength: limits[:phone],
-    error: company_field_error(record, :phone)
+  <%= render FlatPack::TextArea::Component.new(
+    name: "company[description]",
+    value: record.description,
+    label: "Description",
+    rows: 4,
+    maxlength: limits[:description],
+    error: company_field_error(record, :description)
   ) %>
 
   <div class="flex flex-wrap gap-3">

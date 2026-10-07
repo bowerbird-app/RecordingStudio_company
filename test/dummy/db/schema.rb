@@ -125,7 +125,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_07_120000) do
     t.string "name", null: false
     t.text "description"
     t.string "website_url"
-    t.string "phone"
     t.datetime "created_at", null: false
   end
 

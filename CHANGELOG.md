@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
-- `legal_name`, `email`, and `founded_on`. A company keeps name, description, website, phone, and one logo.
+- `legal_name`, `email`, `phone`, and `founded_on`. A company keeps name, description, website, and one logo.
 
 ### Changed
 
@@ -24,7 +24,7 @@ bin/rails generate recording_studio_company:migrations
 bin/rails db:migrate
 ```
 
-That drops `legal_name`, `email`, and `founded_on` from `recording_studio_companies`. The values are not kept. Remove those keys from `RecordingStudioCompany.create` and `.update`, and from any screen that read them.
+That drops `legal_name`, `email`, `phone`, and `founded_on` from `recording_studio_companies`. The values are not kept. Remove those keys from `RecordingStudioCompany.create` and `.update`, and from any screen that read them. The edit form asks for the name, then the website, then the description.
 
 ## [0.1.0] - 2026-10-06
 

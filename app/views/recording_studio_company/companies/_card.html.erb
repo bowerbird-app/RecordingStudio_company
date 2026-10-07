@@ -1,8 +1,6 @@
 <%# locals: (company:) %>
 <% record = company.recordable %>
 <% website_href = record.website_href %>
-<% phone_href = record.phone_href %>
-<% details = record.website_url.present? || record.phone.present? %>
 <%= render FlatPack::Card::Component.new(style: :default) do |card| %>
   <% card.body do %>
     <div class="flex flex-col gap-4" data-recording-studio-company-card>
@@ -15,26 +13,18 @@
         <p class="whitespace-pre-line text-sm leading-6"><%= record.description %></p>
       <% end %>
 
-      <% if details %>
+      <% if record.website_url.present? %>
         <dl class="grid gap-3 text-sm sm:grid-cols-2">
-          <% if record.website_url.present? %>
-            <div>
-              <dt class="text-(--surface-muted-content-color)">Website</dt>
-              <dd class="break-words">
-                <% if website_href %>
-                  <%= link_to record.website_url, website_href, target: "_blank", rel: "noopener noreferrer" %>
-                <% else %>
-                  <%= record.website_url %>
-                <% end %>
-              </dd>
-            </div>
-          <% end %>
-          <% if record.phone.present? %>
-            <div>
-              <dt class="text-(--surface-muted-content-color)">Phone</dt>
-              <dd><%= phone_href ? link_to(record.phone, phone_href) : record.phone %></dd>
-            </div>
-          <% end %>
+          <div>
+            <dt class="text-(--surface-muted-content-color)">Website</dt>
+            <dd class="break-words">
+              <% if website_href %>
+                <%= link_to record.website_url, website_href, target: "_blank", rel: "noopener noreferrer" %>
+              <% else %>
+                <%= record.website_url %>
+              <% end %>
+            </dd>
+          </div>
         </dl>
       <% end %>
     </div>

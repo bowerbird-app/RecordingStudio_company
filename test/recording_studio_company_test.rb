@@ -242,7 +242,7 @@ class RecordingStudioCompanyTest < Minitest::Test
     assert_includes changelog, "`RecordingStudioCompany::Company`"
     assert_includes changelog, "## [0.2.0] - 2026-10-07"
     assert_includes changelog, "bin/rails generate recording_studio_company:migrations"
-    assert_includes changelog, "`legal_name`, `email`, and `founded_on`"
+    assert_includes changelog, "`legal_name`, `email`, `phone`, and `founded_on`"
     refute_match(/## \[0\.3\./, changelog)
   end
 

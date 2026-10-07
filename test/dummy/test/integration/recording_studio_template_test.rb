@@ -83,7 +83,7 @@ class RecordingStudioTemplateTest < ActiveSupport::TestCase
     assert_equal "Nike, Inc.", nike.recordable.name
     assert_equal "https://about.nike.com", nike.recordable.website_url
     assert_predicate nike.recordable.description, :present?
-    %w[legal_name email founded_on].each do |column|
+    %w[legal_name email phone founded_on].each do |column|
       refute_includes nike.recordable.attributes, column
     end
     assert_equal "image/png", RecordingStudioCompany.logo(nike).recordable.file.content_type
