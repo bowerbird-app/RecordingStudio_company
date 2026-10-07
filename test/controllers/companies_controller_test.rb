@@ -90,7 +90,7 @@ class CompaniesControllerTest < ActionDispatch::IntegrationTest
 
   test "an agency lists its companies with Add, view, and edit, and its trashed companies with Restore" do
     northwind = agency
-    unilever = create_company(northwind, "Unilever", legal_name: "Unilever PLC", website_url: "https://www.unilever.com")
+    unilever = create_company(northwind, "Unilever", description: "Consumer goods", website_url: "https://www.unilever.com")
     nike = create_company(northwind, "Nike, Inc.")
     acme = trash(create_company(northwind, "Acme Coffee Pty Ltd"))
 
@@ -106,7 +106,7 @@ class CompaniesControllerTest < ActionDispatch::IntegrationTest
     assert_select "[class*=?]", "md:grid-cols-2"
     assert_select "a.flat-pack-list-item-link[class*=?]", "items-center"
     assert_select "a.flat-pack-list-item-link[class*=?]", "items-start", count: 0
-    refute_includes page_text, "Unilever PLC"
+    refute_includes page_text, "Consumer goods"
     refute_includes page_text, "www.unilever.com"
     assert_includes page_text, "In trash"
     assert_select "form[action=?] button[aria-label=?]", routes.restore_company_path(acme),
@@ -136,7 +136,10 @@ class CompaniesControllerTest < ActionDispatch::IntegrationTest
       assert_select "[name=?][maxlength=?]", "company[#{field}]", maximum.to_s
     end
     assert_select "input[name='company[name]'][required]"
-    assert_select "input[name='company[founded_on]'][type=date]"
+    assert_select "input[name='company[founded_on]']", count: 0
+    assert_select "input[name='company[legal_name]']", count: 0
+    assert_select "input[name='company[email]']", count: 0
+    assert_select "button", text: "Delete", count: 0
     assert_select "input[type=hidden][name=idempotency_key]", count: 1
   end
 
@@ -148,14 +151,15 @@ class CompaniesControllerTest < ActionDispatch::IntegrationTest
     assert_difference -> { company_children(northwind).count }, 1 do
       post routes.recording_companies_path(northwind), params: {
         idempotency_key: key,
-        company: { name: "Unilever", legal_name: "Unilever PLC", founded_on: "1929-09-02" }
+        company: { name: "Unilever", website_url: "https://www.unilever.com", phone: "+44 20 7946 0000" }
       }
     end
 
     unilever = company_children(northwind).sole
     assert_response :see_other
     assert_redirected_to routes.company_path(unilever)
-    assert_equal Date.new(1929, 9, 2), unilever.recordable.founded_on
+    assert_equal "https://www.unilever.com", unilever.recordable.website_url
+    assert_equal "+44 20 7946 0000", unilever.recordable.phone
 
     follow_redirect!
 
@@ -180,14 +184,15 @@ class CompaniesControllerTest < ActionDispatch::IntegrationTest
     assert_no_difference -> { company_children(northwind).count } do
       post routes.recording_companies_path(northwind), params: {
         idempotency_key: "form-key-2",
-        company: { name: " ", website_url: "about.nike.com", founded_on: "soon" }
+        company: { name: " ", website_url: "about.nike.com", phone: "1" * 51 }
       }
     end
 
     assert_response :unprocessable_content
     assert_includes page_text, "The company could not be saved"
     assert_includes page_text, "Name can't be blank"
-    assert_includes page_text, "Founded on is invalid"
+    assert_includes page_text, "Phone is too long (maximum is 50 characters)"
+    refute_includes page_text, "Founded"
     assert_select "input[name=idempotency_key][value=?]", "form-key-2"
     assert_select "input[name='company[website_url]'][value=?]", "about.nike.com"
   end
@@ -203,13 +208,15 @@ class CompaniesControllerTest < ActionDispatch::IntegrationTest
     assert_select "h2", text: "Logo", count: 0
     assert_select "p", text: "One image for the company.", count: 0
     assert_select "input[name=idempotency_key]", count: 0
+    assert_select "[role=separator]", count: 1
+    assert_select "button[data-fp-style=?]", "danger", text: "Delete"
 
-    patch routes.company_path(nike), params: { company: { name: "Nike, Inc.", founded_on: "1964-01-25" } }
+    patch routes.company_path(nike), params: { company: { name: "Nike, Inc.", phone: "+1 503 671 6453" } }
 
     assert_response :see_other
     assert_redirected_to routes.company_path(nike)
     assert_equal "Nike, Inc.", nike.reload.recordable.name
-    assert_equal Date.new(1964, 1, 25), nike.recordable.founded_on
+    assert_equal "+1 503 671 6453", nike.recordable.phone
   end
 
   test "an invalid edit re-renders the form with its errors" do
@@ -229,8 +236,14 @@ class CompaniesControllerTest < ActionDispatch::IntegrationTest
 
     get routes.company_path(nike)
 
+    assert_select "button", text: "Move to trash", count: 0
+    assert_select "button", text: "Delete", count: 0
+
+    get routes.edit_company_path(nike)
+
+    assert_select "[role=separator]", count: 1
     assert_select "form[action=?] input[name=_method][value=delete]", routes.company_path(nike)
-    assert_select "button", text: "Move to trash"
+    assert_select "button[data-fp-style=?]", "danger", text: "Delete"
 
     delete routes.company_path(nike)
 
@@ -243,6 +256,7 @@ class CompaniesControllerTest < ActionDispatch::IntegrationTest
 
     assert_includes page_text, "Restore it to change it again."
     assert_select "button", text: "Move to trash", count: 0
+    assert_select "button", text: "Delete", count: 0
     assert_select "a", text: "Edit company", count: 0
 
     post routes.restore_company_path(nike)
@@ -282,6 +296,7 @@ class CompaniesControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "button", text: "Move to trash", count: 0
+    assert_select "button", text: "Delete", count: 0
 
     get routes.edit_company_path(nike)
 

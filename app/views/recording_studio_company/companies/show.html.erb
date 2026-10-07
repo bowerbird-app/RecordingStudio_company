@@ -1,7 +1,6 @@
 <% name = @company.recordable.name %>
 <% parent = @company.parent_recording %>
 <% can_update = company_can?(:update, @company) %>
-<% can_trash = company_can?(:trash, @company) %>
 <% recording_studio_page_nav(
   title: name,
   page_nav_back_url: recording_companies_path(@company.parent_recording_id),
@@ -13,20 +12,13 @@
     title: name,
     subtitle: (company_parent_subtitle(parent) if parent)
   ) do |page_title| %>
-    <% if can_update || can_trash %>
+    <% if can_update %>
       <% page_title.slot do %>
-        <% if can_update %>
-          <%= render FlatPack::Button::Component.new(
-            text: "Edit company",
-            style: :primary,
-            href: edit_company_path(@company)
-          ) %>
-        <% end %>
-        <% if can_trash %>
-          <%= form_with url: company_path(@company), method: :delete, class: "inline-flex" do %>
-            <%= render FlatPack::Button::Component.new(text: "Move to trash", style: :secondary, type: "submit") %>
-          <% end %>
-        <% end %>
+        <%= render FlatPack::Button::Component.new(
+          text: "Edit company",
+          style: :primary,
+          href: edit_company_path(@company)
+        ) %>
       <% end %>
     <% end %>
   <% end %>

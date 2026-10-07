@@ -8,14 +8,13 @@ class CompanyCreateTest < ActiveSupport::TestCase
   test "a press centre records its company under itself" do
     newsroom = press_centre
 
-    nike = create_company(newsroom, "Nike, Inc.", legal_name: "Nike, Inc.", website_url: "https://about.nike.com",
-                                                  founded_on: "1964-01-25")
+    nike = create_company(newsroom, "Nike, Inc.", website_url: "https://about.nike.com", phone: "+1 503 671 6453")
 
     assert_equal newsroom, nike.parent_recording
     assert_equal newsroom, nike.root_recording
     assert_equal "Nike, Inc.", nike.recordable.name
     assert_equal "https://about.nike.com", nike.recordable.website_url
-    assert_equal Date.new(1964, 1, 25), nike.recordable.founded_on
+    assert_equal "+1 503 671 6453", nike.recordable.phone
     assert_equal ["created"], nike.events.map(&:action)
     assert_equal owner, nike.events.first.actor
   end
@@ -190,20 +189,34 @@ class CompanyCreateTest < ActiveSupport::TestCase
   end
 
   test "blank optional fields are stored as unknown" do
-    nike = create_company(press_centre, "Nike, Inc.", email: "", phone: " ", website_url: "", founded_on: "")
+    nike = create_company(press_centre, "Nike, Inc.", phone: " ", website_url: "")
 
-    assert_nil nike.recordable.email
     assert_nil nike.recordable.phone
     assert_nil nike.recordable.website_url
-    assert_nil nike.recordable.founded_on
   end
 
-  test "email phone and website are stored as typed" do
-    nike = create_company(press_centre, "Nike, Inc.", email: "press at nike", phone: "ext. 12", website_url: "nike.com")
+  test "phone and website are stored as typed" do
+    nike = create_company(press_centre, "Nike, Inc.", phone: "ext. 12", website_url: "nike.com")
 
-    assert_equal "press at nike", nike.recordable.email
     assert_equal "ext. 12", nike.recordable.phone
     assert_equal "nike.com", nike.recordable.website_url
+  end
+
+  test "retired fields are rejected before anything is written" do
+    newsroom = press_centre
+
+    error = assert_raises(ArgumentError) do
+      create_company(
+        newsroom,
+        "Nike, Inc.",
+        legal_name: "Nike, Inc.",
+        email: "press@nike.example",
+        founded_on: "1964-01-25"
+      )
+    end
+
+    assert_equal "Unknown company field(s): legal_name, email, founded_on", error.message
+    assert_equal 0, company_children(newsroom).count
   end
 
   test "unknown fields are rejected before anything is written" do

@@ -38,33 +38,32 @@ class DisplayHelperTest < ActiveSupport::TestCase
     nike = create_company(
       press_centre,
       "Nike",
-      legal_name: "Nike, Inc.",
       description: "Athletic footwear and apparel.",
       website_url: "about.nike.com",
-      email: "press@nike.example",
-      phone: "+1 (503) 671-6453",
-      founded_on: "1964-01-25"
+      phone: "+1 (503) 671-6453"
     )
 
     card = render_card(nike)
     text = card.text.squish
 
-    ["Nike", "Nike, Inc.", "Athletic footwear and apparel.", "about.nike.com", "press@nike.example",
-     "+1 (503) 671-6453", "January 25, 1964"].each { |value| assert_includes text, value }
+    ["Nike", "Athletic footwear and apparel.", "about.nike.com", "+1 (503) 671-6453"].each do |value|
+      assert_includes text, value
+    end
     assert_equal "https://about.nike.com", card.at_css("a[target=_blank]")["href"]
     assert_equal "noopener noreferrer", card.at_css("a[target=_blank]")["rel"]
-    assert card.at_css("a[href='mailto:press@nike.example']")
     assert card.at_css("a[href='tel:+15036716453']")
+    refute_includes text, "Email"
+    refute_includes text, "Founded"
   end
 
-  test "the card leaves out blank fields and a legal name equal to the name" do
-    acme = create_company(agency, "Acme Coffee Pty Ltd", legal_name: "Acme Coffee Pty Ltd")
+  test "the card leaves out blank fields" do
+    acme = create_company(agency, "Acme Coffee Pty Ltd")
 
     card = render_card(acme)
 
     assert_equal(["Acme Coffee Pty Ltd"], card.css("p").map { |paragraph| paragraph.text.strip })
     assert_nil card.at_css("dl")
-    %w[Website Email Phone Founded].each { |label| refute_includes card.text, label }
+    %w[Website Phone Email Founded].each { |label| refute_includes card.text, label }
   end
 
   test "the card links the website only through website_href" do
@@ -79,7 +78,7 @@ class DisplayHelperTest < ActiveSupport::TestCase
 
   test "the card escapes every field" do
     payload = "<script>alert(1)</script>"
-    company = create_company(agency, "#{payload} Pty Ltd", legal_name: payload, description: payload)
+    company = create_company(agency, "#{payload} Pty Ltd", description: payload)
 
     card = render_card(company)
 

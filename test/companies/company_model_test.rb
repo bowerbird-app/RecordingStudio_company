@@ -15,9 +15,12 @@ class CompanyModelTest < ActiveSupport::TestCase
 
     assert_equal text_fields.sort, Company::LIMITS.keys.sort
     assert_equal(
-      { name: 200, legal_name: 255, description: 5_000, website_url: 2_048, email: 320, phone: 50 },
+      { name: 200, description: 5_000, website_url: 2_048, phone: 50 },
       Company::LIMITS
     )
+    %w[legal_name email founded_on].each do |column|
+      refute_includes Company.column_names, column
+    end
     Company::LIMITS.each do |field, maximum|
       validator = Company.validators_on(field).find { |item| item.is_a?(ActiveModel::Validations::LengthValidator) }
       assert_equal maximum, validator.options[:maximum], "#{field} length"
@@ -33,22 +36,11 @@ class CompanyModelTest < ActiveSupport::TestCase
   end
 
   test "blank strings become nil and the rest is stripped" do
-    company = Company.new(name: "  Nike, Inc. ", legal_name: " ", email: "", description: "\n")
+    company = Company.new(name: "  Nike, Inc. ", phone: " ", description: "\n")
 
     assert_equal "Nike, Inc.", company.name
-    assert_nil company.legal_name
-    assert_nil company.email
+    assert_nil company.phone
     assert_nil company.description
-  end
-
-  test "founded on is a date, blank for unknown, and an error for anything else" do
-    assert_equal Date.new(1964, 1, 25), Company.new(name: "Nike", founded_on: "1964-01-25").founded_on
-    assert_predicate Company.new(name: "Nike", founded_on: ""), :valid?
-    assert_nil Company.new(name: "Nike", founded_on: "").founded_on
-
-    company = Company.new(name: "Nike", founded_on: "soon")
-    assert_not company.valid?
-    assert_equal ["is invalid"], company.errors[:founded_on]
   end
 
   test "website href links only http and https addresses" do

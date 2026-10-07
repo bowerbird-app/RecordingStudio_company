@@ -4,7 +4,7 @@ require "test_helper"
 
 class RecordingStudioCompanyTest < Minitest::Test
   def test_version_matches_release
-    assert_equal "0.1.0", ::RecordingStudioCompany::VERSION
+    assert_equal "0.2.0", ::RecordingStudioCompany::VERSION
   end
 
   def test_gemspec_points_at_the_company_repository
@@ -240,7 +240,10 @@ class RecordingStudioCompanyTest < Minitest::Test
     assert_includes changelog, "## [0.1.0] - 2026-10-06"
     assert_includes changelog, "The repository started from the Recording Studio gem template."
     assert_includes changelog, "`RecordingStudioCompany::Company`"
-    refute_match(/## \[0\.2\./, changelog)
+    assert_includes changelog, "## [0.2.0] - 2026-10-07"
+    assert_includes changelog, "bin/rails generate recording_studio_company:migrations"
+    assert_includes changelog, "`legal_name`, `email`, and `founded_on`"
+    refute_match(/## \[0\.3\./, changelog)
   end
 
   def test_dummy_home_page_links_to_the_company_pages

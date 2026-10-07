@@ -91,10 +91,8 @@ begin
     user,
     press_centre_recording,
     name: "Nike, Inc.",
-    legal_name: "Nike, Inc.",
     description: "Athletic footwear, apparel, equipment, and accessories.",
-    website_url: "https://about.nike.com",
-    founded_on: "1964-01-25"
+    website_url: "https://about.nike.com"
   )
 
   agency_companies = [
@@ -103,7 +101,6 @@ begin
       user,
       agency_recording,
       name: "Unilever",
-      legal_name: "Unilever PLC",
       website_url: "https://www.unilever.com"
     ),
     seed_company.call(
@@ -111,7 +108,6 @@ begin
       agency_recording,
       name: "Acme Coffee Pty Ltd",
       description: "A coffee roaster and Northwind client.",
-      email: "hello@acmecoffee.example",
       phone: "+61 2 5550 0100"
     )
   ]
@@ -120,8 +116,7 @@ begin
     user,
     project_recording,
     name: "Acme Engineering Pty Ltd",
-    description: "The engineering contractor for the harbour fit-out.",
-    email: "projects@acmeengineering.example"
+    description: "The engineering contractor for the harbour fit-out."
   )
 
   if RecordingStudioCompany.logo(nike).nil?
