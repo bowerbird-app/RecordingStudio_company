@@ -9,12 +9,12 @@ class CompanyUpdateTest < ActiveSupport::TestCase
     nike = create_company(press_centre, "Nike", website_url: "nike.com")
     first_snapshot = nike.recordable
 
-    revised = RecordingStudioCompany.update(nike, actor: owner, name: "Nike, Inc.", legal_name: "Nike, Inc.")
+    revised = RecordingStudioCompany.update(nike, actor: owner, name: "Nike, Inc.", description: "Athletic footwear.")
 
     assert_equal nike.id, revised.id
     assert_not_equal first_snapshot.id, revised.recordable_id
     assert_equal "Nike, Inc.", revised.recordable.name
-    assert_equal "Nike, Inc.", revised.recordable.legal_name
+    assert_equal "Athletic footwear.", revised.recordable.description
     assert_equal "nike.com", revised.recordable.website_url
     assert_equal "Nike", first_snapshot.reload.name
     assert_equal %w[created updated], revised.events.reorder(:occurred_at, :created_at).map(&:action)
@@ -22,11 +22,11 @@ class CompanyUpdateTest < ActiveSupport::TestCase
   end
 
   test "unchanged fields write nothing" do
-    nike = create_company(press_centre, "Nike, Inc.", founded_on: "1964-01-25")
+    nike = create_company(press_centre, "Nike, Inc.", website_url: "nike.com")
 
     assert_no_difference -> { RecordingStudioCompany::Company.count } do
       assert_no_difference -> { RecordingStudio::Event.count } do
-        same = RecordingStudioCompany.update(nike, actor: owner, name: " Nike, Inc. ", founded_on: "1964-01-25")
+        same = RecordingStudioCompany.update(nike, actor: owner, name: " Nike, Inc. ", website_url: "nike.com")
 
         assert_equal nike, same
         assert_equal nike.recordable_id, same.recordable_id
@@ -35,11 +35,11 @@ class CompanyUpdateTest < ActiveSupport::TestCase
   end
 
   test "nil clears an optional field" do
-    nike = create_company(press_centre, "Nike, Inc.", phone: "+1 503 671 6453")
+    nike = create_company(press_centre, "Nike, Inc.", website_url: "https://about.nike.com")
 
-    revised = RecordingStudioCompany.update(nike, actor: owner, phone: nil)
+    revised = RecordingStudioCompany.update(nike, actor: owner, website_url: nil)
 
-    assert_nil revised.recordable.phone
+    assert_nil revised.recordable.website_url
     assert_equal "Nike, Inc.", revised.recordable.name
   end
 
@@ -48,11 +48,11 @@ class CompanyUpdateTest < ActiveSupport::TestCase
 
     assert_no_difference -> { RecordingStudioCompany::Company.count } do
       error = assert_raises(RecordingStudioCompany::Invalid) do
-        RecordingStudioCompany.update(nike, actor: owner, name: "", founded_on: "soon")
+        RecordingStudioCompany.update(nike, actor: owner, name: "", description: "d" * 5_001)
       end
 
-      assert_equal "Name can't be blank and Founded on is invalid", error.message
-      assert_equal "soon", error.record.founded_on_before_type_cast
+      assert_equal "Name can't be blank and Description is too long (maximum is 5000 characters)", error.message
+      assert_equal "d" * 5_001, error.record.description
     end
     assert_equal "Nike, Inc.", nike.reload.recordable.name
   end

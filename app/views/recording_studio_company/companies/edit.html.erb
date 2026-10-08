@@ -14,6 +14,16 @@
              record: @record,
              url: company_path(@company),
              form_method: :patch,
-             submit_text: "Save company",
+             submit_text: "Update",
+             unsaved_changes: true,
              cancel_url: company_path(@company) %>
+
+  <% if company_can?(:trash, @company) %>
+    <div class="flex max-w-2xl flex-col gap-6">
+      <%= render FlatPack::Divider::Component.new %>
+      <%= form_with url: company_path(@company), method: :delete, class: "flex justify-end" do %>
+        <%= render FlatPack::Button::Component.new(text: "Delete", style: :danger, type: "submit") %>
+      <% end %>
+    </div>
+  <% end %>
 </div>

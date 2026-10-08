@@ -17,6 +17,17 @@ class DisplayHelperTest < ActiveSupport::TestCase
     assert_includes image["src"], "square_small"
   end
 
+  test "the logo is rounded unless a screen asks for a circle" do
+    nike = create_company(press_centre, "Nike, Inc.")
+
+    rounded = render_erb("<%= recording_studio_company_logo(company) %>", company: nike)
+    circle = render_erb("<%= recording_studio_company_logo(company, shape: :circle) %>", company: nike)
+
+    assert_includes rounded.to_html, "avatar-radius-rounded"
+    refute_includes rounded.to_html, "avatar-radius-circle"
+    assert_includes circle.to_html, "avatar-radius-circle"
+  end
+
   test "the logo falls back to the company's initials" do
     nike = create_company(press_centre, "Nike, Inc.")
 
@@ -38,33 +49,29 @@ class DisplayHelperTest < ActiveSupport::TestCase
     nike = create_company(
       press_centre,
       "Nike",
-      legal_name: "Nike, Inc.",
       description: "Athletic footwear and apparel.",
-      website_url: "about.nike.com",
-      email: "press@nike.example",
-      phone: "+1 (503) 671-6453",
-      founded_on: "1964-01-25"
+      website_url: "about.nike.com"
     )
 
     card = render_card(nike)
     text = card.text.squish
 
-    ["Nike", "Nike, Inc.", "Athletic footwear and apparel.", "about.nike.com", "press@nike.example",
-     "+1 (503) 671-6453", "January 25, 1964"].each { |value| assert_includes text, value }
+    ["Nike", "Athletic footwear and apparel.", "about.nike.com"].each do |value|
+      assert_includes text, value
+    end
     assert_equal "https://about.nike.com", card.at_css("a[target=_blank]")["href"]
     assert_equal "noopener noreferrer", card.at_css("a[target=_blank]")["rel"]
-    assert card.at_css("a[href='mailto:press@nike.example']")
-    assert card.at_css("a[href='tel:+15036716453']")
+    %w[Phone Email Founded].each { |label| refute_includes text, label }
   end
 
-  test "the card leaves out blank fields and a legal name equal to the name" do
-    acme = create_company(agency, "Acme Coffee Pty Ltd", legal_name: "Acme Coffee Pty Ltd")
+  test "the card leaves out blank fields" do
+    acme = create_company(agency, "Acme Coffee Pty Ltd")
 
     card = render_card(acme)
 
     assert_equal(["Acme Coffee Pty Ltd"], card.css("p").map { |paragraph| paragraph.text.strip })
     assert_nil card.at_css("dl")
-    %w[Website Email Phone Founded].each { |label| refute_includes card.text, label }
+    %w[Website Phone Email Founded].each { |label| refute_includes card.text, label }
   end
 
   test "the card links the website only through website_href" do
@@ -79,7 +86,7 @@ class DisplayHelperTest < ActiveSupport::TestCase
 
   test "the card escapes every field" do
     payload = "<script>alert(1)</script>"
-    company = create_company(agency, "#{payload} Pty Ltd", legal_name: payload, description: payload)
+    company = create_company(agency, "#{payload} Pty Ltd", description: payload)
 
     card = render_card(company)
 

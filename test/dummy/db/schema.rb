@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_06_004511) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_07_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -123,12 +123,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_06_004511) do
 
   create_table "recording_studio_companies", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "name", null: false
-    t.string "legal_name"
     t.text "description"
     t.string "website_url"
-    t.string "email"
-    t.string "phone"
-    t.date "founded_on"
     t.datetime "created_at", null: false
   end
 

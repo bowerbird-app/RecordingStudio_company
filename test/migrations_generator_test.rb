@@ -10,9 +10,12 @@ class MigrationsGeneratorTest < Minitest::Test
       run_generator(dir)
 
       copied = Dir.glob(File.join(dir, "db/migrate/*.rb")).map { |path| File.basename(path) }
-      assert_equal 1, copied.size
-      assert_match(/\A\d{14}_create_recording_studio_companies\.rb\z/, copied.first)
-      refute_equal "20261005000001_create_recording_studio_companies.rb", copied.first
+      assert_equal 2, copied.size
+      assert(copied.any? { |name| name.match?(/\A\d{14}_create_recording_studio_companies\.rb\z/) })
+      assert(copied.any? do |name|
+        name.match?(/\A\d{14}_remove_legal_name_email_and_founded_on_from_recording_studio_companies\.rb\z/)
+      end)
+      refute_includes copied, "20261005000001_create_recording_studio_companies.rb"
     end
   end
 
@@ -32,6 +35,13 @@ class MigrationsGeneratorTest < Minitest::Test
       assert_includes migration, "t.datetime :created_at, null: false"
       refute_includes migration, "t.timestamps"
       refute_includes migration, "updated_at, null"
+
+      upgrade_path = Dir.glob(File.join(dir, "db/migrate/*_remove_legal_name_email_and_founded_on_*.rb")).first
+      upgrade = File.read(upgrade_path)
+      assert_includes upgrade, "remove_column :recording_studio_companies, :legal_name, :string"
+      assert_includes upgrade, "remove_column :recording_studio_companies, :email, :string"
+      assert_includes upgrade, "remove_column :recording_studio_companies, :phone, :string"
+      assert_includes upgrade, "remove_column :recording_studio_companies, :founded_on, :date"
     end
   end
 
@@ -41,7 +51,12 @@ class MigrationsGeneratorTest < Minitest::Test
       messages = run_generator(dir)
 
       assert_equal 1, Dir.glob(File.join(dir, "db/migrate/*_create_recording_studio_companies.rb")).size
+      assert_equal 1, Dir.glob(File.join(dir, "db/migrate/*_remove_legal_name_email_and_founded_on_*.rb")).size
       assert_includes messages, ["  skip  create_recording_studio_companies.rb (already exists)", :yellow]
+      assert_includes messages, [
+        "  skip  remove_legal_name_email_and_founded_on_from_recording_studio_companies.rb (already exists)",
+        :yellow
+      ]
     end
   end
 

@@ -4,7 +4,7 @@ require "test_helper"
 
 class RecordingStudioCompanyTest < Minitest::Test
   def test_version_matches_release
-    assert_equal "0.1.0", ::RecordingStudioCompany::VERSION
+    assert_equal "0.2.0", ::RecordingStudioCompany::VERSION
   end
 
   def test_gemspec_points_at_the_company_repository
@@ -33,7 +33,7 @@ class RecordingStudioCompanyTest < Minitest::Test
 
     assert_equal(
       {
-        "flat_pack" => ">= 0.1.196",
+        "flat_pack" => ">= 0.1.200",
         "rails" => "~> 8.1.0",
         "recording_studio" => "~> 4.2",
         "recording_studio_accessible" => "~> 0.11",
@@ -76,7 +76,7 @@ class RecordingStudioCompanyTest < Minitest::Test
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.7.1"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.4.4"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_root_switchable", tag: "v0.5.1"'
-    assert_includes gemfile, 'github: "bowerbird-app/flatpack", tag: "v0.1.196"'
+    assert_includes gemfile, 'github: "bowerbird-app/flatpack", tag: "v0.1.203"'
     refute_includes gemfile, 'tag: "v0.10.1"'
     refute_includes gemfile, "recording_studio/v3.0.0"
     refute_includes gemfile, 'tag: "v4.2.1"'
@@ -240,7 +240,12 @@ class RecordingStudioCompanyTest < Minitest::Test
     assert_includes changelog, "## [0.1.0] - 2026-10-06"
     assert_includes changelog, "The repository started from the Recording Studio gem template."
     assert_includes changelog, "`RecordingStudioCompany::Company`"
-    refute_match(/## \[0\.2\./, changelog)
+    assert_includes changelog, "## [0.2.0] - 2026-10-07"
+    assert_includes changelog, "bin/rails generate recording_studio_company:migrations"
+    assert_includes changelog, "`legal_name`, `email`, `phone`, and `founded_on`"
+    assert_includes changelog, "The edit form's button says Update."
+    assert_includes changelog, "Pin `flat_pack` at `v0.1.200` or newer."
+    refute_match(/## \[0\.3\./, changelog)
   end
 
   def test_dummy_home_page_links_to_the_company_pages

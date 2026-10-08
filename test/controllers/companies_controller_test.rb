@@ -90,7 +90,7 @@ class CompaniesControllerTest < ActionDispatch::IntegrationTest
 
   test "an agency lists its companies with Add, view, and edit, and its trashed companies with Restore" do
     northwind = agency
-    unilever = create_company(northwind, "Unilever", legal_name: "Unilever PLC", website_url: "https://www.unilever.com")
+    unilever = create_company(northwind, "Unilever", description: "Consumer goods", website_url: "https://www.unilever.com")
     nike = create_company(northwind, "Nike, Inc.")
     acme = trash(create_company(northwind, "Acme Coffee Pty Ltd"))
 
@@ -106,7 +106,7 @@ class CompaniesControllerTest < ActionDispatch::IntegrationTest
     assert_select "[class*=?]", "md:grid-cols-2"
     assert_select "a.flat-pack-list-item-link[class*=?]", "items-center"
     assert_select "a.flat-pack-list-item-link[class*=?]", "items-start", count: 0
-    refute_includes page_text, "Unilever PLC"
+    refute_includes page_text, "Consumer goods"
     refute_includes page_text, "www.unilever.com"
     assert_includes page_text, "In trash"
     assert_select "form[action=?] button[aria-label=?]", routes.restore_company_path(acme),
@@ -136,8 +136,32 @@ class CompaniesControllerTest < ActionDispatch::IntegrationTest
       assert_select "[name=?][maxlength=?]", "company[#{field}]", maximum.to_s
     end
     assert_select "input[name='company[name]'][required]"
-    assert_select "input[name='company[founded_on]'][type=date]"
+    assert_select "input[name='company[founded_on]']", count: 0
+    assert_select "input[name='company[legal_name]']", count: 0
+    assert_select "input[name='company[email]']", count: 0
+    assert_select "input[name='company[phone]']", count: 0
+    body = response.body
+    assert_operator body.index("company[name]"), :<, body.index("company[website_url]")
+    assert_operator body.index("company[website_url]"), :<, body.index("company[description]")
+    assert_select "button", text: "Delete", count: 0
+    assert_select "button[type=submit][data-fp-style=?]", "primary", text: "Add company"
+    assert_select "form[data-controller=?]", "flat-pack--unsaved-changes", count: 0
     assert_select "input[type=hidden][name=idempotency_key]", count: 1
+  end
+
+  test "Update stays the default style until the edit form changes, and Delete sits on the right" do
+    nike = create_company(press_centre, "Nike")
+
+    get routes.edit_company_path(nike)
+
+    assert_select "form[data-controller=?]", "flat-pack--unsaved-changes" do
+      assert_select "button[type=submit][data-fp-style=?][data-flat-pack--unsaved-changes-target=?]",
+                    "default", "submit", text: "Update"
+    end
+    assert_select "form.justify-end[action=?]", routes.company_path(nike) do
+      assert_select "button[data-fp-style=?]", "danger", text: "Delete"
+    end
+    assert_select "button", text: "Save company", count: 0
   end
 
   test "adding a company through the form" do
@@ -148,19 +172,69 @@ class CompaniesControllerTest < ActionDispatch::IntegrationTest
     assert_difference -> { company_children(northwind).count }, 1 do
       post routes.recording_companies_path(northwind), params: {
         idempotency_key: key,
-        company: { name: "Unilever", legal_name: "Unilever PLC", founded_on: "1929-09-02" }
+        company: { name: "Unilever", website_url: "https://www.unilever.com", description: "Consumer goods" }
       }
     end
 
     unilever = company_children(northwind).sole
     assert_response :see_other
     assert_redirected_to routes.company_path(unilever)
-    assert_equal Date.new(1929, 9, 2), unilever.recordable.founded_on
+    assert_equal "https://www.unilever.com", unilever.recordable.website_url
+    assert_equal "Consumer goods", unilever.recordable.description
 
     follow_redirect!
 
     assert_includes page_text, "Unilever was added."
     assert_select "h1", text: "Unilever"
+  end
+
+  test "the company page stacks the logo, name, description, and website, with edit at the bottom" do
+    nike = create_company(
+      press_centre, "Nike, Inc.",
+      description: "Athletic footwear and apparel.",
+      website_url: "https://about.nike.com/"
+    )
+    RecordingStudioCompany.set_logo(nike, signed_blob_id: png_blob.signed_id, actor: owner)
+    get routes.company_path(nike)
+
+    assert_response :success
+    assert_select "h1", text: "Nike, Inc."
+    assert_select "[data-recording-studio-company-card], .page-title-actions", count: 0
+    assert_select "img[alt=?]", "Nike, Inc. logo"
+    assert_select "[class*=?]", "avatar-radius-circle"
+    assert_select "p.whitespace-pre-line", text: "Athletic footwear and apparel."
+    assert_select "svg[data-flat-pack--icon-name-value=?]", "globe-alt"
+    assert_select "a[href=?][target=_blank][rel=?]", "https://about.nike.com/", "noopener noreferrer",
+                  text: "about.nike.com"
+    refute_includes page_text, "Nike Newsroom"
+    refute_includes page_text, "Website"
+    markers = ["Nike, Inc. logo", "<h1", "Athletic footwear and apparel.", "about.nike.com", "Edit company"]
+    indexes = markers.map { |marker| response.body.index(marker) }
+    assert_equal markers.size, indexes.compact.size
+    assert_equal indexes, indexes.sort
+  end
+
+  test "the company page shows a bare website as typed and leaves blank fields out" do
+    acme = create_company(agency, "Acme Coffee Pty Ltd", website_url: "acmecoffee.example")
+
+    get routes.company_path(acme)
+
+    assert_select "h1", text: "Acme Coffee Pty Ltd"
+    assert_select "p.whitespace-pre-line", count: 0
+    assert_select "a[href=?][target=_blank]", "https://acmecoffee.example", text: "acmecoffee.example"
+    assert_select "a[href=?]", routes.edit_company_path(acme), text: "Edit company"
+    refute_includes page_text, "Website"
+  end
+
+  test "the company page shows an unsafe website as text" do
+    company = create_company(agency, "Odd Website Pty Ltd", website_url: "javascript:alert(1)")
+
+    get routes.company_path(company)
+
+    assert_includes page_text, "javascript:alert(1)"
+    assert_select "a[href^='javascript']", count: 0
+    assert_select "a[target=_blank]", count: 0
+    assert_select "svg[data-flat-pack--icon-name-value=?]", "globe-alt"
   end
 
   test "a double submit with the same idempotency key adds one company" do
@@ -180,14 +254,15 @@ class CompaniesControllerTest < ActionDispatch::IntegrationTest
     assert_no_difference -> { company_children(northwind).count } do
       post routes.recording_companies_path(northwind), params: {
         idempotency_key: "form-key-2",
-        company: { name: " ", website_url: "about.nike.com", founded_on: "soon" }
+        company: { name: " ", website_url: "about.nike.com", description: "d" * 5_001 }
       }
     end
 
     assert_response :unprocessable_content
     assert_includes page_text, "The company could not be saved"
     assert_includes page_text, "Name can't be blank"
-    assert_includes page_text, "Founded on is invalid"
+    assert_includes page_text, "Description is too long (maximum is 5000 characters)"
+    refute_includes page_text, "Phone"
     assert_select "input[name=idempotency_key][value=?]", "form-key-2"
     assert_select "input[name='company[website_url]'][value=?]", "about.nike.com"
   end
@@ -203,23 +278,25 @@ class CompaniesControllerTest < ActionDispatch::IntegrationTest
     assert_select "h2", text: "Logo", count: 0
     assert_select "p", text: "One image for the company.", count: 0
     assert_select "input[name=idempotency_key]", count: 0
+    assert_select "[role=separator]", count: 1
+    assert_select "button[data-fp-style=?]", "danger", text: "Delete"
 
-    patch routes.company_path(nike), params: { company: { name: "Nike, Inc.", founded_on: "1964-01-25" } }
+    patch routes.company_path(nike), params: { company: { name: "Nike, Inc.", website_url: "https://about.nike.com" } }
 
     assert_response :see_other
     assert_redirected_to routes.company_path(nike)
     assert_equal "Nike, Inc.", nike.reload.recordable.name
-    assert_equal Date.new(1964, 1, 25), nike.recordable.founded_on
+    assert_equal "https://about.nike.com", nike.recordable.website_url
   end
 
   test "an invalid edit re-renders the form with its errors" do
     nike = create_company(press_centre, "Nike, Inc.")
 
-    patch routes.company_path(nike), params: { company: { name: "", phone: "1" * 51 } }
+    patch routes.company_path(nike), params: { company: { name: "", description: "d" * 5_001 } }
 
     assert_response :unprocessable_content
     assert_includes page_text, "Name can't be blank"
-    assert_includes page_text, "Phone is too long (maximum is 50 characters)"
+    assert_includes page_text, "Description is too long (maximum is 5000 characters)"
     assert_equal "Nike, Inc.", nike.reload.recordable.name
   end
 
@@ -229,8 +306,14 @@ class CompaniesControllerTest < ActionDispatch::IntegrationTest
 
     get routes.company_path(nike)
 
+    assert_select "button", text: "Move to trash", count: 0
+    assert_select "button", text: "Delete", count: 0
+
+    get routes.edit_company_path(nike)
+
+    assert_select "[role=separator]", count: 1
     assert_select "form[action=?] input[name=_method][value=delete]", routes.company_path(nike)
-    assert_select "button", text: "Move to trash"
+    assert_select "button[data-fp-style=?]", "danger", text: "Delete"
 
     delete routes.company_path(nike)
 
@@ -243,6 +326,7 @@ class CompaniesControllerTest < ActionDispatch::IntegrationTest
 
     assert_includes page_text, "Restore it to change it again."
     assert_select "button", text: "Move to trash", count: 0
+    assert_select "button", text: "Delete", count: 0
     assert_select "a", text: "Edit company", count: 0
 
     post routes.restore_company_path(nike)
@@ -282,6 +366,8 @@ class CompaniesControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "button", text: "Move to trash", count: 0
+    assert_select "button", text: "Delete", count: 0
+    assert_select "a", text: "Edit company", count: 0
 
     get routes.edit_company_path(nike)
 

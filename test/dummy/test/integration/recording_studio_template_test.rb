@@ -81,13 +81,17 @@ class RecordingStudioTemplateTest < ActiveSupport::TestCase
     agency_companies = RecordingStudioCompany.companies(agency)
 
     assert_equal "Nike, Inc.", nike.recordable.name
-    assert_equal "Nike, Inc.", nike.recordable.legal_name
     assert_equal "https://about.nike.com", nike.recordable.website_url
-    assert_equal Date.new(1964, 1, 25), nike.recordable.founded_on
     assert_predicate nike.recordable.description, :present?
+    %w[legal_name email phone founded_on].each do |column|
+      refute_includes nike.recordable.attributes, column
+    end
     assert_equal "image/png", RecordingStudioCompany.logo(nike).recordable.file.content_type
     assert_equal [ "Acme Coffee Pty Ltd", "Nike, Inc.", "Unilever" ], agency_companies.map { |company| company.recordable.name }
-    assert_equal "Unilever PLC", agency_companies.last.recordable.legal_name
+    agency_nike = agency_companies.find { |company| company.recordable.name == "Nike, Inc." }
+    assert_equal "Nike, Inc. makes athletic footwear, apparel, equipment, and accessories.",
+                 agency_nike.recordable.description
+    assert_equal "https://www.unilever.com", agency_companies.last.recordable.website_url
     assert_equal agency, project.parent_recording
     assert_equal "Acme Engineering Pty Ltd", RecordingStudioCompany.company(project).recordable.name
     assert RecordingStudioCompany.can?(:update, nike, actor: admin)
