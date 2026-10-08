@@ -96,7 +96,13 @@ begin
   )
 
   agency_companies = [
-    seed_company.call(user, agency_recording, name: "Nike, Inc.", website_url: "https://about.nike.com"),
+    seed_company.call(
+      user,
+      agency_recording,
+      name: "Nike, Inc.",
+      description: "Nike, Inc. makes athletic footwear, apparel, equipment, and accessories.",
+      website_url: "https://about.nike.com"
+    ),
     seed_company.call(
       user,
       agency_recording,

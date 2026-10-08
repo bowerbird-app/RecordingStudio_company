@@ -88,6 +88,9 @@ class RecordingStudioTemplateTest < ActiveSupport::TestCase
     end
     assert_equal "image/png", RecordingStudioCompany.logo(nike).recordable.file.content_type
     assert_equal [ "Acme Coffee Pty Ltd", "Nike, Inc.", "Unilever" ], agency_companies.map { |company| company.recordable.name }
+    agency_nike = agency_companies.find { |company| company.recordable.name == "Nike, Inc." }
+    assert_equal "Nike, Inc. makes athletic footwear, apparel, equipment, and accessories.",
+                 agency_nike.recordable.description
     assert_equal "https://www.unilever.com", agency_companies.last.recordable.website_url
     assert_equal agency, project.parent_recording
     assert_equal "Acme Engineering Pty Ltd", RecordingStudioCompany.company(project).recordable.name
