@@ -1,5 +1,5 @@
 <% name = @company.recordable.name %>
-<% parent = @company.parent_recording %>
+<% record = @company.recordable %>
 <% can_update = company_can?(:update, @company) %>
 <% recording_studio_page_nav(
   title: name,
@@ -7,34 +7,58 @@
   page_nav_back_label: "Back"
 ) %>
 
-<div class="flex w-full flex-col gap-6">
-  <%= render FlatPack::PageTitle::Component.new(
-    title: name,
-    subtitle: (company_parent_subtitle(parent) if parent)
-  ) do |page_title| %>
-    <% if can_update %>
-      <% page_title.slot do %>
-        <%= render FlatPack::Button::Component.new(
-          text: "Edit company",
-          style: :primary,
-          href: edit_company_path(@company)
-        ) %>
+<div class="flex w-full max-w-xl flex-col">
+  <div class="mb-5">
+    <%= recording_studio_company_logo(@company, size: :xl, shape: :circle) %>
+  </div>
+
+  <%= render FlatPack::PageTitle::Component.new(title: name) %>
+
+  <% if record.description.present? || record.website_url.present? %>
+    <div class="flex flex-col gap-5">
+      <% if record.description.present? %>
+        <p class="whitespace-pre-line text-lg leading-7 text-(--surface-muted-content-color)"><%= record.description %></p>
       <% end %>
-    <% end %>
+
+      <% if record.website_url.present? %>
+        <% website_label = record.website_url.sub(/\Ahttps?:\/\//i, "").sub(%r{/+\z}, "").presence || record.website_url %>
+        <div class="flex items-center gap-2 text-sm text-(--surface-muted-content-color)">
+          <%= render FlatPack::Shared::IconComponent.new(name: "globe-alt", size: :sm) %>
+          <% if (website_href = record.website_href) %>
+            <%= link_to website_label, website_href,
+                  target: "_blank",
+                  rel: "noopener noreferrer",
+                  class: "min-w-0 break-words text-(--surface-muted-content-color) no-underline" %>
+          <% else %>
+            <span class="min-w-0 break-words"><%= website_label %></span>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
   <% end %>
 
   <% if @company.trashed_at %>
-    <%= render FlatPack::Alert::Component.new(
-      style: :warning,
-      title: "#{name} is in the trash",
-      description: "Restore it to change it again."
-    ) %>
-    <% if company_can?(:restore, @company) %>
-      <%= form_with url: restore_company_path(@company), method: :post, class: "inline-flex" do %>
-        <%= render FlatPack::Button::Component.new(text: "Restore company", style: :primary, type: "submit") %>
+    <div class="mt-8 flex flex-col items-start gap-4">
+      <%= render FlatPack::Alert::Component.new(
+        style: :warning,
+        title: "#{name} is in the trash",
+        description: "Restore it to change it again."
+      ) %>
+      <% if company_can?(:restore, @company) %>
+        <%= form_with url: restore_company_path(@company), method: :post, class: "inline-flex" do %>
+          <%= render FlatPack::Button::Component.new(text: "Restore company", style: :primary, type: "submit") %>
+        <% end %>
       <% end %>
-    <% end %>
+    </div>
   <% end %>
 
-  <%= recording_studio_company_card(@company) %>
+  <% if can_update %>
+    <div class="mt-8">
+      <%= render FlatPack::Button::Component.new(
+        text: "Edit company",
+        style: :primary,
+        href: edit_company_path(@company)
+      ) %>
+    </div>
+  <% end %>
 </div>

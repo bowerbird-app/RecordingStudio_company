@@ -72,7 +72,7 @@ bin/rails db:migrate
 
 The migration drops `legal_name`, `email`, `phone`, and `founded_on` from `recording_studio_companies`. Those values are not kept. Stop passing them to `RecordingStudioCompany.create` and `.update`. Name, description, website, and the logo stay. The edit form asks for the name, then the website, then the description.
 
-Delete sits on the edit page, under a divider. It moves the company to the trash. Restore stays on the company page.
+Delete sits on the edit page, under a divider. It moves the company to the trash. Restore stays on the company page. The company page stacks the logo, name, description, and website, and puts Edit company at the bottom.
 
 List the company and attachment types in the Recording Studio initializer. The engine also registers the company type after your initializers run, but listing it keeps the configuration in one place.
 
@@ -234,7 +234,7 @@ Trashing a company also trashes its logo, and restoring the company restores the
 <%= recording_studio_company_card(company) %>
 ```
 
-`recording_studio_company_logo` renders a FlatPack avatar with the live logo, or the company's initials when it has none. `recording_studio_company_card` renders a read-only profile with the logo, name, description, and website, and leaves blank fields out. The card links nothing in the company pages, so other gems can render it on their own pages.
+`recording_studio_company_logo` renders a FlatPack avatar with the live logo, or the company's initials when it has none. It is rounded unless you pass `shape: :circle`. `recording_studio_company_card` renders a read-only profile with the logo, name, description, and website, and leaves blank fields out. The card links nothing in the company pages, so other gems can render it on their own pages.
 
 ## Company pages
 
@@ -253,9 +253,11 @@ The engine serves these pages under its mount path. Link to a parent's page with
 | PATCH | `/companies/:id/logo` | Set the logo from `logo[signed_blob_id]` |
 | DELETE | `/companies/:id/logo` | Remove the logo |
 
-The index is titled "Companies and organisations" and has no parent subtitle. + Company sits under the title when another company can be added. Live companies are names in a list inside a card, and each name opens that company. On a wide screen the list sits in the first column of a two-column grid. The website stays on the company page. On a one-company parent, a trashed company offers Restore and no + Company. When that parent holds more than one company, the page says so and offers no + Company. A trash section with Restore follows a many-company list.
+The index is titled "Companies and organisations" and has no parent subtitle. + Company sits under the title when another company can be added. Live companies are names in a list inside a card, and each name opens that company. On a wide screen the list sits in the first column of a two-column grid. On a one-company parent, a trashed company offers Restore and no + Company. When that parent holds more than one company, the page says so and offers no + Company. A trash section with Restore follows a many-company list.
 
-The edit page shows the logo beside Upload logo, or Change logo and Remove logo when a logo is already set, then the company fields. The logo has no card and no heading of its own. Below the fields, a divider and Delete move the company to the trash. The company page itself has no delete button. Restore stays there when the company is in the trash.
+A company page stacks a circular logo, the name in a large heading, the description, and the website. Blank description and website are left out. Edit company sits at the bottom. The page has no delete button. Restore stays there when the company is in the trash.
+
+The edit page shows the logo beside Upload logo, or Change logo and Remove logo when a logo is already set, then the company fields. The logo has no card and no heading of its own. Below the fields, a divider and Delete move the company to the trash.
 
 An unknown parent, a parent whose type holds no companies, and a parent or company the actor cannot view all return 404. A denied write returns 403.
 

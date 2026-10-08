@@ -171,6 +171,62 @@ class CompaniesControllerTest < ActionDispatch::IntegrationTest
     assert_select "h1", text: "Unilever"
   end
 
+  test "the company page stacks the logo, name, description, and website, with edit at the bottom" do
+    nike = create_company(
+      press_centre,
+      "Nike, Inc.",
+      description: "Athletic footwear and apparel.",
+      website_url: "https://about.nike.com/"
+    )
+    RecordingStudioCompany.set_logo(nike, signed_blob_id: png_blob.signed_id, actor: owner)
+
+    get routes.company_path(nike)
+
+    assert_response :success
+    assert_select "h1", text: "Nike, Inc."
+    assert_select "[data-recording-studio-company-card]", count: 0
+    assert_select ".page-title-actions", count: 0
+    assert_select "img[alt=?]", "Nike, Inc. logo"
+    assert_select "[class*=?]", "avatar-radius-circle"
+    assert_select "p.whitespace-pre-line", text: "Athletic footwear and apparel."
+    assert_select "svg[data-flat-pack--icon-name-value=?]", "globe-alt"
+    assert_select "a[href=?][target=_blank][rel=?]",
+                  "https://about.nike.com/",
+                  "noopener noreferrer",
+                  text: "about.nike.com"
+    refute_includes page_text, "Nike Newsroom"
+    refute_includes page_text, "Website"
+
+    body = response.body
+    assert_operator body.index("Nike, Inc. logo"), :<, body.index("<h1")
+    assert_operator body.index("<h1"), :<, body.index("Athletic footwear and apparel.")
+    assert_operator body.index("Athletic footwear and apparel."), :<, body.index("about.nike.com")
+    assert_operator body.index("about.nike.com"), :<, body.index("Edit company")
+  end
+
+  test "the company page shows a bare website as typed and leaves blank fields out" do
+    acme = create_company(agency, "Acme Coffee Pty Ltd", website_url: "acmecoffee.example")
+
+    get routes.company_path(acme)
+
+    assert_select "h1", text: "Acme Coffee Pty Ltd"
+    assert_select "p.whitespace-pre-line", count: 0
+    assert_select "a[href=?][target=_blank]", "https://acmecoffee.example", text: "acmecoffee.example"
+    assert_select "a[href=?]", routes.edit_company_path(acme), text: "Edit company"
+    refute_includes page_text, "Website"
+  end
+
+  test "the company page shows an unsafe website as text" do
+    company = create_company(agency, "Odd Website Pty Ltd", website_url: "javascript:alert(1)")
+
+    get routes.company_path(company)
+
+    assert_includes page_text, "javascript:alert(1)"
+    assert_select "a[href^='javascript']", count: 0
+    assert_select "a[target=_blank]", count: 0
+    assert_select "svg[data-flat-pack--icon-name-value=?]", "globe-alt"
+  end
+
   test "a double submit with the same idempotency key adds one company" do
     northwind = agency
     params = { idempotency_key: "form-key-1", company: { name: "Unilever" } }
@@ -301,6 +357,7 @@ class CompaniesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "button", text: "Move to trash", count: 0
     assert_select "button", text: "Delete", count: 0
+    assert_select "a", text: "Edit company", count: 0
 
     get routes.edit_company_path(nike)
 

@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Delete sits on the edit page, under a divider, and moves the company to the trash. The company page no longer shows Move to trash. Restore stays on the company page.
+- The company page stacks the logo, name, description, and website. Edit company sits at the bottom.
 
 ### Upgrade
 
@@ -24,7 +25,7 @@ bin/rails generate recording_studio_company:migrations
 bin/rails db:migrate
 ```
 
-That drops `legal_name`, `email`, `phone`, and `founded_on` from `recording_studio_companies`. The values are not kept. Remove those keys from `RecordingStudioCompany.create` and `.update`, and from any screen that read them. The edit form asks for the name, then the website, then the description.
+That drops `legal_name`, `email`, `phone`, and `founded_on` from `recording_studio_companies`. The values are not kept. Remove those keys from `RecordingStudioCompany.create` and `.update`, and from any screen that read them. The edit form asks for the name, then the website, then the description. Hosts that replaced the company show view keep that view. The default page stacks the logo, name, description, and website, with Edit company at the bottom.
 
 ## [0.1.0] - 2026-10-06
 

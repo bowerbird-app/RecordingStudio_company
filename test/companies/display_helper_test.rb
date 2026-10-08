@@ -17,6 +17,17 @@ class DisplayHelperTest < ActiveSupport::TestCase
     assert_includes image["src"], "square_small"
   end
 
+  test "the logo is rounded unless a screen asks for a circle" do
+    nike = create_company(press_centre, "Nike, Inc.")
+
+    rounded = render_erb("<%= recording_studio_company_logo(company) %>", company: nike)
+    circle = render_erb("<%= recording_studio_company_logo(company, shape: :circle) %>", company: nike)
+
+    assert_includes rounded.to_html, "avatar-radius-rounded"
+    refute_includes rounded.to_html, "avatar-radius-circle"
+    assert_includes circle.to_html, "avatar-radius-circle"
+  end
+
   test "the logo falls back to the company's initials" do
     nike = create_company(press_centre, "Nike, Inc.")
 
