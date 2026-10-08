@@ -40,7 +40,7 @@ Add the gem. Recording Studio gems are not published to RubyGems, so resolve the
 # Gemfile
 gem "recording_studio_company", github: "bowerbird-app/RecordingStudio_company", tag: "v0.2.0"
 
-gem "flat_pack", github: "bowerbird-app/flatpack", tag: "v0.1.196"
+gem "flat_pack", github: "bowerbird-app/flatpack", tag: "v0.1.203"
 gem "recording_studio", github: "bowerbird-app/RecordingStudio", tag: "v4.2.2"
 gem "recording_studio_accessible", github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.11.1"
 gem "recording_studio_attachable", github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.7.1"
@@ -72,7 +72,7 @@ bin/rails db:migrate
 
 The migration drops `legal_name`, `email`, `phone`, and `founded_on` from `recording_studio_companies`. Those values are not kept. Stop passing them to `RecordingStudioCompany.create` and `.update`. Name, description, website, and the logo stay. The edit form asks for the name, then the website, then the description.
 
-Delete sits on the edit page, under a divider. It moves the company to the trash. Restore stays on the company page. The company page stacks the logo, name, description, and website, and puts Edit company at the bottom.
+Delete sits on the right of the edit page, under a divider. It moves the company to the trash. Restore stays on the company page. The company page stacks the logo, name, description, and website, and puts Edit company at the bottom. The edit form's button says Update. It stays the default style until a field changes, then it turns primary. That needs Flatpack `v0.1.200` or newer.
 
 List the company and attachment types in the Recording Studio initializer. The engine also registers the company type after your initializers run, but listing it keeps the configuration in one place.
 

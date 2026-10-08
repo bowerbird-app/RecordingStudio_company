@@ -13,8 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Delete sits on the edit page, under a divider, and moves the company to the trash. The company page no longer shows Move to trash. Restore stays on the company page.
+- Delete sits on the right of the edit page, under a divider, and moves the company to the trash. The company page no longer shows Move to trash. Restore stays on the company page.
 - The company page stacks the logo, name, description, and website. Edit company sits at the bottom.
+- The edit form's button says Update. It stays the default style until a field changes, then it turns primary.
 
 ### Upgrade
 
@@ -26,6 +27,8 @@ bin/rails db:migrate
 ```
 
 That drops `legal_name`, `email`, `phone`, and `founded_on` from `recording_studio_companies`. The values are not kept. Remove those keys from `RecordingStudioCompany.create` and `.update`, and from any screen that read them. The edit form asks for the name, then the website, then the description. Hosts that replaced the company show view keep that view. The default page stacks the logo, name, description, and website, with Edit company at the bottom.
+
+Pin `flat_pack` at `v0.1.200` or newer. The edit form uses Flatpack's unsaved-changes controller, so Update stays the default style until a field changes, then turns primary. Hosts that replaced the company edit view keep that view. Delete sits on the right.
 
 ## [0.1.0] - 2026-10-06
 
