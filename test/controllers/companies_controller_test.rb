@@ -173,35 +173,28 @@ class CompaniesControllerTest < ActionDispatch::IntegrationTest
 
   test "the company page stacks the logo, name, description, and website, with edit at the bottom" do
     nike = create_company(
-      press_centre,
-      "Nike, Inc.",
+      press_centre, "Nike, Inc.",
       description: "Athletic footwear and apparel.",
       website_url: "https://about.nike.com/"
     )
     RecordingStudioCompany.set_logo(nike, signed_blob_id: png_blob.signed_id, actor: owner)
-
     get routes.company_path(nike)
 
     assert_response :success
     assert_select "h1", text: "Nike, Inc."
-    assert_select "[data-recording-studio-company-card]", count: 0
-    assert_select ".page-title-actions", count: 0
+    assert_select "[data-recording-studio-company-card], .page-title-actions", count: 0
     assert_select "img[alt=?]", "Nike, Inc. logo"
     assert_select "[class*=?]", "avatar-radius-circle"
     assert_select "p.whitespace-pre-line", text: "Athletic footwear and apparel."
     assert_select "svg[data-flat-pack--icon-name-value=?]", "globe-alt"
-    assert_select "a[href=?][target=_blank][rel=?]",
-                  "https://about.nike.com/",
-                  "noopener noreferrer",
+    assert_select "a[href=?][target=_blank][rel=?]", "https://about.nike.com/", "noopener noreferrer",
                   text: "about.nike.com"
     refute_includes page_text, "Nike Newsroom"
     refute_includes page_text, "Website"
-
-    body = response.body
-    assert_operator body.index("Nike, Inc. logo"), :<, body.index("<h1")
-    assert_operator body.index("<h1"), :<, body.index("Athletic footwear and apparel.")
-    assert_operator body.index("Athletic footwear and apparel."), :<, body.index("about.nike.com")
-    assert_operator body.index("about.nike.com"), :<, body.index("Edit company")
+    markers = ["Nike, Inc. logo", "<h1", "Athletic footwear and apparel.", "about.nike.com", "Edit company"]
+    indexes = markers.map { |marker| response.body.index(marker) }
+    assert_equal markers.size, indexes.compact.size
+    assert_equal indexes, indexes.sort
   end
 
   test "the company page shows a bare website as typed and leaves blank fields out" do
