@@ -36,9 +36,9 @@ class RecordingStudioCompanyTest < Minitest::Test
         "flat_pack" => ">= 0.1.200",
         "rails" => "~> 8.1.0",
         "recording_studio" => "~> 4.2",
-        "recording_studio_accessible" => "~> 0.11",
-        "recording_studio_attachable" => "~> 0.7",
-        "recording_studio_trashable" => "~> 0.4"
+        "recording_studio_accessible" => "~> 0.13",
+        "recording_studio_attachable" => "~> 0.13",
+        "recording_studio_trashable" => "~> 0.6"
       },
       requirements
     )
@@ -72,21 +72,24 @@ class RecordingStudioCompanyTest < Minitest::Test
     gemfile = File.read(File.expand_path("dummy/Gemfile", __dir__))
 
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio", tag: "v4.4.0"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.11.1"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.7.1"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.4.4"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.13.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.13.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.6.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_root_switchable", tag: "v0.5.1"'
-    assert_includes gemfile, 'github: "bowerbird-app/flatpack", tag: "v0.1.203"'
+    assert_includes gemfile, 'github: "bowerbird-app/flatpack", tag: "v0.1.213"'
     refute_includes gemfile, 'tag: "v0.10.1"'
     refute_includes gemfile, "recording_studio/v3.0.0"
     refute_includes gemfile, 'tag: "v4.2.2"'
     refute_includes gemfile, 'tag: "v4.2.1"'
     refute_includes gemfile, 'tag: "v4.2.0"'
+    refute_includes gemfile, 'tag: "v0.11.1"'
+    refute_includes gemfile, 'tag: "v0.7.1"'
+    refute_includes gemfile, 'tag: "v0.4.4"'
     refute_includes gemfile, 'tag: "v0.9.1"'
     refute_includes gemfile, 'tag: "v0.5.0"'
+    refute_includes gemfile, 'tag: "v0.1.203"'
     refute_includes gemfile, 'tag: "v0.1.177"'
     refute_includes gemfile, 'tag: "v0.1.133"'
-    refute_includes gemfile, 'tag: "v0.6.0"'
     refute_includes gemfile, 'tag: "0.3.1"'
   end
 
@@ -111,6 +114,28 @@ class RecordingStudioCompanyTest < Minitest::Test
       )
     )
     assert_includes invitation_migration, "create_table :recording_studio_access_invitations"
+  end
+
+  def test_dummy_schema_includes_attachable_libraries_and_placements
+    schema = File.read(File.expand_path("dummy/db/schema.rb", __dir__))
+    libraries_migration = File.read(
+      File.expand_path(
+        "dummy/db/migrate/20261009100000_create_recording_studio_attachable_libraries.rb",
+        __dir__
+      )
+    )
+    placements_migration = File.read(
+      File.expand_path(
+        "dummy/db/migrate/20261009100001_create_recording_studio_attachable_placements.rb",
+        __dir__
+      )
+    )
+
+    assert_includes schema, 'create_table "recording_studio_attachable_libraries"'
+    assert_includes schema, 'create_table "recording_studio_attachable_placements"'
+    assert_includes schema, 't.uuid "attachment_recording_id", null: false'
+    assert_includes libraries_migration, "create_table :recording_studio_attachable_libraries"
+    assert_includes placements_migration, "create_table :recording_studio_attachable_placements"
   end
 
   def test_template_does_not_ship_copied_core_hooks_or_base_service
@@ -181,7 +206,9 @@ class RecordingStudioCompanyTest < Minitest::Test
         "Workspace", "Folder", "Page",
         "PressCentre", "Agency", "Project",
         "RecordingStudioCompany::Company",
-        "RecordingStudioAttachable::Attachment"
+        "RecordingStudioAttachable::Attachment",
+        "RecordingStudioAttachable::Library",
+        "RecordingStudioAttachable::Placement"
       ]
     RUBY
     refute_includes initializer_source, "config.include_children"
