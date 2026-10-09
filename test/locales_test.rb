@@ -5,7 +5,7 @@ require "yaml"
 
 class LocalesTest < Minitest::Test
   # I18n interpolation tokens use %{name}; Style/FormatStringToken wants %<name>s.
-  # rubocop:disable Style/FormatStringToken
+  # rubocop:disable-next Style/FormatStringToken
   COMPANY_KEYS = {
     "navigation" => {
       "back" => "Back",
@@ -71,7 +71,6 @@ class LocalesTest < Minitest::Test
       "alt" => "%{name} logo"
     }
   }.freeze
-  # rubocop:enable Style/FormatStringToken
 
   def test_engine_ships_only_english_locale_files
     files = Dir[File.join(engine_locales_dir, "*")].map { |path| File.basename(path) }
