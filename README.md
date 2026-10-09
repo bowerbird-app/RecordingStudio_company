@@ -38,7 +38,7 @@ Add the gem. Recording Studio gems are not published to RubyGems, so resolve the
 
 ```ruby
 # Gemfile
-gem "recording_studio_company", github: "bowerbird-app/RecordingStudio_company", tag: "v0.2.0"
+gem "recording_studio_company", github: "bowerbird-app/RecordingStudio_company", tag: "v0.2.2"
 
 gem "flat_pack", github: "bowerbird-app/flatpack", tag: "v0.1.203"
 gem "recording_studio", github: "bowerbird-app/RecordingStudio", tag: "v4.2.2"
@@ -72,7 +72,11 @@ bin/rails db:migrate
 
 The migration drops `legal_name`, `email`, `phone`, and `founded_on` from `recording_studio_companies`. Those values are not kept. Stop passing them to `RecordingStudioCompany.create` and `.update`. Name, description, website, and the logo stay. The edit form asks for the name, then the website, then the description.
 
-Delete sits on the right of the edit page, under a divider. It moves the company to the trash. Restore stays on the company page. The company page stacks the logo, name, description, and website, and puts Edit company at the bottom. The edit form's button says Update. It stays the default style until a field changes, then it turns primary. That needs Flatpack `v0.1.200` or newer.
+The company page stacks the logo, name, description, and website, and puts Edit company at the bottom. Restore stays on the company page. The edit form's button says Save. It stays the default style until a field changes, then it turns primary. Delete sits on that same row, on the right, and moves the company to the trash. That needs Flatpack `v0.1.200` or newer.
+
+## Upgrade from 0.2.1
+
+Pin `v0.2.2`. There is no migration. The edit button says Save, and Delete sits on that row. Hosts that replaced the company edit view keep that view.
 
 List the company and attachment types in the Recording Studio initializer. The engine also registers the company type after your initializers run, but listing it keeps the configuration in one place.
 
@@ -257,7 +261,7 @@ The index is titled "Companies and organisations" and has no parent subtitle. + 
 
 A company page stacks a circular logo, the name in a large heading, the description, and the website. Blank description and website are left out. Edit company sits at the bottom. The page has no delete button. Restore stays there when the company is in the trash.
 
-The edit page shows the logo beside Upload logo, or Change logo and Remove logo when a logo is already set, then the company fields. The logo has no card and no heading of its own. Below the fields, a divider and Delete move the company to the trash.
+The edit page shows the logo beside Upload logo, or Change logo and Remove logo when a logo is already set, then the company fields. The logo has no card and no heading of its own. Save and Cancel sit under the fields, and Delete sits on the right of that row.
 
 An unknown parent, a parent whose type holds no companies, and a parent or company the actor cannot view all return 404. A denied write returns 403.
 

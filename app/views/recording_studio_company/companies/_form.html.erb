@@ -1,4 +1,4 @@
-<%# locals: (record:, url:, form_method:, submit_text:, cancel_url:, idempotency_key: nil, unsaved_changes: false) %>
+<%# locals: (record:, url:, form_method:, submit_text:, cancel_url:, idempotency_key: nil, unsaved_changes: false, delete_url: nil) %>
 <% limits = RecordingStudioCompany::Company::LIMITS %>
 <% form_data = unsaved_changes ? { controller: "flat-pack--unsaved-changes" } : {} %>
 <%= form_with url: url, method: form_method, class: "flex max-w-2xl flex-col gap-4", data: form_data do %>
@@ -41,7 +41,7 @@
     error: company_field_error(record, :description)
   ) %>
 
-  <div class="flex flex-wrap gap-3">
+  <div class="flex flex-wrap items-center gap-3">
     <% if unsaved_changes %>
       <%= render FlatPack::Button::Component.new(
         text: submit_text,
@@ -53,5 +53,18 @@
       <%= render FlatPack::Button::Component.new(text: submit_text, style: :primary, type: "submit") %>
     <% end %>
     <%= render FlatPack::Button::Component.new(text: "Cancel", style: :ghost, href: cancel_url) %>
+    <% if delete_url %>
+      <%= render FlatPack::Button::Component.new(
+        text: "Delete",
+        style: :danger,
+        type: "submit",
+        form: "delete-company",
+        class: "ml-auto"
+      ) %>
+    <% end %>
   </div>
+<% end %>
+<% if delete_url %>
+  <%= form_with url: delete_url, method: :delete, id: "delete-company", class: "hidden" do %>
+  <% end %>
 <% end %>
