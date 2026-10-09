@@ -1,10 +1,10 @@
 <% many = @allowance == :many %>
-<% heading = "Companies and organisations" %>
+<% heading = t("recording_studio.company.titles.index") %>
 <% home_path = company_home_path %>
 <% recording_studio_page_nav(
   title: heading,
   page_nav_back_url: home_path,
-  page_nav_back_label: (home_path && "Home")
+  page_nav_back_label: (home_path && t("recording_studio.company.navigation.home"))
 ) %>
 
 <div class="flex w-full flex-col gap-6">
@@ -12,7 +12,7 @@
     <% if company_can?(:create, @parent) %>
       <% page_title.slot do %>
         <%= render FlatPack::Button::Component.new(
-          text: "+ Company",
+          text: t("recording_studio.company.actions.add_company_plus"),
           style: :primary,
           href: new_recording_company_path(@parent)
         ) %>
@@ -26,21 +26,23 @@
     <% companies = @integrity_error.companies %>
     <%= render FlatPack::Alert::Component.new(
       style: :danger,
-      title: "#{@parent.name} has #{companies.size} companies",
-      description: "This #{@parent.type_label.downcase} holds one company. " \
-                   "Adding a company stays off until the extra companies are moved or purged."
+      title: t("recording_studio.company.integrity.title", name: @parent.name, count: companies.size),
+      description: [
+        t("recording_studio.company.integrity.holds_one", type: @parent.type_label.downcase),
+        t("recording_studio.company.integrity.stays_off")
+      ].join(" ")
     ) %>
     <%= render FlatPack::List::Component.new(divider: true) do %>
       <% companies.each do |company| %>
         <%= render FlatPack::List::Item.new do %>
           <div class="flex flex-wrap items-center justify-between gap-3">
-            <span class="font-medium"><%= company.recordable.name %><%= " (in the trash)" if company.trashed_at %></span>
+            <span class="font-medium"><%= company.recordable.name %><%= t("recording_studio.company.trash.in_trash_suffix") if company.trashed_at %></span>
             <%= render FlatPack::Button::Component.new(
-              text: "View",
+              text: t("recording_studio.company.actions.view"),
               style: :ghost,
               size: :sm,
               href: company_path(company),
-              aria: { label: "View #{company.recordable.name}" }
+              aria: { label: t("recording_studio.company.actions.view_aria", name: company.recordable.name) }
             ) %>
           </div>
         <% end %>

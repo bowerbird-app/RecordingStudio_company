@@ -38,7 +38,7 @@ Add the gem. Recording Studio gems are not published to RubyGems, so resolve the
 
 ```ruby
 # Gemfile
-gem "recording_studio_company", github: "bowerbird-app/RecordingStudio_company", tag: "v0.2.2"
+gem "recording_studio_company", github: "bowerbird-app/RecordingStudio_company", tag: "v0.3.0"
 
 gem "flat_pack", github: "bowerbird-app/flatpack", tag: "v0.1.213"
 gem "recording_studio", github: "bowerbird-app/RecordingStudio", tag: "v4.2.2"
@@ -74,9 +74,11 @@ The migration drops `legal_name`, `email`, `phone`, and `founded_on` from `recor
 
 The company page stacks the logo, name, description, and website, and puts Edit company at the bottom. Restore stays on the company page. The edit form's button says Save. It stays the default style until a field changes, then it turns primary. Delete sits on that same row, on the right, and moves the company to the trash. That needs Flatpack `v0.1.200` or newer.
 
-## Upgrade from 0.2.1
+## Upgrade from 0.2.x
 
-Pin `v0.2.2`. There is no migration. The edit button says Save, and Delete sits on that row. Hosts that replaced the company edit view keep that view.
+Pin `v0.3.0`. There is no migration. Static interface copy on the company screens uses Rails I18n keys under `recording_studio.company`. English output is unchanged. Hosts override or add languages in their own `config/locales`. There is no dependency on `recording_studio_internationalization`.
+
+From 0.2.1, the edit button says Save, and Delete sits on that row. Hosts that replaced the company edit view keep that view.
 
 List the company, attachment, library, and placement types in the Recording Studio initializer. Attachable registers image-library capabilities whose child types must be listed even when the host does not enable libraries. The engine also registers the company type after your initializers run, but listing it keeps the configuration in one place.
 
@@ -241,6 +243,10 @@ Trashing a company also trashes its logo, and restoring the company restores the
 ```
 
 `recording_studio_company_logo` renders a FlatPack avatar with the live logo, or the company's initials when it has none. It is rounded unless you pass `shape: :circle`. `recording_studio_company_card` renders a read-only profile with the logo, name, description, and website, and leaves blank fields out. The card links nothing in the company pages, so other gems can render it on their own pages.
+
+## Interface text
+
+Static interface copy on the gem's company screens uses Rails I18n keys under `recording_studio.company` in `config/locales/en.yml`. The gem ships English only. Hosts override or add languages by defining the same keys in their own `config/locales`. Company names and other database content stay untranslated. Flash notices built in controllers are separate from these view keys.
 
 ## Company pages
 

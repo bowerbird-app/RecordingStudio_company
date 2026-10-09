@@ -9,7 +9,13 @@ module RecordingStudioCompany
       variant = %i[xs sm md].include?(size.to_sym) ? :square_small : :square_med
       src = logo && authorized_attachment_preview_path(logo, variant)
 
-      render FlatPack::Avatar::Component.new(src:, alt: "#{name} logo", name:, size:, shape:)
+      render FlatPack::Avatar::Component.new(
+        src:,
+        alt: I18n.t("recording_studio.company.logo.alt", name:),
+        name:,
+        size:,
+        shape:
+      )
     end
 
     def recording_studio_company_card(company)

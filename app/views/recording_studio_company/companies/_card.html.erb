@@ -16,7 +16,7 @@
       <% if record.website_url.present? %>
         <dl class="grid gap-3 text-sm sm:grid-cols-2">
           <div>
-            <dt class="text-(--surface-muted-content-color)">Website</dt>
+            <dt class="text-(--surface-muted-content-color)"><%= t("recording_studio.company.labels.website") %></dt>
             <dd class="break-words">
               <% if website_href %>
                 <%= link_to record.website_url, website_href, target: "_blank", rel: "noopener noreferrer" %>

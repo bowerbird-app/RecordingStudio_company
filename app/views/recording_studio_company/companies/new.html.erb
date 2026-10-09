@@ -1,12 +1,12 @@
 <% recording_studio_page_nav(
-  title: "Add company",
+  title: t("recording_studio.company.titles.add"),
   page_nav_back_url: recording_companies_path(@parent),
-  page_nav_back_label: "Back"
+  page_nav_back_label: t("recording_studio.company.navigation.back")
 ) %>
 
 <div class="flex w-full flex-col gap-6">
   <%= render FlatPack::PageTitle::Component.new(
-    title: "Add company",
+    title: t("recording_studio.company.titles.add"),
     subtitle: company_parent_subtitle(@parent)
   ) %>
 
@@ -15,8 +15,8 @@
              url: recording_companies_path(@parent),
              form_method: :post,
              idempotency_key: @idempotency_key,
-             submit_text: "Add company",
+             submit_text: t("recording_studio.company.actions.add_company"),
              cancel_url: recording_companies_path(@parent) %>
 
-  <p class="text-sm text-(--surface-muted-content-color)">You can add a logo after the company is saved.</p>
+  <p class="text-sm text-(--surface-muted-content-color)"><%= t("recording_studio.company.new.logo_hint") %></p>
 </div>

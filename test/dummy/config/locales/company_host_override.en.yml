@@ -1,0 +1,10 @@
+# Dummy-host English override for a rarely shown integrity-alert sentence.
+# Rails loads config/locales automatically, so this file wins over the gem's
+# en.yml without any explicit load-path append. Proves the engine does not
+# re-add its locales after the host (which would clobber this).
+# Existing UI tests and screenshots stay on default English for other keys.
+en:
+  recording_studio:
+    company:
+      integrity:
+        stays_off: "HOST Adding a company stays off until the extra companies are moved or purged."
