@@ -6,7 +6,9 @@ RecordingStudio.configure do |config|
     "Workspace", "Folder", "Page",
     "PressCentre", "Agency", "Project",
     "RecordingStudioCompany::Company",
-    "RecordingStudioAttachable::Attachment"
+    "RecordingStudioAttachable::Attachment",
+    "RecordingStudioAttachable::Library",
+    "RecordingStudioAttachable::Placement"
   ]
 
   # Require each configured ActiveRecord type to call recording_studio_recordable.

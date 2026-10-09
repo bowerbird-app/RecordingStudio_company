@@ -40,11 +40,11 @@ Add the gem. Recording Studio gems are not published to RubyGems, so resolve the
 # Gemfile
 gem "recording_studio_company", github: "bowerbird-app/RecordingStudio_company", tag: "v0.2.2"
 
-gem "flat_pack", github: "bowerbird-app/flatpack", tag: "v0.1.203"
+gem "flat_pack", github: "bowerbird-app/flatpack", tag: "v0.1.213"
 gem "recording_studio", github: "bowerbird-app/RecordingStudio", tag: "v4.2.2"
-gem "recording_studio_accessible", github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.11.1"
-gem "recording_studio_attachable", github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.7.1"
-gem "recording_studio_trashable", github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.4.4"
+gem "recording_studio_accessible", github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.13.0"
+gem "recording_studio_attachable", github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.13.0"
+gem "recording_studio_trashable", github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.6.0"
 ```
 
 Run the install generators and the migrations.
@@ -78,7 +78,7 @@ The company page stacks the logo, name, description, and website, and puts Edit 
 
 Pin `v0.2.2`. There is no migration. The edit button says Save, and Delete sits on that row. Hosts that replaced the company edit view keep that view.
 
-List the company and attachment types in the Recording Studio initializer. The engine also registers the company type after your initializers run, but listing it keeps the configuration in one place.
+List the company, attachment, library, and placement types in the Recording Studio initializer. Attachable registers image-library capabilities whose child types must be listed even when the host does not enable libraries. The engine also registers the company type after your initializers run, but listing it keeps the configuration in one place.
 
 ```ruby
 # config/initializers/recording_studio.rb
@@ -86,7 +86,9 @@ RecordingStudio.configure do |config|
   config.recordable_types = [
     "PressCentre", "Agency", "Project",
     "RecordingStudioCompany::Company",
-    "RecordingStudioAttachable::Attachment"
+    "RecordingStudioAttachable::Attachment",
+    "RecordingStudioAttachable::Library",
+    "RecordingStudioAttachable::Placement"
   ]
 end
 ```
