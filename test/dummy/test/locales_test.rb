@@ -19,21 +19,18 @@ class LocalesTest < ActiveSupport::TestCase
                    I18n.t("recording_studio.company.empty.no_company_title", raise: true)
       assert_equal "Nike, Inc. logo",
                    I18n.t("recording_studio.company.logo.alt", name: "Nike, Inc.", raise: true)
+      assert_equal(
+        "Adding a company stays off until the extra companies are moved or purged.",
+        I18n.t("recording_studio.company.integrity.stays_off", raise: true)
+      )
     end
   end
 
-  test "host config/locales override wins for the integrity stays_off key" do
-    override_path = Rails.root.join("config/locales/company_host_override.en.yml")
+  test "test-only host override is not on the default rails load path" do
+    override_path = File.expand_path("locales/company_host_override.en.yml", __dir__)
+    expanded = I18n.load_path.map { |path| File.expand_path(path) }
 
-    assert_path_exists override_path, "expected host override file in test/dummy/config/locales/"
-    refute_includes File.read(override_path), "I18n.load_path"
-    assert_equal(
-      "HOST Adding a company stays off until the extra companies are moved or purged.",
-      I18n.t("recording_studio.company.integrity.stays_off", raise: true)
-    )
-    assert_equal(
-      "This press centre holds one company.",
-      I18n.t("recording_studio.company.integrity.holds_one", type: "press centre", raise: true)
-    )
+    assert_path_exists override_path
+    refute_includes expanded, File.expand_path(override_path)
   end
 end

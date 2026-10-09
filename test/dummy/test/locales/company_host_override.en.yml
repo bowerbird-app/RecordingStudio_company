@@ -1,0 +1,8 @@
+# Test-only host override. Not under config/locales, so Rails does not load it
+# by default. companies_i18n_host_override_test appends it to I18n.load_path for
+# one request, then restores the path so the dummy UI keeps gem English.
+en:
+  recording_studio:
+    company:
+      integrity:
+        stays_off: "HOST Adding a company stays off until the extra companies are moved or purged."
