@@ -149,18 +149,19 @@ class CompaniesControllerTest < ActionDispatch::IntegrationTest
     assert_select "input[type=hidden][name=idempotency_key]", count: 1
   end
 
-  test "Update stays the default style until the edit form changes, and Delete sits on the right" do
+  test "Save stays the default style until the edit form changes, and Delete sits on that row" do
     nike = create_company(press_centre, "Nike")
 
     get routes.edit_company_path(nike)
 
-    assert_select "form[data-controller=?]", "flat-pack--unsaved-changes" do
+    assert_select "[role=separator]", count: 0
+    assert_select "div.flex.flex-wrap.items-center.gap-3" do
       assert_select "button[type=submit][data-fp-style=?][data-flat-pack--unsaved-changes-target=?]",
-                    "default", "submit", text: "Update"
+                    "default", "submit", text: "Save"
+      assert_select "button.ml-auto[form=delete-company][data-fp-style=?]", "danger", text: "Delete"
     end
-    assert_select "form.justify-end[action=?]", routes.company_path(nike) do
-      assert_select "button[data-fp-style=?]", "danger", text: "Delete"
-    end
+    assert_select "form#delete-company[action=?] input[name=_method][value=delete]", routes.company_path(nike)
+    assert_select "button", text: "Update", count: 0
     assert_select "button", text: "Save company", count: 0
   end
 
@@ -278,8 +279,8 @@ class CompaniesControllerTest < ActionDispatch::IntegrationTest
     assert_select "h2", text: "Logo", count: 0
     assert_select "p", text: "One image for the company.", count: 0
     assert_select "input[name=idempotency_key]", count: 0
-    assert_select "[role=separator]", count: 1
-    assert_select "button[data-fp-style=?]", "danger", text: "Delete"
+    assert_select "[role=separator]", count: 0
+    assert_select "button.ml-auto[data-fp-style=?]", "danger", text: "Delete"
 
     patch routes.company_path(nike), params: { company: { name: "Nike, Inc.", website_url: "https://about.nike.com" } }
 
@@ -311,9 +312,9 @@ class CompaniesControllerTest < ActionDispatch::IntegrationTest
 
     get routes.edit_company_path(nike)
 
-    assert_select "[role=separator]", count: 1
-    assert_select "form[action=?] input[name=_method][value=delete]", routes.company_path(nike)
-    assert_select "button[data-fp-style=?]", "danger", text: "Delete"
+    assert_select "[role=separator]", count: 0
+    assert_select "form#delete-company[action=?] input[name=_method][value=delete]", routes.company_path(nike)
+    assert_select "button.ml-auto[data-fp-style=?]", "danger", text: "Delete"
 
     delete routes.company_path(nike)
 
