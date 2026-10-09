@@ -16,7 +16,7 @@
            data-recording-studio-attachable--attachment-revision-upload-target="fileInput"
            data-action="change->recording-studio-attachable--attachment-revision-upload#fileSelected">
     <%= render FlatPack::Button::Component.new(
-      text: logo ? "Change logo" : "Upload logo",
+      text: logo ? t("recording_studio.company.actions.change_logo") : t("recording_studio.company.actions.upload_logo"),
       style: :secondary,
       type: "button",
       data: { action: "recording-studio-attachable--attachment-revision-upload#browse" }
@@ -27,7 +27,11 @@
 
   <% if logo %>
     <%= form_with url: logo_company_path(company), method: :delete, class: "inline-flex" do %>
-      <%= render FlatPack::Button::Component.new(text: "Remove logo", style: :ghost, type: "submit") %>
+      <%= render FlatPack::Button::Component.new(
+        text: t("recording_studio.company.actions.remove_logo"),
+        style: :ghost,
+        type: "submit"
+      ) %>
     <% end %>
   <% end %>
 </div>

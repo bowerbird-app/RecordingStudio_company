@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-10-09
+
+### Added
+
+- English Rails I18n keys for static interface copy in the gem's own company screens (`config/locales/en.yml` under `recording_studio.company`)
+
+### Changed
+
+- Company view and display-helper labels (titles, buttons, form labels, empty states, trash and integrity alerts, logo alt text) resolve through `t(...)` / `I18n.t(...)` (English output unchanged)
+
+### Upgrade
+
+Pin `v0.3.0`. There is no migration. English hosts need no change. To override or add another language, set keys under `recording_studio.company` in the host's `config/locales`. There is no dependency on `recording_studio_internationalization`. There was no older top-level `recording_studio_company.*` UI locale namespace to migrate.
+
 ## [0.2.2] - 2026-10-09
 
 ### Changed
@@ -71,6 +85,7 @@ The first release of RecordingStudioCompany. The repository started from the Rec
 - The company index is titled "Companies and organisations". + Company sits under the title when another company can be added. Companies are names in a card, and each name opens that company. On a wide screen the list sits in the first column of a two-column grid. Names are vertically centered in the row.
 - On the edit page the logo sits with Upload logo, Change logo, and Remove logo. It has no card and no Logo heading.
 
+[0.3.0]: https://github.com/bowerbird-app/RecordingStudio_company/releases/tag/v0.3.0
 [0.2.2]: https://github.com/bowerbird-app/RecordingStudio_company/releases/tag/v0.2.2
 [0.2.1]: https://github.com/bowerbird-app/RecordingStudio_company/releases/tag/v0.2.1
 [0.2.0]: https://github.com/bowerbird-app/RecordingStudio_company/releases/tag/v0.2.0

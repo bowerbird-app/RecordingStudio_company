@@ -9,7 +9,7 @@
   <% if record.errors.any? %>
     <%= render FlatPack::Alert::Component.new(
       style: :danger,
-      title: "The company could not be saved",
+      title: t("recording_studio.company.form.save_failed_title"),
       description: record.errors.full_messages.to_sentence
     ) %>
   <% end %>
@@ -17,7 +17,7 @@
   <%= render FlatPack::TextInput::Component.new(
     name: "company[name]",
     value: record.name,
-    label: "Name",
+    label: t("recording_studio.company.labels.name"),
     required: true,
     maxlength: limits[:name],
     error: company_field_error(record, :name)
@@ -26,8 +26,8 @@
   <%= render FlatPack::UrlInput::Component.new(
     name: "company[website_url]",
     value: record.website_url,
-    label: "Website",
-    placeholder: "https://example.com",
+    label: t("recording_studio.company.labels.website"),
+    placeholder: t("recording_studio.company.placeholders.website"),
     maxlength: limits[:website_url],
     error: company_field_error(record, :website_url)
   ) %>
@@ -35,7 +35,7 @@
   <%= render FlatPack::TextArea::Component.new(
     name: "company[description]",
     value: record.description,
-    label: "Description",
+    label: t("recording_studio.company.labels.description"),
     rows: 4,
     maxlength: limits[:description],
     error: company_field_error(record, :description)
@@ -52,10 +52,14 @@
     <% else %>
       <%= render FlatPack::Button::Component.new(text: submit_text, style: :primary, type: "submit") %>
     <% end %>
-    <%= render FlatPack::Button::Component.new(text: "Cancel", style: :ghost, href: cancel_url) %>
+    <%= render FlatPack::Button::Component.new(
+      text: t("recording_studio.company.actions.cancel"),
+      style: :ghost,
+      href: cancel_url
+    ) %>
     <% if delete_url %>
       <%= render FlatPack::Button::Component.new(
-        text: "Delete",
+        text: t("recording_studio.company.actions.delete"),
         style: :danger,
         type: "submit",
         form: "delete-company",

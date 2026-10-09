@@ -4,7 +4,7 @@ require "test_helper"
 
 class RecordingStudioCompanyTest < Minitest::Test
   def test_version_matches_release
-    assert_equal "0.2.2", ::RecordingStudioCompany::VERSION
+    assert_equal "0.3.0", ::RecordingStudioCompany::VERSION
   end
 
   def test_gemspec_points_at_the_company_repository
@@ -277,7 +277,9 @@ class RecordingStudioCompanyTest < Minitest::Test
     assert_includes changelog, "## [0.2.1] - 2026-10-08"
     assert_includes changelog, "## [0.2.2] - 2026-10-09"
     assert_includes changelog, "The edit form's button says Save."
-    refute_match(/## \[0\.3\./, changelog)
+    assert_includes changelog, "## [0.3.0] - 2026-10-09"
+    assert_includes changelog, "recording_studio.company"
+    refute_match(/## \[0\.4\./, changelog)
   end
 
   def test_dummy_home_page_links_to_the_company_pages

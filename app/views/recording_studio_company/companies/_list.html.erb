@@ -19,13 +19,16 @@
   <% end %>
 <% else %>
   <%= render FlatPack::EmptyState::Component.new(
-    title: "No companies yet",
-    description: "Companies added to #{parent.name} are listed here."
+    title: t("recording_studio.company.empty.no_companies_title"),
+    description: t("recording_studio.company.empty.no_companies_description", name: parent.name)
   ) %>
 <% end %>
 
 <% if trashed_companies.any? %>
-  <%= render FlatPack::SectionTitle::Component.new(title: "In trash", subtitle: "Restore a company to list it again.") %>
+  <%= render FlatPack::SectionTitle::Component.new(
+    title: t("recording_studio.company.trash.section_title"),
+    subtitle: t("recording_studio.company.trash.section_subtitle")
+  ) %>
   <%= render FlatPack::List::Component.new(divider: true) do %>
     <% trashed_companies.each do |company| %>
       <%= render FlatPack::List::Item.new do %>
@@ -34,11 +37,11 @@
           <% if company_can?(:restore, company) %>
             <%= form_with url: restore_company_path(company), method: :post, class: "inline-flex" do %>
               <%= render FlatPack::Button::Component.new(
-                text: "Restore",
+                text: t("recording_studio.company.actions.restore"),
                 style: :secondary,
                 size: :sm,
                 type: "submit",
-                aria: { label: "Restore #{company.recordable.name}" }
+                aria: { label: t("recording_studio.company.actions.restore_aria", name: company.recordable.name) }
               ) %>
             <% end %>
           <% end %>

@@ -1,12 +1,15 @@
 <% name = @company.recordable.name %>
 <% recording_studio_page_nav(
-  title: "Edit #{name}",
+  title: t("recording_studio.company.titles.edit_with_name", name: name),
   page_nav_back_url: company_path(@company),
-  page_nav_back_label: "Back"
+  page_nav_back_label: t("recording_studio.company.navigation.back")
 ) %>
 
 <div class="flex w-full flex-col gap-6">
-  <%= render FlatPack::PageTitle::Component.new(title: "Edit company", subtitle: name) %>
+  <%= render FlatPack::PageTitle::Component.new(
+    title: t("recording_studio.company.titles.edit"),
+    subtitle: name
+  ) %>
 
   <%= render "logo_field", company: @company %>
 
@@ -14,7 +17,7 @@
              record: @record,
              url: company_path(@company),
              form_method: :patch,
-             submit_text: "Save",
+             submit_text: t("recording_studio.company.actions.save"),
              unsaved_changes: true,
              delete_url: (company_path(@company) if company_can?(:trash, @company)),
              cancel_url: company_path(@company) %>
