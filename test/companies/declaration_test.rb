@@ -124,13 +124,19 @@ class CompanyDeclarationTest < ActiveSupport::TestCase
   end
 
   test "preparing again does not add a second slot validation" do
+    # root_switchable registers metrics in to_prepare; clear so prepare! can re-run.
+    RecordingStudioMetrics.registry.reset!
     Rails.application.reloader.prepare!
+    RecordingStudioMetrics.registry.reset!
     Rails.application.reloader.prepare!
 
     slot_callbacks = RecordingStudio::Recording._validate_callbacks.count do |callback|
       callback.filter == :recording_studio_company_slot_free
     end
     assert_equal 1, slot_callbacks
+  ensure
+    RecordingStudioMetrics.registry.reset!
+    RecordingStudioRootSwitchable::Metrics.register!
   end
 
   test "attachments can be trashed so a removed logo keeps its place" do
