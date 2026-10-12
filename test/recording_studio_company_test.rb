@@ -36,7 +36,7 @@ class RecordingStudioCompanyTest < Minitest::Test
         "flat_pack" => ">= 0.1.200",
         "rails" => "~> 8.1.0",
         "recording_studio" => "~> 4.2",
-        "recording_studio_accessible" => "~> 0.13",
+        "recording_studio_accessible" => "~> 0.15",
         "recording_studio_attachable" => "~> 0.13",
         "recording_studio_trashable" => "~> 0.6"
       },
@@ -72,12 +72,13 @@ class RecordingStudioCompanyTest < Minitest::Test
     gemfile = File.read(File.expand_path("dummy/Gemfile", __dir__))
 
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio", tag: "v4.5.0"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.13.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.15.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.13.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.6.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_root_switchable", tag: "v0.8.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_metrics", tag: "v0.2.0"'
     assert_includes gemfile, 'github: "bowerbird-app/flatpack", tag: "v0.1.213"'
+    refute_includes gemfile, 'RecordingStudio_accessible", tag: "v0.13.0"'
     refute_includes gemfile, 'tag: "v0.10.1"'
     refute_includes gemfile, "recording_studio/v3.0.0"
     refute_includes gemfile, 'tag: "v4.4.0"'
@@ -117,6 +118,24 @@ class RecordingStudioCompanyTest < Minitest::Test
       )
     )
     assert_includes invitation_migration, "create_table :recording_studio_access_invitations"
+    assert_includes schema, 'create_table "recording_studio_access_constraints"'
+    assert_includes schema, "index_recording_studio_access_constraints_on_action"
+    assert_includes schema, 'create_table "recording_studio_access_rules"'
+    assert_includes schema, "index_recording_studio_access_rules_on_action"
+    constraints_migration = File.read(
+      File.expand_path(
+        "dummy/db/migrate/20261012044209_create_recording_studio_access_constraints.rb",
+        __dir__
+      )
+    )
+    rules_migration = File.read(
+      File.expand_path(
+        "dummy/db/migrate/20261012044210_create_recording_studio_access_rules.rb",
+        __dir__
+      )
+    )
+    assert_includes constraints_migration, "create_table :recording_studio_access_constraints"
+    assert_includes rules_migration, "create_table :recording_studio_access_rules"
   end
 
   def test_dummy_schema_includes_attachable_libraries_and_placements
