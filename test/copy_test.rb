@@ -27,6 +27,16 @@ class CopyTest < Minitest::Test
     assert_equal unknown, RecordingStudioCompany::Copy.user_message(unknown)
   end
 
+  def test_user_message_keeps_leading_zero_count_message_byte_identical
+    english = "Only one company is allowed here, but 007 companies are recorded"
+
+    with_gem_locale_loaded do
+      I18n.with_locale(:en) do
+        assert_equal english, RecordingStudioCompany::Copy.user_message(english)
+      end
+    end
+  end
+
   def test_user_message_maps_under_non_english_locale_with_english_default
     with_gem_locale_loaded do
       original_locales = I18n.available_locales

@@ -83,7 +83,11 @@ module RecordingStudioCompany
         match = pattern.match(english)
         next unless match
 
-        count = Integer(match[1], 10)
+        digits = match[1]
+        count = Integer(digits, 10)
+        # Leading zeros would be lost in count: interpolation — keep English byte-identical.
+        return english if count.to_s != digits
+
         return t(key, capture => count, default: english)
       end
       nil
