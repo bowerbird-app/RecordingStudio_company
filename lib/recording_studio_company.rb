@@ -8,6 +8,7 @@ require "recording_studio_trashable"
 require "flat_pack"
 require "recording_studio_company/version"
 require "recording_studio_company/configuration"
+require "recording_studio_company/copy"
 require "recording_studio_company/display_helper"
 require "recording_studio_company/engine"
 

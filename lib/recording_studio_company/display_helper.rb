@@ -8,7 +8,7 @@ module RecordingStudioCompany
       logo = RecordingStudioCompany.logo(company)
       variant = %i[xs sm md].include?(size.to_sym) ? :square_small : :square_med
       src = logo && authorized_attachment_preview_path(logo, variant)
-      alt = I18n.t("recording_studio.company.logo.alt", name:)
+      alt = I18n.t("recording_studio.company.logo.alt", name:, default: "#{name} logo")
 
       render FlatPack::Avatar::Component.new(src:, alt:, name:, size:, shape:)
     end

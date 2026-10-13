@@ -77,8 +77,7 @@ class CompaniesI18nHostOverrideTest < ActionDispatch::IntegrationTest
     expanded_override = File.expand_path(HOST_OVERRIDE_LOCALE)
     gem_locale = RecordingStudioCompany::Engine.root.join("config/locales/en.yml").to_s
 
-    I18n.load_path |= [expanded_override]
-    # Host override must win: append again so it is last even if already present.
+    # Host override must win: append last even if already present.
     I18n.load_path.delete(expanded_override)
     I18n.load_path << expanded_override
     I18n.reload!

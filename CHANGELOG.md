@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+## [0.4.0] - 2026-10-13
+
+### Added
+
+- English Rails I18n keys for controller flashes, error-page titles, and known lib message mapping under `recording_studio.company` (`flashes`, `errors`, `messages`)
+- `RecordingStudioCompany::Copy` for render-time lookups with English `default:` values
+
+### Changed
+
+- Company controller flashes and error-page titles resolve through `Copy.t` / `Copy.user_message` (English output unchanged)
+- Form alert descriptions map known slot messages through `Copy.user_message` at render (English output unchanged)
+- README interface-text section covers controller flashes and lib-literal mapping
+
+### Upgrade
+
+Pin `v0.4.0`. There is no migration. English hosts need no change. To override or add another language, set keys under `recording_studio.company` in the host's `config/locales`. Lib return values and raised exception messages stay English literals; controllers map known messages at render. There is no dependency on `recording_studio_internationalization`.
+
 ## [0.3.0] - 2026-10-09
 
 ### Added
@@ -85,6 +104,8 @@ The first release of RecordingStudioCompany. The repository started from the Rec
 - The company index is titled "Companies and organisations". + Company sits under the title when another company can be added. Companies are names in a card, and each name opens that company. On a wide screen the list sits in the first column of a two-column grid. Names are vertically centered in the row.
 - On the edit page the logo sits with Upload logo, Change logo, and Remove logo. It has no card and no Logo heading.
 
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_company/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/bowerbird-app/RecordingStudio_company/releases/tag/v0.4.0
 [0.3.0]: https://github.com/bowerbird-app/RecordingStudio_company/releases/tag/v0.3.0
 [0.2.2]: https://github.com/bowerbird-app/RecordingStudio_company/releases/tag/v0.2.2
 [0.2.1]: https://github.com/bowerbird-app/RecordingStudio_company/releases/tag/v0.2.1

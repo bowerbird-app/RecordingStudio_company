@@ -53,3 +53,24 @@ en:
         logo_hint: "You can add a logo after the company is saved."
       logo:
         alt: "%{name} logo"
+      flashes:
+        cant_add: "A company can't be added here."
+        was_added: "%{name} was added."
+        was_saved: "%{name} was saved."
+        in_trash: "%{name} is in the trash."
+        was_restored: "%{name} was restored."
+        cant_edit: "You can't edit %{name}."
+        choose_image: "Choose an image to upload."
+        logo_updated: "The logo was updated."
+        logo_removed: "The logo was removed."
+        already_company: "%{name} is already the company here"
+        integrity_recorded: "Only one company is allowed here, but %{count} companies are recorded"
+        restore_before_change: "Restore %{name} before changing it"
+      errors:
+        not_found: "Not found"
+        page_missing: "This page doesn't exist, or you can't see it."
+        not_allowed: "Not allowed"
+        forbidden_description: "You don't have permission to make this change."
+      messages:
+        company_taken: "Only one company is allowed here"
+        logo_taken: "A company can have only one logo"

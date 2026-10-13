@@ -10,7 +10,9 @@
     <%= render FlatPack::Alert::Component.new(
       style: :danger,
       title: t("recording_studio.company.form.save_failed_title"),
-      description: record.errors.full_messages.to_sentence
+      description: record.errors.full_messages.map { |message|
+        RecordingStudioCompany::Copy.user_message(message)
+      }.to_sentence
     ) %>
   <% end %>
 

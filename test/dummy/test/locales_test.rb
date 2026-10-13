@@ -33,4 +33,16 @@ class LocalesTest < ActiveSupport::TestCase
     assert_path_exists override_path
     refute_includes expanded, File.expand_path(override_path)
   end
+
+  test "boot-loaded host override for rarely shown not-found title is on the rails load path" do
+    boot_override = Rails.root.join("config/locales/recording_studio_company_host.en.yml")
+    expanded = I18n.load_path.map { |path| File.expand_path(path) }
+
+    assert_path_exists boot_override
+    assert_includes expanded, boot_override.to_s
+    assert_equal "HOST Not found", I18n.t("recording_studio.company.errors.not_found", raise: true)
+    assert_equal "This page doesn't exist, or you can't see it.",
+                 I18n.t("recording_studio.company.errors.page_missing", raise: true)
+  end
 end
+

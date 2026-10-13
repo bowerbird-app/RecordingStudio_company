@@ -249,7 +249,7 @@ Trashing a company also trashes its logo, and restoring the company restores the
 
 ## Interface text
 
-Static interface copy on the gem's company screens uses Rails I18n keys under `recording_studio.company` in `config/locales/en.yml`. The gem ships English only. Hosts override or add languages by defining the same keys in their own `config/locales`. Company names and other database content stay untranslated. Flash notices built in controllers are separate from these view keys.
+Static interface copy on the gem's company screens, controller flashes, and error page titles use Rails I18n keys under `recording_studio.company` in `config/locales/en.yml`. The gem ships English only. Hosts override or add languages by defining the same keys in their own `config/locales`. Company names and other database content stay untranslated. Lib return values and raised exception messages stay English literals; controllers map known messages through `RecordingStudioCompany::Copy` at render time.
 
 ## Company pages
 
