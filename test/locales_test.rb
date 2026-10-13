@@ -69,6 +69,30 @@ class LocalesTest < Minitest::Test
     },
     "logo" => {
       "alt" => "%{name} logo"
+    },
+    "flashes" => {
+      "cant_add" => "A company can't be added here.",
+      "was_added" => "%{name} was added.",
+      "was_saved" => "%{name} was saved.",
+      "in_trash" => "%{name} is in the trash.",
+      "was_restored" => "%{name} was restored.",
+      "cant_edit" => "You can't edit %{name}.",
+      "choose_image" => "Choose an image to upload.",
+      "logo_updated" => "The logo was updated.",
+      "logo_removed" => "The logo was removed.",
+      "already_company" => "%{name} is already the company here",
+      "integrity_recorded" => "Only one company is allowed here, but %{count} companies are recorded",
+      "restore_before_change" => "Restore %{name} before changing it"
+    },
+    "errors" => {
+      "not_found" => "Not found",
+      "page_missing" => "This page doesn't exist, or you can't see it.",
+      "not_allowed" => "Not allowed",
+      "forbidden_description" => "You don't have permission to make this change."
+    },
+    "messages" => {
+      "company_taken" => "Only one company is allowed here",
+      "logo_taken" => "A company can have only one logo"
     }
   }.freeze
 
@@ -95,6 +119,10 @@ class LocalesTest < Minitest::Test
                      I18n.t("recording_studio.company.integrity.title", name: "Nike Newsroom", count: 2)
         assert_equal "Nike, Inc. logo",
                      I18n.t("recording_studio.company.logo.alt", name: "Nike, Inc.")
+        assert_equal "Nike, Inc. was added.",
+                     I18n.t("recording_studio.company.flashes.was_added", name: "Nike, Inc.")
+        assert_equal "Only one company is allowed here, but 2 companies are recorded",
+                     I18n.t("recording_studio.company.flashes.integrity_recorded", count: 2)
       end
     end
   end
