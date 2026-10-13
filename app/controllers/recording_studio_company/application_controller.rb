@@ -43,8 +43,8 @@ module RecordingStudioCompany
 
     def render_not_found
       render_error :not_found,
-                   title: Copy.t("errors.not_found", default: "Not found"),
-                   description: Copy.t(
+                   title: company_copy("errors.not_found", default: "Not found"),
+                   description: company_copy(
                      "errors.page_missing",
                      default: "This page doesn't exist, or you can't see it."
                    )
@@ -52,8 +52,8 @@ module RecordingStudioCompany
 
     def render_forbidden
       render_error :forbidden,
-                   title: Copy.t("errors.not_allowed", default: "Not allowed"),
-                   description: Copy.t(
+                   title: company_copy("errors.not_allowed", default: "Not allowed"),
+                   description: company_copy(
                      "errors.forbidden_description",
                      default: "You don't have permission to make this change."
                    )
@@ -66,7 +66,13 @@ module RecordingStudioCompany
     end
 
     def redirect_to_trashed_company(error)
-      redirect_to company_path(error.company), alert: Copy.user_message(error.message), status: :see_other
+      redirect_to company_path(error.company),
+                  alert: ::RecordingStudioCompany::Copy.user_message(error.message),
+                  status: :see_other
+    end
+
+    def company_copy(key, default:, **)
+      ::RecordingStudioCompany::Copy.t(key, default:, **)
     end
   end
 end
