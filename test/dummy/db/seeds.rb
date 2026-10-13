@@ -6,12 +6,13 @@ require "stringio"
 require "zlib"
 
 find_or_record_child = lambda do |recordable, root_recording, parent_recording|
-  RecordingStudio::Recording.find_by(
-    root_recording: root_recording,
-    parent_recording: parent_recording,
-    recordable: recordable,
-    trashed_at: nil
-  ) || RecordingStudio.record!(
+  RecordingStudio::Recording
+    .where(RecordingStudio::Recording.recording_studio_trashable_kept_sql)
+    .find_by(
+      root_recording: root_recording,
+      parent_recording: parent_recording,
+      recordable: recordable
+    ) || RecordingStudio.record!(
     action: "created",
     recordable: recordable,
     root_recording: root_recording,

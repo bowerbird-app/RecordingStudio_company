@@ -12,10 +12,11 @@ class HomeController < ApplicationController
   private
 
   def seeded_recording(type, name)
-    RecordingStudio::Recording.find_by(
-      recordable_type: type,
-      recordable_id: type.constantize.where(name: name).select(:id),
-      trashed_at: nil
-    )
+    RecordingStudio::Recording
+      .where(RecordingStudio::Recording.recording_studio_trashable_kept_sql)
+      .find_by(
+        recordable_type: type,
+        recordable_id: type.constantize.where(name: name).select(:id)
+      )
   end
 end
