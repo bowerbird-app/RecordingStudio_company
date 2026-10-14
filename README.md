@@ -41,7 +41,7 @@ Add the gem. Recording Studio gems are not published to RubyGems, so resolve the
 gem "recording_studio_company", github: "bowerbird-app/RecordingStudio_company", tag: "v0.3.0"
 
 gem "flat_pack", github: "bowerbird-app/flatpack", tag: "v0.1.213"
-gem "recording_studio", github: "bowerbird-app/RecordingStudio", tag: "v4.5.0"
+gem "recording_studio", github: "bowerbird-app/RecordingStudio", tag: "v4.6.0"
 gem "recording_studio_accessible", github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.17.0"
 gem "recording_studio_attachable", github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.15.0"
 gem "recording_studio_metrics", github: "bowerbird-app/RecordingStudio_metrics", tag: "v0.2.0"

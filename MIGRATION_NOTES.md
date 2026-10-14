@@ -4,7 +4,7 @@
 
 - Ruby 3.3 or newer
 - Rails 8.1 or newer
-- Recording Studio 4.x (`~> 4.2` in the gemspec; dummy GitHub tag `v4.5.0`)
+- Recording Studio 4.x (`~> 4.2` in the gemspec; dummy GitHub tag `v4.6.0`)
 - Accessible dummy tag `v0.17.0` (`~> 0.17` in the gemspec; pulls Trashable `~> 0.10` query helpers)
 - Attachable dummy tag `v0.15.0` (`~> 0.15` in the gemspec), Trashable `v0.10.0` (`~> 0.10` in the gemspec), Root Switchable `v0.9.0`
 - Metrics GitHub tag `v0.2.0` (required by Attachable `>= 0.14`; not on RubyGems)
