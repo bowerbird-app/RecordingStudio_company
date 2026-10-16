@@ -41,11 +41,11 @@ Add the gem. Recording Studio gems are not published to RubyGems, so resolve the
 gem "recording_studio_company", github: "bowerbird-app/RecordingStudio_company", tag: "v0.3.0"
 
 gem "flat_pack", github: "bowerbird-app/flatpack", tag: "v0.1.213"
-gem "recording_studio", github: "bowerbird-app/RecordingStudio", tag: "v4.6.0"
+gem "recording_studio", github: "bowerbird-app/RecordingStudio", tag: "v4.7.0"
 gem "recording_studio_accessible", github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.18.0"
 gem "recording_studio_attachable", github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.15.0"
 gem "recording_studio_metrics", github: "bowerbird-app/RecordingStudio_metrics", tag: "v0.2.0"
-gem "recording_studio_trashable", github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.10.0"
+gem "recording_studio_trashable", github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.11.0"
 ```
 
 Attachable `>= 0.14` depends on Recording Studio Metrics (`~> 0.2`), which is not on RubyGems, so pin it from GitHub as above.
