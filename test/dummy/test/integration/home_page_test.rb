@@ -24,6 +24,8 @@ class HomePageTest < ActionDispatch::IntegrationTest
     assert_select "a[href=?]", recording_studio_company.company_path(nike), text: "Nike, Inc."
     assert_select "img[alt=?]", "Nike, Inc. logo"
     assert_includes response.body, "Project in Northwind"
+    assert_select "a[href=?][data-turbo-method=delete]", destroy_user_session_path, text: "Sign out"
+    assert_select "button[url]", count: 0
   ensure
     Current.actor = nil
   end

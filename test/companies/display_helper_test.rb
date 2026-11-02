@@ -61,6 +61,8 @@ class DisplayHelperTest < ActiveSupport::TestCase
     end
     assert_equal "https://about.nike.com", card.at_css("a[target=_blank]")["href"]
     assert_equal "noopener noreferrer", card.at_css("a[target=_blank]")["rel"]
+    assert card.at_css("h3.fp-section-title, .fp-section-title h3")
+    assert_includes card.at_css("a[target=_blank]")["class"].to_s, "flat-pack-link"
     %w[Phone Email Founded].each { |label| refute_includes text, label }
   end
 
@@ -69,7 +71,8 @@ class DisplayHelperTest < ActiveSupport::TestCase
 
     card = render_card(acme)
 
-    assert_equal(["Acme Coffee Pty Ltd"], card.css("p").map { |paragraph| paragraph.text.strip })
+    assert_equal(["Acme Coffee Pty Ltd"], card.css("h3").map { |heading| heading.text.strip })
+    assert_empty card.css("p").map { |paragraph| paragraph.text.strip }.reject(&:blank?)
     assert_nil card.at_css("dl")
     %w[Website Phone Email Founded].each { |label| refute_includes card.text, label }
   end

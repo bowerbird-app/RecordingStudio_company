@@ -38,7 +38,7 @@ Add the gem. Recording Studio gems are not published to RubyGems, so resolve the
 
 ```ruby
 # Gemfile
-gem "recording_studio_company", github: "bowerbird-app/RecordingStudio_company", tag: "v0.4.5"
+gem "recording_studio_company", github: "bowerbird-app/RecordingStudio_company", tag: "v0.4.7"
 
 gem "flat_pack", github: "bowerbird-app/flatpack", tag: "v0.1.213"
 gem "recording_studio", github: "bowerbird-app/RecordingStudio", tag: "v4.7.0"
@@ -75,7 +75,7 @@ bin/rails db:migrate
 
 The migration drops `legal_name`, `email`, `phone`, and `founded_on` from `recording_studio_companies`. Those values are not kept. Stop passing them to `RecordingStudioCompany.create` and `.update`. Name, description, website, and the logo stay. The edit form asks for the name, then the website, then the description.
 
-The company page stacks the logo, name, description, and website, and puts Edit company at the bottom. Restore stays on the company page. The edit form's button says Save. It stays the default style until a field changes, then it turns primary. Delete sits on that same row, on the right, and moves the company to the trash. That needs Flatpack `v0.1.200` or newer.
+The company page stacks the logo, name, description, and website, and puts Edit company at the bottom. Restore stays on the company page. The edit form's button says Save. It stays the default style until a field changes, then it turns primary. Delete sits on that same row, on the right, and moves the company to the trash. That needs Flatpack `v0.1.210` or newer.
 
 ## Upgrade from 0.2.x
 
@@ -86,6 +86,10 @@ From 0.2.1, the edit button says Save, and Delete sits on that row. Hosts that r
 ## Upgrade from 0.4.0
 
 Pin `v0.4.5`. There is no migration. Tags `v0.4.1` through `v0.4.4` only moved companion gem pins while `VERSION` stayed at `0.4.0`. This release sets `VERSION` to `0.4.5` and records those tags in the changelog.
+
+## Upgrade from 0.4.6
+
+Pin `v0.4.7`. There is no migration. Company cards and company pages render the name and website with FlatPack `SectionTitle` and `Link`. Hosts need FlatPack `v0.1.210` or newer. The logo upload field is unchanged.
 
 List the company, attachment, library, and placement types in the Recording Studio initializer. Attachable registers image-library capabilities whose child types must be listed even when the host does not enable libraries. The engine also registers the company type after your initializers run, but listing it keeps the configuration in one place.
 

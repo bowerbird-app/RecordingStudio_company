@@ -61,8 +61,8 @@ GIT
 PATH
   remote: .
   specs:
-    recording_studio_company (0.4.6)
-      flat_pack (>= 0.1.200)
+    recording_studio_company (0.4.7)
+      flat_pack (>= 0.1.210)
       rails (~> 8.1.0)
       recording_studio (~> 4.2)
       recording_studio_accessible (~> 0.18)
@@ -452,7 +452,7 @@ CHECKSUMS
   recording_studio (4.7.0)
   recording_studio_accessible (0.18.0)
   recording_studio_attachable (0.15.0)
-  recording_studio_company (0.4.6)
+  recording_studio_company (0.4.7)
   recording_studio_metrics (0.2.0)
   recording_studio_trashable (0.11.0)
   regexp_parser (2.13.1) sha256=5aedb6b7c35688f51e86eef17a15374dfd287c83f4ca644b2c5f3ec50a33b44b

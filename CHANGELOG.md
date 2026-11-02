@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.7] - 2026-11-02
+
+### Changed
+
+- Company card names use FlatPack `SectionTitle` (`size: :md`, `spacing: :none`, `level: :h3`)
+- Company card and company page websites use FlatPack `Link` (new tab, `noopener noreferrer`)
+- Dummy Sign out uses Button `href:` (FlatPack ≥ 0.1.177)
+- Gemspec requires `flat_pack` `>= 0.1.210` (SectionTitle `size`, `spacing`, and `level`)
+
+### Upgrade
+
+Pin `v0.4.7`. There is no migration. Hosts must already be on FlatPack `v0.1.210` or newer. The dummy lock stays on `v0.1.213`. The logo file field is unchanged.
+
 ## [0.4.6] - 2026-11-02
 
 ### Changed
@@ -170,7 +183,8 @@ The first release of RecordingStudioCompany. The repository started from the Rec
 - The company index is titled "Companies and organisations". + Company sits under the title when another company can be added. Companies are names in a card, and each name opens that company. On a wide screen the list sits in the first column of a two-column grid. Names are vertically centered in the row.
 - On the edit page the logo sits with Upload logo, Change logo, and Remove logo. It has no card and no Logo heading.
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_company/compare/v0.4.6...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_company/compare/v0.4.7...HEAD
+[0.4.7]: https://github.com/bowerbird-app/RecordingStudio_company/releases/tag/v0.4.7
 [0.4.6]: https://github.com/bowerbird-app/RecordingStudio_company/releases/tag/v0.4.6
 [0.4.5]: https://github.com/bowerbird-app/RecordingStudio_company/releases/tag/v0.4.5
 [0.4.4]: https://github.com/bowerbird-app/RecordingStudio_company/releases/tag/v0.4.4
