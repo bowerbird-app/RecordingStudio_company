@@ -10,7 +10,7 @@ module RecordingStudioCompany
 
     def to_h
       {
-        hooks_registered: hooks.instance_variable_get(:@registry).transform_values(&:size)
+        hooks_registered: hooks.registered_counts
       }
     end
 
