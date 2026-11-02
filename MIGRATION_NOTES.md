@@ -9,7 +9,7 @@
 - Attachable dummy tag `v0.15.0` (`~> 0.15` in the gemspec), Trashable `v0.11.0` (`~> 0.10` in the gemspec), Root Switchable `v0.9.0`
 - Metrics GitHub tag `v0.2.0` (required by Attachable `>= 0.14`; not on RubyGems)
 - Cache GitHub tag `v0.5.0` (required by Root Switchable `>= 0.9`; not on RubyGems)
-- FlatPack dummy tag `v0.1.213`
+- FlatPack dummy tag `v0.1.213` (gemspec floor `>= 0.1.210` for SectionTitle `size`/`spacing`/`level`)
 - Public RubyGems and GitHub access for dependency installation
 
 Accessible `0.14.0` added access-constraint and access-rule tables. Hosts (and the

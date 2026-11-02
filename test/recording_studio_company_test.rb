@@ -5,7 +5,7 @@ require "open3"
 
 class RecordingStudioCompanyTest < Minitest::Test
   def test_version_matches_release
-    assert_equal "0.4.6", ::RecordingStudioCompany::VERSION
+    assert_equal "0.4.7", ::RecordingStudioCompany::VERSION
   end
 
   def test_gemspec_points_at_the_company_repository
@@ -37,7 +37,7 @@ class RecordingStudioCompanyTest < Minitest::Test
 
     assert_equal(
       {
-        "flat_pack" => ">= 0.1.200",
+        "flat_pack" => ">= 0.1.210",
         "rails" => "~> 8.1.0",
         "recording_studio" => "~> 4.2",
         "recording_studio_accessible" => "~> 0.18",
@@ -279,7 +279,7 @@ class RecordingStudioCompanyTest < Minitest::Test
     assert_includes readme, "People are not in this gem"
     assert_includes readme, "Locations are not in this gem"
     assert_includes readme, "# Not part of this gem. A future brand gem could list Unilever's brands here."
-    assert_includes readme, 'tag: "v0.4.5"'
+    assert_includes readme, 'tag: "v0.4.7"'
     assert_includes readme, "bin/rails generate recording_studio_company:install"
     assert_includes readme, "bundle exec rake test:all"
     assert_operator readme.index("## Install"), :<, readme.index("## Use companies")
@@ -327,6 +327,10 @@ class RecordingStudioCompanyTest < Minitest::Test
     assert_includes changelog, "## [0.4.6] - 2026-11-02"
     assert_includes changelog, "RecordingStudio::Hooks#registered_counts"
     assert_includes changelog, "Pin `v0.4.6`"
+    assert_includes changelog, "## [0.4.7] - 2026-11-02"
+    assert_includes changelog, "SectionTitle"
+    assert_includes changelog, ">= 0.1.210"
+    assert_includes changelog, "Pin `v0.4.7`"
     refute_match(/## \[0\.5\./, changelog)
   end
 

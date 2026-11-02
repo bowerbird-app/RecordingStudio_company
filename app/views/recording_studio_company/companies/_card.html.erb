@@ -6,7 +6,13 @@
     <div class="flex flex-col gap-4" data-recording-studio-company-card>
       <div class="flex items-center gap-4">
         <%= recording_studio_company_logo(company, size: :xl) %>
-        <p class="min-w-0 text-lg font-semibold leading-tight"><%= record.name %></p>
+        <%= render FlatPack::SectionTitle::Component.new(
+          title: record.name,
+          size: :md,
+          spacing: :none,
+          level: :h3,
+          class: "min-w-0"
+        ) %>
       </div>
 
       <% if record.description.present? %>
@@ -19,7 +25,14 @@
             <dt class="text-(--surface-muted-content-color)"><%= t("recording_studio.company.labels.website") %></dt>
             <dd class="break-words">
               <% if website_href %>
-                <%= link_to record.website_url, website_href, target: "_blank", rel: "noopener noreferrer" %>
+                <%= render FlatPack::Link::Component.new(
+                  href: website_href,
+                  target: "_blank",
+                  rel: "noopener noreferrer",
+                  class: "break-words"
+                ) do %>
+                  <%= record.website_url %>
+                <% end %>
               <% else %>
                 <%= record.website_url %>
               <% end %>

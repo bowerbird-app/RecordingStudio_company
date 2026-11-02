@@ -25,10 +25,14 @@
         <div class="flex items-center gap-2 text-sm text-(--surface-muted-content-color)">
           <%= render FlatPack::Shared::IconComponent.new(name: "globe-alt", size: :sm) %>
           <% if (website_href = record.website_href) %>
-            <%= link_to website_label, website_href,
-                  target: "_blank",
-                  rel: "noopener noreferrer",
-                  class: "min-w-0 break-words text-(--surface-muted-content-color) no-underline" %>
+            <%= render FlatPack::Link::Component.new(
+              href: website_href,
+              target: "_blank",
+              rel: "noopener noreferrer",
+              class: "min-w-0 break-words text-(--surface-muted-content-color) no-underline"
+            ) do %>
+              <%= website_label %>
+            <% end %>
           <% else %>
             <span class="min-w-0 break-words"><%= website_label %></span>
           <% end %>

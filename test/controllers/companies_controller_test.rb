@@ -205,7 +205,7 @@ class CompaniesControllerTest < ActionDispatch::IntegrationTest
     assert_select "[class*=?]", "avatar-radius-circle"
     assert_select "p.whitespace-pre-line", text: "Athletic footwear and apparel."
     assert_select "svg[data-flat-pack--icon-name-value=?]", "globe-alt"
-    assert_select "a[href=?][target=_blank][rel=?]", "https://about.nike.com/", "noopener noreferrer",
+    assert_select "a.flat-pack-link[href=?][target=_blank][rel=?]", "https://about.nike.com/", "noopener noreferrer",
                   text: "about.nike.com"
     refute_includes page_text, "Nike Newsroom"
     refute_includes page_text, "Website"
@@ -222,7 +222,7 @@ class CompaniesControllerTest < ActionDispatch::IntegrationTest
 
     assert_select "h1", text: "Acme Coffee Pty Ltd"
     assert_select "p.whitespace-pre-line", count: 0
-    assert_select "a[href=?][target=_blank]", "https://acmecoffee.example", text: "acmecoffee.example"
+    assert_select "a.flat-pack-link[href=?][target=_blank]", "https://acmecoffee.example", text: "acmecoffee.example"
     assert_select "a[href=?]", routes.edit_company_path(acme), text: "Edit company"
     refute_includes page_text, "Website"
   end
