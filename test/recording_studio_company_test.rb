@@ -1,10 +1,11 @@
 # frozen_string_literal: true
 
 require "test_helper"
+require "open3"
 
 class RecordingStudioCompanyTest < Minitest::Test
   def test_version_matches_release
-    assert_equal "0.4.5", ::RecordingStudioCompany::VERSION
+    assert_equal "0.4.6", ::RecordingStudioCompany::VERSION
   end
 
   def test_gemspec_points_at_the_company_repository
@@ -15,6 +16,9 @@ class RecordingStudioCompanyTest < Minitest::Test
     assert_equal "https://github.com/bowerbird-app/RecordingStudio_company", spec.metadata["source_code_uri"]
     assert_equal "https://github.com/bowerbird-app/RecordingStudio_company/blob/main/CHANGELOG.md",
                  spec.metadata["changelog_uri"]
+    assert_includes spec.description, "name, description, website, and logo"
+    refute_includes spec.description, "legal name"
+    refute_includes spec.description, "founding date"
   end
 
   def test_engine_exists
@@ -275,6 +279,7 @@ class RecordingStudioCompanyTest < Minitest::Test
     assert_includes readme, "People are not in this gem"
     assert_includes readme, "Locations are not in this gem"
     assert_includes readme, "# Not part of this gem. A future brand gem could list Unilever's brands here."
+    assert_includes readme, 'tag: "v0.4.5"'
     assert_includes readme, "bin/rails generate recording_studio_company:install"
     assert_includes readme, "bundle exec rake test:all"
     assert_operator readme.index("## Install"), :<, readme.index("## Use companies")
@@ -313,9 +318,47 @@ class RecordingStudioCompanyTest < Minitest::Test
     assert_includes changelog, "recording_studio.company"
     assert_includes changelog, "## [0.4.0] - 2026-10-13"
     assert_includes changelog, "RecordingStudioCompany::Copy"
+    assert_includes changelog, "## [0.4.1] - 2026-10-13"
+    assert_includes changelog, "## [0.4.2] - 2026-10-14"
+    assert_includes changelog, "## [0.4.3] - 2026-10-14"
+    assert_includes changelog, "## [0.4.4] - 2026-10-19"
     assert_includes changelog, "## [0.4.5] - 2026-11-02"
+    assert_includes changelog, "Pin `v0.4.5`"
+    assert_includes changelog, "## [0.4.6] - 2026-11-02"
     assert_includes changelog, "RecordingStudio::Hooks#registered_counts"
+    assert_includes changelog, "Pin `v0.4.6`"
     refute_match(/## \[0\.5\./, changelog)
+  end
+
+  def test_coverage_directories_are_gitignored_and_untracked
+    root = File.expand_path("..", __dir__)
+    gitignore = File.read(File.join(root, ".gitignore"))
+
+    assert_includes gitignore, "coverage/"
+
+    tracked, status = Open3.capture2("git", "-C", root, "ls-files", "--", "coverage", "test/dummy/coverage")
+    assert_equal 0, status.exitstatus
+    assert_equal "", tracked.strip
+  end
+
+  def test_dummy_database_defaults_use_the_company_name
+    database_yml = File.read(File.expand_path("dummy/config/database.yml", __dir__))
+
+    assert_includes database_yml, '"recording_studio_company_development"'
+    assert_includes database_yml, '"recording_studio_company_test"'
+    refute_includes database_yml, "app_development"
+    refute_includes database_yml, "app_test"
+  end
+
+  def test_setup_ruby_uses_series_3_3_outside_the_ci_matrix
+    ci = File.read(File.expand_path("../.github/workflows/ci.yml", __dir__))
+    security = File.read(File.expand_path("../.github/workflows/security.yml", __dir__))
+
+    assert_includes ci, "ruby-version: '3.3'"
+    refute_includes ci, "ruby-version: .ruby-version"
+    assert_includes ci, "ruby-version: ${{ matrix.ruby-version }}"
+    assert_includes security, "ruby-version: '3.3'"
+    refute_includes security, "ruby-version: .ruby-version"
   end
 
   def test_dummy_home_page_links_to_the_company_pages
