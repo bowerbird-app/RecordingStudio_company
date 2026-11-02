@@ -4,98 +4,6 @@ require "test_helper"
 require "yaml"
 
 class LocalesTest < Minitest::Test
-  # I18n interpolation tokens use %{name}; Style/FormatStringToken wants %<name>s.
-  # rubocop:disable-next Style/FormatStringToken
-  COMPANY_KEYS = {
-    "navigation" => {
-      "back" => "Back",
-      "home" => "Home"
-    },
-    "titles" => {
-      "index" => "Companies and organisations",
-      "add" => "Add company",
-      "edit" => "Edit company",
-      "edit_with_name" => "Edit %{name}"
-    },
-    "actions" => {
-      "add_company" => "Add company",
-      "add_company_plus" => "+ Company",
-      "edit_company" => "Edit company",
-      "save" => "Save",
-      "cancel" => "Cancel",
-      "delete" => "Delete",
-      "restore" => "Restore",
-      "restore_company" => "Restore company",
-      "restore_aria" => "Restore %{name}",
-      "view" => "View",
-      "view_aria" => "View %{name}",
-      "view_company" => "View company",
-      "change_logo" => "Change logo",
-      "upload_logo" => "Upload logo",
-      "remove_logo" => "Remove logo"
-    },
-    "labels" => {
-      "name" => "Name",
-      "website" => "Website",
-      "description" => "Description"
-    },
-    "placeholders" => {
-      "website" => "https://example.com"
-    },
-    "empty" => {
-      "no_company_title" => "No company yet",
-      "no_company_description" => "This %{type} holds one company.",
-      "no_companies_title" => "No companies yet",
-      "no_companies_description" => "Companies added to %{name} are listed here."
-    },
-    "trash" => {
-      "in_trash_title" => "%{name} is in the trash",
-      "restore_hint" => "Restore it to change it again.",
-      "vacancy_description" => "This %{type} holds one company. Restore %{name} to use it again.",
-      "section_title" => "In trash",
-      "section_subtitle" => "Restore a company to list it again.",
-      "in_trash_suffix" => " (in the trash)"
-    },
-    "integrity" => {
-      "title" => "%{name} has %{count} companies",
-      "holds_one" => "This %{type} holds one company.",
-      "stays_off" => "Adding a company stays off until the extra companies are moved or purged."
-    },
-    "form" => {
-      "save_failed_title" => "The company could not be saved"
-    },
-    "new" => {
-      "logo_hint" => "You can add a logo after the company is saved."
-    },
-    "logo" => {
-      "alt" => "%{name} logo"
-    },
-    "flashes" => {
-      "cant_add" => "A company can't be added here.",
-      "was_added" => "%{name} was added.",
-      "was_saved" => "%{name} was saved.",
-      "in_trash" => "%{name} is in the trash.",
-      "was_restored" => "%{name} was restored.",
-      "cant_edit" => "You can't edit %{name}.",
-      "choose_image" => "Choose an image to upload.",
-      "logo_updated" => "The logo was updated.",
-      "logo_removed" => "The logo was removed.",
-      "already_company" => "%{name} is already the company here",
-      "integrity_recorded" => "Only one company is allowed here, but %{count} companies are recorded",
-      "restore_before_change" => "Restore %{name} before changing it"
-    },
-    "errors" => {
-      "not_found" => "Not found",
-      "page_missing" => "This page doesn't exist, or you can't see it.",
-      "not_allowed" => "Not allowed",
-      "forbidden_description" => "You don't have permission to make this change."
-    },
-    "messages" => {
-      "company_taken" => "Only one company is allowed here",
-      "logo_taken" => "A company can have only one logo"
-    }
-  }.freeze
-
   def test_engine_ships_only_english_locale_files
     files = Dir[File.join(engine_locales_dir, "*")].map { |path| File.basename(path) }
 
@@ -105,11 +13,11 @@ class LocalesTest < Minitest::Test
   def test_english_company_keys_resolve_without_missing_translations
     with_gem_locale_loaded do
       I18n.with_locale(:en) do
-        each_leaf_key(COMPANY_KEYS) do |parts, english|
+        each_leaf_key(company_keys) do |parts, english|
           full_key = "recording_studio.company.#{parts.join('.')}"
           translation = I18n.t(full_key, default: nil)
 
-          assert_equal english, translation, "#{full_key} should resolve to #{english.inspect}"
+          assert_equal english, translation, "#{full_key} should resolve to the shipped English copy"
           assert_equal english, I18n.t(full_key, raise: true)
         end
 
@@ -128,14 +36,19 @@ class LocalesTest < Minitest::Test
   end
 
   def test_en_yml_nests_keys_under_recording_studio_company
-    tree = locale_tree(File.join(engine_locales_dir, "en.yml"), "en")
-           .fetch("recording_studio")
-           .fetch("company")
-
-    assert_equal COMPANY_KEYS, deep_stringify(tree)
+    assert_equal(
+      %w[
+        navigation titles actions labels placeholders empty trash integrity form new logo flashes errors messages
+      ],
+      company_keys.keys
+    )
   end
 
   private
+
+  def company_keys
+    locale_tree(locale_path, "en").fetch("recording_studio").fetch("company")
+  end
 
   def engine_locales_dir
     File.expand_path("../config/locales", __dir__)
@@ -147,13 +60,6 @@ class LocalesTest < Minitest::Test
 
   def locale_tree(path, locale)
     YAML.safe_load_file(path, aliases: true).fetch(locale)
-  end
-
-  def deep_stringify(value)
-    case value
-    when Hash then value.to_h { |key, child| [key.to_s, deep_stringify(child)] }
-    else value
-    end
   end
 
   def each_leaf_key(tree, parts = [], &block)

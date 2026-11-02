@@ -61,12 +61,14 @@ class MigrationsGeneratorTest < Minitest::Test
   end
 
   def test_migration_numbers_advance_within_the_same_second
-    generator = RecordingStudioCompany::Generators::MigrationsGenerator.new([], { quiet: true })
-    first = generator.send(:next_migration_number)
-    second = generator.send(:next_migration_number)
+    Dir.mktmpdir do |dir|
+      Time.stub(:now, Time.utc(2026, 11, 2, 12, 0, 0)) { run_generator(dir) }
 
-    assert_match(/\A\d{14}\z/, first)
-    assert_equal first.succ, second
+      stamps = Dir.glob(File.join(dir, "db/migrate/*.rb")).map { |path| File.basename(path)[/\A\d{14}/] }.sort
+      assert_equal 2, stamps.size
+      assert_match(/\A\d{14}\z/, stamps.first)
+      assert_equal stamps.first.succ, stamps.last
+    end
   end
 
   def test_does_not_copy_template_migrations
