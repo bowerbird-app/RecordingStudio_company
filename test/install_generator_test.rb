@@ -167,6 +167,7 @@ class InstallGeneratorTest < Minitest::Test
     end
     assert_includes install_guide, "bin/rails generate recording_studio_attachable:install"
     assert_includes install_guide, "Companies.to(allow: :one)"
+    assert_includes install_guide, "RecordingStudioAttachable::Attachment.include"
     assert_includes install_guide, "recording_companies_path"
   end
 

@@ -100,6 +100,14 @@ end
 
 The company pages inherit the host's `ApplicationController`, so its authentication and `Current.actor` setup run first. The pages act as `Current.actor` when the host defines it, and as `current_user` otherwise. They render in `recording_studio/default_layout` with FlatPack components.
 
+## Upgrade from 0.4.0
+
+Pin `v0.4.5`. There is no migration. This gem no longer turns on Trashable for attachments. Enable it on `RecordingStudioAttachable::Attachment` in the host so removing a logo keeps the logo place.
+
+```ruby
+RecordingStudioAttachable::Attachment.include(RecordingStudio::Capabilities::Trashable.to)
+```
+
 ## Turn on companies for a parent type
 
 Include `RecordingStudio::Capabilities::Companies.to` in each parent recordable type that holds companies. `allow: :one` limits each recording of the type to one company. `allow: :many` sets no limit.
@@ -283,7 +291,7 @@ The company type turns on these capabilities:
 - Trashable, for trash and restore
 - Attachable, for the logo, limited to one image of up to 10 MB, with `:edit` needed to upload, replace, remove, or restore it
 
-The engine also turns on Trashable for `RecordingStudioAttachable::Attachment` when the host has not, so removing a logo moves it to the trash.
+Hosts turn on Trashable for `RecordingStudioAttachable::Attachment` so removing a logo moves it to the trash. The dummy app does that in `config/initializers`.
 
 These capabilities are left out on purpose:
 

@@ -145,6 +145,12 @@ class CompanyDeclarationTest < ActiveSupport::TestCase
     assert RecordingStudio.capability_enabled?(:attachable, for: COMPANY_TYPE)
   end
 
+  test "the company engine does not enable trashable on Attachable attachments" do
+    engine_source = File.read(File.expand_path("../../lib/recording_studio_company/engine.rb", __dir__))
+
+    refute_includes engine_source, "RecordingStudioAttachable::Attachment.include"
+  end
+
   test "company logos accept one image of up to ten megabytes" do
     options = RecordingStudio.capability_options(:attachable, for: COMPANY_TYPE)
 
