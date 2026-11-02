@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
   spec.authors     = ["Bowerbird"]
   spec.homepage    = "https://github.com/bowerbird-app/RecordingStudio_company"
   spec.summary     = "Companies for Recording Studio"
-  spec.description = "A Recording Studio addon that keeps company profiles (name, legal name, contact details, " \
-                     "founding date, and logo) under any recording a host app allows."
+  spec.description = "A Recording Studio addon that keeps company profiles (name, description, website, " \
+                     "and logo) under any recording a host app allows."
   spec.license     = "MIT"
   spec.required_ruby_version = ">= 3.3.0"
 

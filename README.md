@@ -38,7 +38,7 @@ Add the gem. Recording Studio gems are not published to RubyGems, so resolve the
 
 ```ruby
 # Gemfile
-gem "recording_studio_company", github: "bowerbird-app/RecordingStudio_company", tag: "v0.3.0"
+gem "recording_studio_company", github: "bowerbird-app/RecordingStudio_company", tag: "v0.4.5"
 
 gem "flat_pack", github: "bowerbird-app/flatpack", tag: "v0.1.213"
 gem "recording_studio", github: "bowerbird-app/RecordingStudio", tag: "v4.7.0"
@@ -82,6 +82,10 @@ The company page stacks the logo, name, description, and website, and puts Edit 
 Pin `v0.3.0`. There is no migration. Static interface copy on the company screens uses Rails I18n keys under `recording_studio.company`. English output is unchanged. Hosts override or add languages in their own `config/locales`. There is no dependency on `recording_studio_internationalization`.
 
 From 0.2.1, the edit button says Save, and Delete sits on that row. Hosts that replaced the company edit view keep that view.
+
+## Upgrade from 0.4.0
+
+Pin `v0.4.5`. There is no migration. Tags `v0.4.1` through `v0.4.4` only moved companion gem pins while `VERSION` stayed at `0.4.0`. This release sets `VERSION` to `0.4.5` and records those tags in the changelog.
 
 List the company, attachment, library, and placement types in the Recording Studio initializer. Attachable registers image-library capabilities whose child types must be listed even when the host does not enable libraries. The engine also registers the company type after your initializers run, but listing it keeps the configuration in one place.
 

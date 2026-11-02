@@ -26,14 +26,14 @@ default: &default
 
 development:
   <<: *default
-  database: <%= ENV.fetch("DB_NAME") { "app_development" } %>
+  database: <%= ENV.fetch("DB_NAME") { "recording_studio_company_development" } %>
 
 # Warning: The database defined as "test" will be erased and
 # re-generated from your development database when you run "rake".
 # Do not set this db to the same as development or production.
 test:
   <<: *default
-  database: <%= ENV.fetch("DB_NAME") { "app_test" } %>
+  database: <%= ENV.fetch("DB_NAME") { "recording_studio_company_test" } %>
   # The test suite builds its own rows. db:prepare must not load db/seeds.rb here,
   # or pages that read every recording will see the demo companies.
   seeds: false
