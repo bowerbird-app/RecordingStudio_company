@@ -154,6 +154,32 @@ class EngineTest < Minitest::Test
     end
   end
 
+  def test_apply_model_extensions_applies_the_same_registered_block_once
+    with_probe_configuration do |config|
+      model_class = Class.new do
+        def self.name
+          "ExampleRecord"
+        end
+      end
+
+      runs = 0
+      extension = proc do
+        runs += 1
+        def template_extension_method
+          :applied
+        end
+      end
+
+      config.hooks.extend_model(:ExampleRecord, &extension)
+      config.hooks.extend_model(:ExampleRecord, &extension)
+      RecordingStudioCompany::Engine.apply_model_extensions(model_class)
+      RecordingStudioCompany::Engine.apply_model_extensions(model_class)
+
+      assert_equal 1, runs
+      assert_equal :applied, model_class.new.template_extension_method
+    end
+  end
+
   def test_apply_controller_extensions_matches_demodulized_name
     with_probe_configuration do |config|
       controller_class = Class.new do
@@ -173,10 +199,6 @@ class EngineTest < Minitest::Test
       instance = controller_class.new
       assert_equal :applied, instance.template_controller_extension
     end
-  end
-
-  def test_apply_model_extensions_returns_without_a_target
-    assert_nil RecordingStudioCompany::Engine.apply_model_extensions(nil)
   end
 
   private

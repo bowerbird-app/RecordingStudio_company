@@ -6,14 +6,10 @@ module RecordingStudioCompany
 
     class << self
       def apply_model_extensions(target)
-        return unless target
-
         apply_extensions(target, extensions_for(:model, extension_keys_for(target)))
       end
 
       def apply_controller_extensions(target)
-        return unless target
-
         apply_extensions(target, extensions_for(:controller, extension_keys_for(target)))
       end
 
@@ -113,6 +109,12 @@ module RecordingStudioCompany
         # Checked against the class, because RecordingStudio::Recording is reloadable.
         recording = RecordingStudio::Recording
         recording.include(Slots::Validation) unless recording.include?(Slots::Validation)
+
+        # Attachable's RemoveAttachment trashes when Trashable is loaded, and trashing
+        # needs :trashable enabled on the attachment type.
+        unless RecordingStudio.capability_enabled?(:trashable, for: LOGO_TYPE)
+          RecordingStudioAttachable::Attachment.include(RecordingStudio::Capabilities::Trashable.to)
+        end
 
         Slots.verify!
       end

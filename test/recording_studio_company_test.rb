@@ -314,7 +314,7 @@ class RecordingStudioCompanyTest < Minitest::Test
     assert_includes changelog, "## [0.4.0] - 2026-10-13"
     assert_includes changelog, "RecordingStudioCompany::Copy"
     assert_includes changelog, "## [0.4.5] - 2026-11-02"
-    assert_includes changelog, "RecordingStudioAttachable::Attachment.include"
+    assert_includes changelog, "RecordingStudio::Hooks#registered_counts"
     refute_match(/## \[0\.5\./, changelog)
   end
 

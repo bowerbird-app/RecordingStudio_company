@@ -17,7 +17,7 @@ class LocalesTest < Minitest::Test
           full_key = "recording_studio.company.#{parts.join('.')}"
           translation = I18n.t(full_key, default: nil)
 
-          assert_equal english, translation, "#{full_key} should resolve to the shipped English copy"
+          assert_equal english, translation, "#{full_key} should resolve to the pinned English copy"
           assert_equal english, I18n.t(full_key, raise: true)
         end
 
@@ -36,18 +36,17 @@ class LocalesTest < Minitest::Test
   end
 
   def test_en_yml_nests_keys_under_recording_studio_company
-    assert_equal(
-      %w[
-        navigation titles actions labels placeholders empty trash integrity form new logo flashes errors messages
-      ],
-      company_keys.keys
-    )
+    tree = locale_tree(File.join(engine_locales_dir, "en.yml"), "en")
+           .fetch("recording_studio")
+           .fetch("company")
+
+    assert_equal company_keys, tree
   end
 
   private
 
   def company_keys
-    locale_tree(locale_path, "en").fetch("recording_studio").fetch("company")
+    YAML.safe_load_file(File.expand_path("fixtures/company_copy.yml", __dir__), aliases: true)
   end
 
   def engine_locales_dir

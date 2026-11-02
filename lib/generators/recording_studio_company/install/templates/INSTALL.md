@@ -14,8 +14,7 @@ Next steps:
 3. Apply the migrations with `bin/rails db:migrate`.
 4. Add "RecordingStudioCompany::Company" and "RecordingStudioAttachable::Attachment" to config.recordable_types in config/initializers/recording_studio.rb.
 5. Turn on companies for each parent type with `include RecordingStudio::Capabilities::Companies.to(allow: :one)` or `allow: :many`.
-6. Enable Trashable on attachments so a removed logo keeps the company place: `RecordingStudioAttachable::Attachment.include(RecordingStudio::Capabilities::Trashable.to)`.
-7. Keep strict recordable declarations enabled and add `recording_studio_recordable(...)` to every configured recordable before running `RecordingStudio.validate_recordable_declarations!`.
-8. The company pages inherit your ApplicationController. Adjust auth, layout, and current actor integration to match your host app.
-9. Link to a parent's companies with `recording_studio_company.recording_companies_path(parent_recording)`.
-10. Run `bin/rails tailwindcss:build` if you use Tailwind CSS.
+6. Keep strict recordable declarations enabled and add `recording_studio_recordable(...)` to every configured recordable before running `RecordingStudio.validate_recordable_declarations!`.
+7. The company pages inherit your ApplicationController. Adjust auth, layout, and current actor integration to match your host app.
+8. Link to a parent's companies with `recording_studio_company.recording_companies_path(parent_recording)`.
+9. Run `bin/rails tailwindcss:build` if you use Tailwind CSS.

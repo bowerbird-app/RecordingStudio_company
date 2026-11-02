@@ -13,17 +13,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Company reads, writes, access checks, and slot occupancy live in separate modules under `lib/recording_studio_company/`
 - Configuration `to_h` reports hook counts through `RecordingStudio::Hooks#registered_counts`
-- The engine no longer enables Trashable on `RecordingStudioAttachable::Attachment`
-
-### Upgrade
-
-Pin `v0.4.5`. There is no migration. Enable Trashable on attachments in the host so removing a logo keeps the logo place:
-
-```ruby
-RecordingStudioAttachable::Attachment.include(RecordingStudio::Capabilities::Trashable.to)
-```
-
-The dummy app does this in `config/initializers/recording_studio_attachment_trashable.rb`.
 
 ## [0.4.0] - 2026-10-13
 
