@@ -138,12 +138,10 @@ class CompanyCreateTest < ActiveSupport::TestCase
   test "a host default scope that hides trashed recordings does not free the place" do
     newsroom = press_centre
     trash(create_company(newsroom, "Nike, Inc."))
-    scopes = RecordingStudio::Recording.default_scopes
-    RecordingStudio::Recording.class_eval { default_scope { where(trashed_at: nil) } }
 
-    assert_raises(RecordingStudioCompany::CompanyAlreadyExists) { create_company(newsroom, "Adidas AG") }
-  ensure
-    RecordingStudio::Recording.default_scopes = scopes
+    RecordingStudio::Recording.where(trashed_at: nil).scoping do
+      assert_raises(RecordingStudioCompany::CompanyAlreadyExists) { create_company(newsroom, "Adidas AG") }
+    end
   end
 
   test "the same idempotency key returns the first company under either allowance" do

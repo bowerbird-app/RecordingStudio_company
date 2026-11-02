@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.6] - 2026-11-02
+
+### Changed
+
+- Company reads, writes, access checks, and slot occupancy live in separate modules under `lib/recording_studio_company/`
+- Configuration `to_h` reports hook counts through `RecordingStudio::Hooks#registered_counts`
+
+### Upgrade
+
+Pin `v0.4.6`. There is no migration. Hosts already on `v0.4.5` keep the same company API.
+
 ## [0.4.5] - 2026-11-02
 
 ### Changed
@@ -159,7 +170,8 @@ The first release of RecordingStudioCompany. The repository started from the Rec
 - The company index is titled "Companies and organisations". + Company sits under the title when another company can be added. Companies are names in a card, and each name opens that company. On a wide screen the list sits in the first column of a two-column grid. Names are vertically centered in the row.
 - On the edit page the logo sits with Upload logo, Change logo, and Remove logo. It has no card and no Logo heading.
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_company/compare/v0.4.5...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_company/compare/v0.4.6...HEAD
+[0.4.6]: https://github.com/bowerbird-app/RecordingStudio_company/releases/tag/v0.4.6
 [0.4.5]: https://github.com/bowerbird-app/RecordingStudio_company/releases/tag/v0.4.5
 [0.4.4]: https://github.com/bowerbird-app/RecordingStudio_company/releases/tag/v0.4.4
 [0.4.3]: https://github.com/bowerbird-app/RecordingStudio_company/releases/tag/v0.4.3

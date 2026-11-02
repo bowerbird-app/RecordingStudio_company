@@ -5,7 +5,7 @@ require "open3"
 
 class RecordingStudioCompanyTest < Minitest::Test
   def test_version_matches_release
-    assert_equal "0.4.5", ::RecordingStudioCompany::VERSION
+    assert_equal "0.4.6", ::RecordingStudioCompany::VERSION
   end
 
   def test_gemspec_points_at_the_company_repository
@@ -324,6 +324,9 @@ class RecordingStudioCompanyTest < Minitest::Test
     assert_includes changelog, "## [0.4.4] - 2026-10-19"
     assert_includes changelog, "## [0.4.5] - 2026-11-02"
     assert_includes changelog, "Pin `v0.4.5`"
+    assert_includes changelog, "## [0.4.6] - 2026-11-02"
+    assert_includes changelog, "RecordingStudio::Hooks#registered_counts"
+    assert_includes changelog, "Pin `v0.4.6`"
     refute_match(/## \[0\.5\./, changelog)
   end
 
