@@ -97,13 +97,26 @@ module CompanyTestSupport
     recording.reload
   end
 
-  def png_blob(filename = "logo.png")
-    ActiveStorage::Blob.create_and_upload!(io: StringIO.new(png_bytes), filename:, content_type: "image/png")
+  def signed_png_id(filename = "logo.png", recording:, actor: owner)
+    RecordingStudioAttachable::DirectUpload.sign(uploaded_logo_blob(recording:, actor:, filename:))
   end
 
-  def text_blob
-    ActiveStorage::Blob.create_and_upload!(io: StringIO.new("not a logo"), filename: "notes.txt",
-                                           content_type: "text/plain")
+  def signed_text_id(recording:, actor: owner)
+    RecordingStudioAttachable::DirectUpload.sign(
+      uploaded_logo_blob(
+        recording:, actor:, filename: "notes.txt", content_type: "text/plain", io: StringIO.new("not a logo")
+      )
+    )
+  end
+
+  def uploaded_logo_blob(recording:, actor:, filename:, content_type: "image/png", io: nil)
+    ActiveStorage::Blob.create_and_upload!(
+      io: io || StringIO.new(png_bytes),
+      filename:,
+      content_type:,
+      identify: false,
+      metadata: RecordingStudioAttachable::DirectUpload.metadata_for(recording:, actor:)
+    )
   end
 
   def png_bytes

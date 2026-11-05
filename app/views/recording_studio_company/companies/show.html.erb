@@ -1,18 +1,18 @@
 <% name = @company.recordable.name %>
 <% record = @company.recordable %>
 <% can_update = company_can?(:update, @company) %>
-<% recording_studio_page_nav(
-  title: name,
-  page_nav_back_url: recording_companies_path(@company.parent_recording_id),
-  page_nav_back_label: t("recording_studio.company.navigation.back")
-) %>
+<% content_for :title, name %>
+<% flat_pack_page_nav(round: true, style: :default) do |nav| %>
+  <% nav.with_back(
+    href: recording_companies_path(@company.parent_recording_id),
+    tooltip: t("recording_studio.company.navigation.back")
+  ) %>
+<% end %>
 
 <div class="flex w-full max-w-xl flex-col">
   <div class="mb-5">
     <%= recording_studio_company_logo(@company, size: :xl, shape: :circle) %>
   </div>
-
-  <%= render FlatPack::PageTitle::Component.new(title: name) %>
 
   <% if record.description.present? || record.website_url.present? %>
     <div class="flex flex-col gap-5">

@@ -1,15 +1,13 @@
-<% recording_studio_page_nav(
-  title: t("recording_studio.company.titles.add"),
-  page_nav_back_url: recording_companies_path(@parent),
-  page_nav_back_label: t("recording_studio.company.navigation.back")
-) %>
+<% content_for :title, t("recording_studio.company.titles.add") %>
+<% content_for :subtitle, company_parent_subtitle(@parent) %>
+<% flat_pack_page_nav(round: true, style: :default) do |nav| %>
+  <% nav.with_back(
+    href: recording_companies_path(@parent),
+    tooltip: t("recording_studio.company.navigation.back")
+  ) %>
+<% end %>
 
 <div class="flex w-full flex-col gap-6">
-  <%= render FlatPack::PageTitle::Component.new(
-    title: t("recording_studio.company.titles.add"),
-    subtitle: company_parent_subtitle(@parent)
-  ) %>
-
   <%= render "form",
              record: @record,
              url: recording_companies_path(@parent),

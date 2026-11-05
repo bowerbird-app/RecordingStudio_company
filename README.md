@@ -38,17 +38,17 @@ Add the gem. Recording Studio gems are not published to RubyGems, so resolve the
 
 ```ruby
 # Gemfile
-gem "recording_studio_company", github: "bowerbird-app/RecordingStudio_company", tag: "v0.4.7"
+gem "recording_studio_company", github: "bowerbird-app/RecordingStudio_company", tag: "v0.5.0"
 
-gem "flat_pack", github: "bowerbird-app/flatpack", tag: "v0.1.213"
-gem "recording_studio", github: "bowerbird-app/RecordingStudio", tag: "v4.7.0"
-gem "recording_studio_accessible", github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.18.0"
-gem "recording_studio_attachable", github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.15.0"
-gem "recording_studio_metrics", github: "bowerbird-app/RecordingStudio_metrics", tag: "v0.2.0"
-gem "recording_studio_trashable", github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.11.0"
+gem "flat_pack", github: "bowerbird-app/flatpack", tag: "v0.1.341"
+gem "recording_studio", github: "bowerbird-app/RecordingStudio", tag: "v6.3.0"
+gem "recording_studio_accessible", github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.24.1"
+gem "recording_studio_attachable", github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.22.1"
+gem "recording_studio_metrics", github: "bowerbird-app/RecordingStudio_metrics", tag: "v0.7.2"
+gem "recording_studio_trashable", github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.12.2"
 ```
 
-Attachable `>= 0.14` depends on Recording Studio Metrics (`~> 0.2`), which is not on RubyGems, so pin it from GitHub as above.
+Attachable depends on Recording Studio Metrics, which is not on RubyGems, so pin it from GitHub as above.
 
 Run the install generators and the migrations.
 
@@ -87,11 +87,19 @@ From 0.2.1, the edit button says Save, and Delete sits on that row. Hosts that r
 
 Pin `v0.4.5`. There is no migration. Tags `v0.4.1` through `v0.4.4` only moved companion gem pins while `VERSION` stayed at `0.4.0`. This release sets `VERSION` to `0.4.5` and records those tags in the changelog.
 
+## Upgrade from 0.4.7
+
+Pin `v0.5.0`. There is no company migration. Hosts need Recording Studio `v6.3.0` or newer and FlatPack `v0.1.341` or newer.
+
+Company pages call `recording_studio_layout { RecordingStudioCompany.configuration.layout }`. `layout` defaults to `nil`, which uses the host's Recording Studio layout, then `recording_studio/default_layout`. Do not include `RecordingStudio::UsesDefaultLayout` and do not hard-code `layout "recording_studio/default_layout"`.
+
+If you override company views, set `content_for :title`, call `flat_pack_page_nav` with `with_back` / `with_close`, and register page actions with `register_page_nav`. Drop Card `style:`.
+
 ## Upgrade from 0.4.6
 
 Pin `v0.4.7`. There is no migration. Company cards and company pages render the name and website with FlatPack `SectionTitle` and `Link`. Hosts need FlatPack `v0.1.210` or newer. The logo upload field is unchanged.
 
-List the company, attachment, library, and placement types in the Recording Studio initializer. Attachable registers image-library capabilities whose child types must be listed even when the host does not enable libraries. The engine also registers the company type after your initializers run, but listing it keeps the configuration in one place.
+List the company and attachment types in the Recording Studio initializer. The engine also registers the company type after your initializers run, but listing it keeps the configuration in one place.
 
 ```ruby
 # config/initializers/recording_studio.rb
@@ -99,14 +107,12 @@ RecordingStudio.configure do |config|
   config.recordable_types = [
     "PressCentre", "Agency", "Project",
     "RecordingStudioCompany::Company",
-    "RecordingStudioAttachable::Attachment",
-    "RecordingStudioAttachable::Library",
-    "RecordingStudioAttachable::Placement"
+    "RecordingStudioAttachable::Attachment"
   ]
 end
 ```
 
-The company pages inherit the host's `ApplicationController`, so its authentication and `Current.actor` setup run first. The pages act as `Current.actor` when the host defines it, and as `current_user` otherwise. They render in `recording_studio/default_layout` with FlatPack components.
+The company pages inherit the host's `ApplicationController`, so its authentication and `Current.actor` setup run first. The pages act as `Current.actor` when the host defines it, and as `current_user` otherwise. They use `recording_studio_layout` and FlatPack components.
 
 ## Turn on companies for a parent type
 
@@ -323,6 +329,4 @@ bundle exec rubocop
 
 `rake test:all` needs PostgreSQL. It prepares the test database with `RAILS_ENV=test` and does not load `db/seeds.rb` (the test config sets `seeds: false`). It runs each database-backed file in `test/companies` and `test/controllers` under the dummy app's bundle. Demo companies are created inside the examples that need them.
 
-## Documentation
-
-`docs/gem_template/` keeps the Recording Studio gem template's documentation as background on the engine conventions. This README and the dummy app describe the company gem.
+This README and the dummy app describe the company gem.

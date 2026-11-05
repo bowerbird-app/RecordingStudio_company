@@ -2,10 +2,15 @@
 
 module RecordingStudioCompany
   class Configuration
-    attr_reader :hooks
+    attr_reader :hooks, :layout
 
     def initialize
       @hooks = RecordingStudio::Hooks.new
+      @layout = nil
+    end
+
+    def layout=(value)
+      @layout = RecordingStudio::Layout.accept(value)
     end
 
     def to_h

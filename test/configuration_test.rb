@@ -9,7 +9,20 @@ class ConfigurationTest < Minitest::Test
 
   def test_new_configuration_has_core_hooks_only
     assert_instance_of RecordingStudio::Hooks, @configuration.hooks
+    assert_nil @configuration.layout
     assert_equal [:hooks_registered], @configuration.to_h.keys
+  end
+
+  def test_layout_accepts_a_name_and_rejects_a_positional_callable
+    @configuration.layout = "application"
+
+    assert_equal "application", @configuration.layout
+
+    error = assert_raises(ArgumentError) do
+      @configuration.layout = ->(controller) { "application-#{controller.class}" }
+    end
+    assert_match(/controller:/, error.message)
+    assert_equal "application", @configuration.layout
   end
 
   def test_merge_ignores_unknown_keys

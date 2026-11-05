@@ -2,12 +2,7 @@
 
 module RecordingStudioCompany
   class ApplicationController < (defined?(::ApplicationController) ? ::ApplicationController : ActionController::Base)
-    include RecordingStudio::UsesDefaultLayout
-
-    # UsesDefaultLayout does nothing when the host controller already includes it, and the host may
-    # pick another layout for its own pages, so the company pages set both explicitly.
-    layout "recording_studio/default_layout"
-    helper RecordingStudio::LayoutHelper
+    recording_studio_layout { RecordingStudioCompany.configuration.layout }
     helper RecordingStudioCompany::CompaniesHelper
 
     protect_from_forgery with: :exception

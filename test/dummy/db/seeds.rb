@@ -129,9 +129,15 @@ begin
     blob = ActiveStorage::Blob.create_and_upload!(
       io: StringIO.new(placeholder_logo_png.call),
       filename: "nike-logo.png",
-      content_type: "image/png"
+      content_type: "image/png",
+      identify: false,
+      metadata: RecordingStudioAttachable::DirectUpload.metadata_for(recording: nike, actor: user)
     )
-    RecordingStudioCompany.set_logo(nike, signed_blob_id: blob.signed_id, actor: user)
+    RecordingStudioCompany.set_logo(
+      nike,
+      signed_blob_id: RecordingStudioAttachable::DirectUpload.sign(blob),
+      actor: user
+    )
   end
 ensure
   Current.actor = previous_actor

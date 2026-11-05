@@ -18,7 +18,7 @@
         <% many = RecordingStudioCompany.allowance(parent) == :many %>
         <% companies = RecordingStudioCompany.companies(parent) %>
         <% place = parent.parent_recording ? "#{parent.type_label} in #{parent.parent_recording.name}" : parent.type_label %>
-        <%= render FlatPack::Card::Component.new(style: :default) do |card| %>
+        <%= render FlatPack::Card::Component.new do |card| %>
           <% card.header do %>
             <%= render FlatPack::PageTitle::Component.new(
               title: parent.name,
