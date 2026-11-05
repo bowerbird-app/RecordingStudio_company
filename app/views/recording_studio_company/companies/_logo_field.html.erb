@@ -5,7 +5,7 @@
 
   <%= form_with url: logo_company_path(company),
                 method: :patch,
-                class: "inline-flex flex-col gap-2",
+                class: "min-w-0",
                 data: company_logo_form_data do %>
     <%= hidden_field_tag "logo[signed_blob_id]", "",
                          id: nil,
@@ -15,23 +15,30 @@
            accept="<%= company_logo_accept %>"
            data-recording-studio-attachable--attachment-revision-upload-target="fileInput"
            data-action="change->recording-studio-attachable--attachment-revision-upload#fileSelected">
-    <%= render FlatPack::Button::Component.new(
-      text: logo ? t("recording_studio.company.actions.change_logo") : t("recording_studio.company.actions.upload_logo"),
-      style: :secondary,
-      type: "button",
-      data: { action: "recording-studio-attachable--attachment-revision-upload#browse" }
-    ) %>
+    <%= render FlatPack::ButtonGroup::Component.new(variant: :outlined) do |group| %>
+      <% group.button(FlatPack::Button::Component.new(
+        text: logo ? t("recording_studio.company.actions.change_logo") : t("recording_studio.company.actions.upload_logo"),
+        style: :secondary,
+        type: "button",
+        data: { action: "recording-studio-attachable--attachment-revision-upload#browse" }
+      )) %>
+      <% if logo %>
+        <% group.button(
+          FlatPack::Button::Component.new(
+            text: t("recording_studio.company.actions.remove_logo"),
+            style: :ghost,
+            type: "submit",
+            form: "remove-company-logo"
+          ),
+          overflow: true
+        ) %>
+      <% end %>
+    <% end %>
     <p class="hidden text-sm text-(--surface-muted-content-color)"
        data-recording-studio-attachable--attachment-revision-upload-target="status"></p>
   <% end %>
-
-  <% if logo %>
-    <%= form_with url: logo_company_path(company), method: :delete, class: "inline-flex" do %>
-      <%= render FlatPack::Button::Component.new(
-        text: t("recording_studio.company.actions.remove_logo"),
-        style: :ghost,
-        type: "submit"
-      ) %>
-    <% end %>
-  <% end %>
 </div>
+<% if logo %>
+  <%= form_with url: logo_company_path(company), method: :delete, id: "remove-company-logo", class: "hidden" do %>
+  <% end %>
+<% end %>

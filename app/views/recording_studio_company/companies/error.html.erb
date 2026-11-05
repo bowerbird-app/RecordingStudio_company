@@ -1,8 +1,7 @@
 <% home_path = company_home_path %>
-<% recording_studio_page_nav(
-  title: @error_title,
-  page_nav_back_url: home_path,
-  page_nav_back_label: (home_path && t("recording_studio.company.navigation.home"))
-) %>
+<% content_for :title, @error_title %>
+<% flat_pack_page_nav(round: true, style: :default) do |nav| %>
+  <% nav.with_back(href: home_path, tooltip: t("recording_studio.company.navigation.home")) if home_path %>
+<% end %>
 
 <%= render FlatPack::EmptyState::Component.new(title: @error_title, description: @error_description) %>

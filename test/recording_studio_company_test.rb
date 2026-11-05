@@ -5,7 +5,7 @@ require "open3"
 
 class RecordingStudioCompanyTest < Minitest::Test
   def test_version_matches_release
-    assert_equal "0.4.7", ::RecordingStudioCompany::VERSION
+    assert_equal "0.5.0", ::RecordingStudioCompany::VERSION
   end
 
   def test_gemspec_points_at_the_company_repository
@@ -25,10 +25,12 @@ class RecordingStudioCompanyTest < Minitest::Test
     assert_kind_of Class, ::RecordingStudioCompany::Engine
   end
 
-  def test_gemspec_pins_recording_studio_4_2
+  def test_gemspec_pins_recording_studio_6_3
     gemspec = File.read(File.expand_path("../recording_studio_company.gemspec", __dir__))
 
-    assert_includes gemspec, 'spec.add_dependency "recording_studio", "~> 4.2"'
+    assert_includes gemspec, 'spec.add_dependency "recording_studio", ">= 6.3.0"'
+    refute_includes gemspec, '"~> 4.2"'
+    refute_includes gemspec, '"< 5"'
   end
 
   def test_gemspec_depends_on_the_capability_gems_companies_use
@@ -37,12 +39,12 @@ class RecordingStudioCompanyTest < Minitest::Test
 
     assert_equal(
       {
-        "flat_pack" => ">= 0.1.210",
+        "flat_pack" => ">= 0.1.341",
         "rails" => "~> 8.1.0",
-        "recording_studio" => "~> 4.2",
-        "recording_studio_accessible" => "~> 0.18",
-        "recording_studio_attachable" => "~> 0.15",
-        "recording_studio_trashable" => "~> 0.10"
+        "recording_studio" => ">= 6.3.0",
+        "recording_studio_accessible" => ">= 0.24.1",
+        "recording_studio_attachable" => ">= 0.22.1",
+        "recording_studio_trashable" => ">= 0.12.2"
       },
       requirements
     )
@@ -72,17 +74,20 @@ class RecordingStudioCompanyTest < Minitest::Test
     assert_includes install_script, "fetch-skills.sh"
   end
 
-  def test_dummy_gemfile_pins_verified_4x_github_tags
+  def test_dummy_gemfile_pins_verified_6x_github_tags
     gemfile = File.read(File.expand_path("dummy/Gemfile", __dir__))
 
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio", tag: "v4.7.0"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.18.0"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.15.0"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.11.0"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_root_switchable", tag: "v0.9.0"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_metrics", tag: "v0.2.0"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_cache", tag: "v0.5.0"'
-    assert_includes gemfile, 'github: "bowerbird-app/flatpack", tag: "v0.1.213"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio", tag: "v6.3.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.24.1"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.22.1"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.12.2"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_root_switchable", tag: "v0.11.5"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_metrics", tag: "v0.7.2"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_cache", tag: "v0.6.2"'
+    assert_includes gemfile, 'github: "bowerbird-app/flatpack", tag: "v0.1.341"'
+    root_gemfile = File.read(File.expand_path("../Gemfile", __dir__))
+    assert_includes root_gemfile, 'github: "bowerbird-app/RecordingStudio", tag: "v6.3.0"'
+    assert_includes root_gemfile, 'github: "bowerbird-app/flatpack", tag: "v0.1.341"'
     refute_includes gemfile, 'RecordingStudio", tag: "v4.6.0"'
     refute_includes gemfile, 'RecordingStudio", tag: "v4.5.0"'
     refute_includes gemfile, 'RecordingStudio_accessible", tag: "v0.17.0"'
@@ -189,10 +194,18 @@ class RecordingStudioCompanyTest < Minitest::Test
   def test_dummy_app_uses_recording_studio_default_layout
     application_controller_path = File.expand_path("dummy/app/controllers/application_controller.rb", __dir__)
     controller_source = File.read(application_controller_path)
+    gem_controller = File.read(
+      File.expand_path("../app/controllers/recording_studio_company/application_controller.rb", __dir__)
+    )
 
-    assert_includes controller_source, "include RecordingStudio::UsesDefaultLayout"
-    assert_includes controller_source, '"recording_studio/default_layout"'
-    assert_includes controller_source, "devise_controller? ? \"application\""
+    assert_includes controller_source, "recording_studio_layout"
+    assert_includes controller_source, "devise_controller?"
+    assert_includes controller_source, "RecordingStudioCompany.configuration.layout"
+    refute_includes controller_source, "UsesDefaultLayout"
+    refute_includes controller_source, '"recording_studio/default_layout"'
+    assert_includes gem_controller, "recording_studio_layout { RecordingStudioCompany.configuration.layout }"
+    refute_includes gem_controller, "UsesDefaultLayout"
+    refute_includes gem_controller, 'layout "recording_studio/default_layout"'
     refute_includes controller_source, "flat_pack_sidebar"
     refute File.exist?(File.expand_path("dummy/app/views/layouts/flat_pack_sidebar.html.erb", __dir__))
     refute File.exist?(File.expand_path("dummy/app/views/layouts/flat_pack/_sidebar.html.erb", __dir__))
@@ -243,9 +256,7 @@ class RecordingStudioCompanyTest < Minitest::Test
         "Workspace", "Folder", "Page",
         "PressCentre", "Agency", "Project",
         "RecordingStudioCompany::Company",
-        "RecordingStudioAttachable::Attachment",
-        "RecordingStudioAttachable::Library",
-        "RecordingStudioAttachable::Placement"
+        "RecordingStudioAttachable::Attachment"
       ]
     RUBY
     refute_includes initializer_source, "config.include_children"
@@ -279,7 +290,7 @@ class RecordingStudioCompanyTest < Minitest::Test
     assert_includes readme, "People are not in this gem"
     assert_includes readme, "Locations are not in this gem"
     assert_includes readme, "# Not part of this gem. A future brand gem could list Unilever's brands here."
-    assert_includes readme, 'tag: "v0.4.7"'
+    assert_includes readme, 'tag: "v0.5.0"'
     assert_includes readme, "bin/rails generate recording_studio_company:install"
     assert_includes readme, "bundle exec rake test:all"
     assert_operator readme.index("## Install"), :<, readme.index("## Use companies")
@@ -331,7 +342,24 @@ class RecordingStudioCompanyTest < Minitest::Test
     assert_includes changelog, "SectionTitle"
     assert_includes changelog, ">= 0.1.210"
     assert_includes changelog, "Pin `v0.4.7`"
-    refute_match(/## \[0\.5\./, changelog)
+    assert_includes changelog, "## [0.5.0] - 2026-11-05"
+    assert_includes changelog, "recording_studio_layout"
+    assert_includes changelog, "Layout.accept"
+    assert_includes changelog, "8.1.4.1"
+    assert_includes changelog, "docs/gem_template/"
+    assert_includes changelog, "Pin `v0.5.0`"
+  end
+
+  def test_template_leftovers_are_gone
+    root = File.expand_path("..", __dir__)
+
+    refute File.exist?(File.join(root, "UPDATE_SUMMARY.md"))
+    refute File.exist?(File.join(root, "MIGRATION_NOTES.md"))
+    refute File.directory?(File.join(root, "docs/gem_template"))
+    copilot = File.read(File.join(root, ".github/copilot-instructions.md"))
+    refute_includes copilot, "docs/gem_template/"
+    refute_includes copilot, "GemTemplate"
+    refute_includes copilot, "enable_feature_x"
   end
 
   def test_coverage_directories_are_gitignored_and_untracked

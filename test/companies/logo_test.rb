@@ -10,7 +10,9 @@ class CompanyLogoTest < ActiveSupport::TestCase
   end
 
   test "the first logo is one attachment named logo under the company" do
-    returned = RecordingStudioCompany.set_logo(@nike, signed_blob_id: png_blob("nike.png").signed_id, actor: owner)
+    returned = RecordingStudioCompany.set_logo(
+      @nike, signed_blob_id: signed_png_id("nike.png", recording: @nike), actor: owner
+    )
 
     logo = RecordingStudioCompany.logo(@nike)
     assert_equal @nike, returned
@@ -22,10 +24,10 @@ class CompanyLogoTest < ActiveSupport::TestCase
   end
 
   test "a second logo replaces the file and keeps the attachment recording" do
-    RecordingStudioCompany.set_logo(@nike, signed_blob_id: png_blob("first.png").signed_id, actor: owner)
+    RecordingStudioCompany.set_logo(@nike, signed_blob_id: signed_png_id("first.png", recording: @nike), actor: owner)
     first = RecordingStudioCompany.logo(@nike)
 
-    RecordingStudioCompany.set_logo(@nike, signed_blob_id: png_blob("second.png").signed_id, actor: owner)
+    RecordingStudioCompany.set_logo(@nike, signed_blob_id: signed_png_id("second.png", recording: @nike), actor: owner)
     second = RecordingStudioCompany.logo(@nike)
 
     assert_equal first.id, second.id
@@ -36,7 +38,7 @@ class CompanyLogoTest < ActiveSupport::TestCase
   end
 
   test "removing the logo trashes it, and the next logo revives the same attachment" do
-    RecordingStudioCompany.set_logo(@nike, signed_blob_id: png_blob("first.png").signed_id, actor: owner)
+    RecordingStudioCompany.set_logo(@nike, signed_blob_id: signed_png_id("first.png", recording: @nike), actor: owner)
     first = RecordingStudioCompany.logo(@nike)
 
     RecordingStudioCompany.remove_logo(@nike, actor: owner)
@@ -44,7 +46,7 @@ class CompanyLogoTest < ActiveSupport::TestCase
     assert_nil RecordingStudioCompany.logo(@nike)
     assert_predicate first.reload.trashed_at, :present?
 
-    RecordingStudioCompany.set_logo(@nike, signed_blob_id: png_blob("again.png").signed_id, actor: owner)
+    RecordingStudioCompany.set_logo(@nike, signed_blob_id: signed_png_id("again.png", recording: @nike), actor: owner)
     revived = RecordingStudioCompany.logo(@nike)
 
     assert_equal first.id, revived.id
@@ -62,7 +64,7 @@ class CompanyLogoTest < ActiveSupport::TestCase
     assert_no_difference -> { RecordingStudioAttachable::Attachment.count } do
       assert_no_difference -> { logo_children(@nike).count } do
         error = assert_raises(RecordingStudioCompany::LogoRejected) do
-          RecordingStudioCompany.set_logo(@nike, signed_blob_id: text_blob.signed_id, actor: owner)
+          RecordingStudioCompany.set_logo(@nike, signed_blob_id: signed_text_id(recording: @nike), actor: owner)
         end
 
         assert_equal 'Blob content type "text/plain" is not allowed. Allowed types: image/*', error.message
@@ -71,10 +73,10 @@ class CompanyLogoTest < ActiveSupport::TestCase
   end
 
   test "attachable's own upload cannot add a second attachment under a company" do
-    RecordingStudioCompany.set_logo(@nike, signed_blob_id: png_blob.signed_id, actor: owner)
+    RecordingStudioCompany.set_logo(@nike, signed_blob_id: signed_png_id(recording: @nike), actor: owner)
 
     result = RecordingStudioAttachable::Services::RecordAttachmentUpload.call(
-      parent_recording: @nike, signed_blob_id: png_blob("extra.png").signed_id, actor: owner
+      parent_recording: @nike, signed_blob_id: signed_png_id("extra.png", recording: @nike), actor: owner
     )
 
     assert_predicate result, :failure?
@@ -83,11 +85,11 @@ class CompanyLogoTest < ActiveSupport::TestCase
   end
 
   test "a removed logo still holds the place against attachable's own upload" do
-    RecordingStudioCompany.set_logo(@nike, signed_blob_id: png_blob.signed_id, actor: owner)
+    RecordingStudioCompany.set_logo(@nike, signed_blob_id: signed_png_id(recording: @nike), actor: owner)
     RecordingStudioCompany.remove_logo(@nike, actor: owner)
 
     result = RecordingStudioAttachable::Services::RecordAttachmentUpload.call(
-      parent_recording: @nike, signed_blob_id: png_blob("extra.png").signed_id, actor: owner
+      parent_recording: @nike, signed_blob_id: signed_png_id("extra.png", recording: @nike), actor: owner
     )
 
     assert_equal "Validation failed: A company can have only one logo", result.error
@@ -97,7 +99,7 @@ class CompanyLogoTest < ActiveSupport::TestCase
     trash(@nike)
 
     error = assert_raises(RecordingStudioCompany::Trashed) do
-      RecordingStudioCompany.set_logo(@nike, signed_blob_id: png_blob.signed_id, actor: owner)
+      RecordingStudioCompany.set_logo(@nike, signed_blob_id: signed_png_id(recording: @nike), actor: owner)
     end
     assert_equal "Restore Nike, Inc. before changing it", error.message
     assert_raises(RecordingStudioCompany::Trashed) { RecordingStudioCompany.remove_logo(@nike, actor: owner) }
@@ -107,14 +109,14 @@ class CompanyLogoTest < ActiveSupport::TestCase
     viewer = grant(@nike.root_recording, create_user("viewer"), "view")
 
     error = assert_raises(RecordingStudioCompany::NotAuthorized) do
-      RecordingStudioCompany.set_logo(@nike, signed_blob_id: png_blob.signed_id, actor: viewer)
+      RecordingStudioCompany.set_logo(@nike, signed_blob_id: signed_png_id(recording: @nike), actor: viewer)
     end
     assert_equal "Changing this company needs edit access", error.message
     assert_equal 0, logo_children(@nike).count
   end
 
   test "trashing the company trashes its logo, and restoring brings both back" do
-    RecordingStudioCompany.set_logo(@nike, signed_blob_id: png_blob.signed_id, actor: owner)
+    RecordingStudioCompany.set_logo(@nike, signed_blob_id: signed_png_id(recording: @nike), actor: owner)
     logo = RecordingStudioCompany.logo(@nike)
 
     trash(@nike)
@@ -126,7 +128,7 @@ class CompanyLogoTest < ActiveSupport::TestCase
   end
 
   test "a logo removed before the company was trashed stays removed after restore" do
-    RecordingStudioCompany.set_logo(@nike, signed_blob_id: png_blob.signed_id, actor: owner)
+    RecordingStudioCompany.set_logo(@nike, signed_blob_id: signed_png_id(recording: @nike), actor: owner)
     RecordingStudioCompany.remove_logo(@nike, actor: owner)
 
     restore(trash(@nike))

@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-11-05
+
+### Changed
+
+- Require `recording_studio` `>= 6.3.0`. Development pins Recording Studio `v6.3.0`, Accessible `v0.24.1`, Attachable `v0.22.1`, Trashable `v0.12.2`, Metrics `v0.7.2`, Cache `v0.6.2`, Root Switchable `v0.11.5`, and FlatPack `v0.1.341`.
+- Company screens use core's default layout. `RecordingStudioCompany.configuration.layout` defaults to `nil` and is validated by `RecordingStudio::Layout.accept`. The engine controller calls `recording_studio_layout`.
+- Rails locks are `8.1.4.1`. Rack is `>= 3.2.8`, Loofah `>= 2.25.3`, Nokogiri `>= 1.19.5`, rails-html-sanitizer `>= 1.7.2`. Dummy `net-ssh` is `>= 7.3.5`. `view_component` `>= 4.14` comes from FlatPack `v0.1.341`.
+- Form, logo, and vacancy action clusters use FlatPack `ButtonGroup` (outlined, overflow for Delete, Remove logo, and View company). Primary Save and Restore stay on the row at 390px.
+- Drop leftover gem-template files: `UPDATE_SUMMARY.md`, `MIGRATION_NOTES.md`, `docs/gem_template/`, and template text in `.github/copilot-instructions.md`.
+
+### Upgrade
+
+Pin `v0.5.0`. There is no company migration. Hosts need Recording Studio `v6.3.0` or newer and FlatPack `v0.1.341` or newer.
+
+Replace `include RecordingStudio::UsesDefaultLayout` and `layout "recording_studio/default_layout"` with `recording_studio_layout { RecordingStudioCompany.configuration.layout }`. Leave `config.layout` unset, or set a layout name, `false`, or a callable invoked as `call(controller:)`. A symbol raises `ArgumentError`.
+
+Override views must set `content_for :title` (and `:subtitle` when the page has one), call `flat_pack_page_nav` with `with_back` / `with_close`, and put page actions on `register_page_nav`. Drop Card `style:`.
+
 ## [0.4.7] - 2026-11-02
 
 ### Changed
@@ -183,7 +201,8 @@ The first release of RecordingStudioCompany. The repository started from the Rec
 - The company index is titled "Companies and organisations". + Company sits under the title when another company can be added. Companies are names in a card, and each name opens that company. On a wide screen the list sits in the first column of a two-column grid. Names are vertically centered in the row.
 - On the edit page the logo sits with Upload logo, Change logo, and Remove logo. It has no card and no Logo heading.
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_company/compare/v0.4.7...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_company/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/bowerbird-app/RecordingStudio_company/releases/tag/v0.5.0
 [0.4.7]: https://github.com/bowerbird-app/RecordingStudio_company/releases/tag/v0.4.7
 [0.4.6]: https://github.com/bowerbird-app/RecordingStudio_company/releases/tag/v0.4.6
 [0.4.5]: https://github.com/bowerbird-app/RecordingStudio_company/releases/tag/v0.4.5

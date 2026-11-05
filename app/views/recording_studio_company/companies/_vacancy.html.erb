@@ -10,22 +10,33 @@
       name: name
     )
   ) %>
-  <div class="flex flex-wrap gap-3">
-    <% if company_can?(:restore, company) %>
-      <%= form_with url: restore_company_path(company), method: :post, class: "inline-flex" do %>
-        <%= render FlatPack::Button::Component.new(
+  <% if company_can?(:restore, company) %>
+    <%= form_with url: restore_company_path(company), method: :post do %>
+      <%= render FlatPack::ButtonGroup::Component.new(variant: :outlined) do |group| %>
+        <% group.button(FlatPack::Button::Component.new(
           text: t("recording_studio.company.actions.restore_company"),
           style: :primary,
           type: "submit"
+        )) %>
+        <% group.button(
+          FlatPack::Button::Component.new(
+            text: t("recording_studio.company.actions.view_company"),
+            style: :secondary,
+            href: company_path(company)
+          ),
+          overflow: true
         ) %>
       <% end %>
     <% end %>
-    <%= render FlatPack::Button::Component.new(
-      text: t("recording_studio.company.actions.view_company"),
-      style: :secondary,
-      href: company_path(company)
-    ) %>
-  </div>
+  <% else %>
+    <%= render FlatPack::ButtonGroup::Component.new(variant: :outlined) do |group| %>
+      <% group.button(FlatPack::Button::Component.new(
+        text: t("recording_studio.company.actions.view_company"),
+        style: :secondary,
+        href: company_path(company)
+      )) %>
+    <% end %>
+  <% end %>
 <% else %>
   <%= render FlatPack::EmptyState::Component.new(
     title: t("recording_studio.company.empty.no_company_title"),

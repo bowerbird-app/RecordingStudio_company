@@ -7,7 +7,7 @@ class DisplayHelperTest < ActiveSupport::TestCase
 
   test "the logo is the company's image when it has one" do
     nike = create_company(press_centre, "Nike, Inc.")
-    RecordingStudioCompany.set_logo(nike, signed_blob_id: png_blob.signed_id, actor: owner)
+    RecordingStudioCompany.set_logo(nike, signed_blob_id: signed_png_id(recording: nike), actor: owner)
 
     image = render_erb("<%= recording_studio_company_logo(company, size: :sm) %>", company: nike).at_css("img")
 
@@ -39,7 +39,7 @@ class DisplayHelperTest < ActiveSupport::TestCase
 
   test "a removed logo falls back to the initials" do
     nike = create_company(press_centre, "Nike, Inc.")
-    RecordingStudioCompany.set_logo(nike, signed_blob_id: png_blob.signed_id, actor: owner)
+    RecordingStudioCompany.set_logo(nike, signed_blob_id: signed_png_id(recording: nike), actor: owner)
     RecordingStudioCompany.remove_logo(nike, actor: owner)
 
     assert_nil render_erb("<%= recording_studio_company_logo(company) %>", company: nike).at_css("img")

@@ -155,10 +155,11 @@ class CompaniesControllerTest < ActionDispatch::IntegrationTest
     get routes.edit_company_path(nike)
 
     assert_select "[role=separator]", count: 0
-    assert_select "div.flex.flex-wrap.items-center.gap-3" do
+    assert_select ".fp-button-group-menu", count: 0
+    assert_select ".fp-button-group" do
       assert_select "button[type=submit][data-fp-style=?][data-flat-pack--unsaved-changes-target=?]",
                     "default", "submit", text: "Save"
-      assert_select "button.ml-auto[form=delete-company][data-fp-style=?]", "danger", text: "Delete"
+      assert_select ".fp-button-group__overflow", text: "Delete"
     end
     assert_select "form#delete-company[action=?] input[name=_method][value=delete]", routes.company_path(nike)
     assert_select "button", text: "Update", count: 0
@@ -195,7 +196,7 @@ class CompaniesControllerTest < ActionDispatch::IntegrationTest
       description: "Athletic footwear and apparel.",
       website_url: "https://about.nike.com/"
     )
-    RecordingStudioCompany.set_logo(nike, signed_blob_id: png_blob.signed_id, actor: owner)
+    RecordingStudioCompany.set_logo(nike, signed_blob_id: signed_png_id(recording: nike), actor: owner)
     get routes.company_path(nike)
 
     assert_response :success
@@ -209,7 +210,7 @@ class CompaniesControllerTest < ActionDispatch::IntegrationTest
                   text: "about.nike.com"
     refute_includes page_text, "Nike Newsroom"
     refute_includes page_text, "Website"
-    markers = ["Nike, Inc. logo", "<h1", "Athletic footwear and apparel.", "about.nike.com", "Edit company"]
+    markers = ["<h1", "Nike, Inc. logo", "Athletic footwear and apparel.", "about.nike.com", "Edit company"]
     indexes = markers.map { |marker| response.body.index(marker) }
     assert_equal markers.size, indexes.compact.size
     assert_equal indexes, indexes.sort
@@ -280,7 +281,7 @@ class CompaniesControllerTest < ActionDispatch::IntegrationTest
     assert_select "p", text: "One image for the company.", count: 0
     assert_select "input[name=idempotency_key]", count: 0
     assert_select "[role=separator]", count: 0
-    assert_select "button.ml-auto[data-fp-style=?]", "danger", text: "Delete"
+    assert_select ".fp-button-group__overflow", text: "Delete"
 
     patch routes.company_path(nike), params: { company: { name: "Nike, Inc.", website_url: "https://about.nike.com" } }
 
@@ -314,7 +315,7 @@ class CompaniesControllerTest < ActionDispatch::IntegrationTest
 
     assert_select "[role=separator]", count: 0
     assert_select "form#delete-company[action=?] input[name=_method][value=delete]", routes.company_path(nike)
-    assert_select "button.ml-auto[data-fp-style=?]", "danger", text: "Delete"
+    assert_select ".fp-button-group__overflow", text: "Delete"
 
     delete routes.company_path(nike)
 
@@ -434,7 +435,7 @@ class CompaniesControllerTest < ActionDispatch::IntegrationTest
   test "uploading, replacing, and removing the logo" do
     nike = create_company(press_centre, "Nike, Inc.")
 
-    patch routes.logo_company_path(nike), params: { logo: { signed_blob_id: png_blob.signed_id } }
+    patch routes.logo_company_path(nike), params: { logo: { signed_blob_id: signed_png_id(recording: nike) } }
 
     assert_redirected_to routes.edit_company_path(nike)
     assert_equal "The logo was updated.", flash[:notice]
@@ -449,7 +450,8 @@ class CompaniesControllerTest < ActionDispatch::IntegrationTest
     assert_select "p", text: "One image for the company.", count: 0
     assert_select "form[action=?] input[name=_method][value=delete]", routes.logo_company_path(nike)
 
-    patch routes.logo_company_path(nike), params: { logo: { signed_blob_id: png_blob("logo-2.png").signed_id } }
+    patch routes.logo_company_path(nike),
+          params: { logo: { signed_blob_id: signed_png_id("logo-2.png", recording: nike) } }
 
     assert_equal logo.id, RecordingStudioCompany.logo(nike).id
     assert_equal "logo-2.png", RecordingStudioCompany.logo(nike).recordable.file.filename.to_s
@@ -466,7 +468,7 @@ class CompaniesControllerTest < ActionDispatch::IntegrationTest
     nike = create_company(press_centre, "Nike, Inc.")
 
     assert_no_difference -> { logo_children(nike).count } do
-      patch routes.logo_company_path(nike), params: { logo: { signed_blob_id: text_blob.signed_id } }
+      patch routes.logo_company_path(nike), params: { logo: { signed_blob_id: signed_text_id(recording: nike) } }
     end
 
     assert_redirected_to routes.edit_company_path(nike)

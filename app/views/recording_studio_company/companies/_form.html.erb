@@ -43,32 +43,34 @@
     error: company_field_error(record, :description)
   ) %>
 
-  <div class="flex flex-wrap items-center gap-3">
+  <%= render FlatPack::ButtonGroup::Component.new(variant: :outlined) do |group| %>
     <% if unsaved_changes %>
-      <%= render FlatPack::Button::Component.new(
+      <% group.button(FlatPack::Button::Component.new(
         text: submit_text,
         style: :default,
         type: "submit",
         data: { "flat-pack--unsaved-changes-target": "submit" }
-      ) %>
+      )) %>
     <% else %>
-      <%= render FlatPack::Button::Component.new(text: submit_text, style: :primary, type: "submit") %>
+      <% group.button(FlatPack::Button::Component.new(text: submit_text, style: :primary, type: "submit")) %>
     <% end %>
-    <%= render FlatPack::Button::Component.new(
+    <% group.button(FlatPack::Button::Component.new(
       text: t("recording_studio.company.actions.cancel"),
       style: :ghost,
       href: cancel_url
-    ) %>
+    )) %>
     <% if delete_url %>
-      <%= render FlatPack::Button::Component.new(
-        text: t("recording_studio.company.actions.delete"),
-        style: :danger,
-        type: "submit",
-        form: "delete-company",
-        class: "ml-auto"
+      <% group.button(
+        FlatPack::Button::Component.new(
+          text: t("recording_studio.company.actions.delete"),
+          style: :danger,
+          type: "submit",
+          form: "delete-company"
+        ),
+        overflow: true
       ) %>
     <% end %>
-  </div>
+  <% end %>
 <% end %>
 <% if delete_url %>
   <%= form_with url: delete_url, method: :delete, id: "delete-company", class: "hidden" do %>

@@ -1,25 +1,17 @@
 <% many = @allowance == :many %>
 <% heading = t("recording_studio.company.titles.index") %>
 <% home_path = company_home_path %>
-<% recording_studio_page_nav(
-  title: heading,
-  page_nav_back_url: home_path,
-  page_nav_back_label: (home_path && t("recording_studio.company.navigation.home"))
-) %>
+<% content_for :title, heading %>
+<% flat_pack_page_nav(round: true, style: :default) do |nav| %>
+  <% nav.with_back(href: home_path, tooltip: t("recording_studio.company.navigation.home")) if home_path %>
+<% end %>
+<% if company_can?(:create, @parent) %>
+  <% register_page_nav t("recording_studio.company.actions.add_company_plus"),
+                       new_recording_company_path(@parent),
+                       role: :primary %>
+<% end %>
 
 <div class="flex w-full flex-col gap-6">
-  <%= render FlatPack::PageTitle::Component.new(title: heading) do |page_title| %>
-    <% if company_can?(:create, @parent) %>
-      <% page_title.slot do %>
-        <%= render FlatPack::Button::Component.new(
-          text: t("recording_studio.company.actions.add_company_plus"),
-          style: :primary,
-          href: new_recording_company_path(@parent)
-        ) %>
-      <% end %>
-    <% end %>
-  <% end %>
-
   <% if many %>
     <%= render "list", parent: @parent, companies: @companies, trashed_companies: @trashed_companies %>
   <% elsif @integrity_error %>

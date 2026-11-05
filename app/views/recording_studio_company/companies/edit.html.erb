@@ -1,16 +1,14 @@
 <% name = @company.recordable.name %>
-<% recording_studio_page_nav(
-  title: t("recording_studio.company.titles.edit_with_name", name: name),
-  page_nav_back_url: company_path(@company),
-  page_nav_back_label: t("recording_studio.company.navigation.back")
-) %>
+<% content_for :title, t("recording_studio.company.titles.edit") %>
+<% content_for :subtitle, name %>
+<% flat_pack_page_nav(round: true, style: :default) do |nav| %>
+  <% nav.with_back(
+    href: company_path(@company),
+    tooltip: t("recording_studio.company.navigation.back")
+  ) %>
+<% end %>
 
 <div class="flex w-full flex-col gap-6">
-  <%= render FlatPack::PageTitle::Component.new(
-    title: t("recording_studio.company.titles.edit"),
-    subtitle: name
-  ) %>
-
   <%= render "logo_field", company: @company %>
 
   <%= render "form",
