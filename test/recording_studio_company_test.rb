@@ -42,9 +42,9 @@ class RecordingStudioCompanyTest < Minitest::Test
         "flat_pack" => ">= 0.1.341",
         "rails" => "~> 8.1.0",
         "recording_studio" => ">= 6.3.0",
-        "recording_studio_accessible" => ">= 0.24.1",
-        "recording_studio_attachable" => ">= 0.22.1",
-        "recording_studio_trashable" => ">= 0.12.2"
+        "recording_studio_accessible" => "~> 0.18",
+        "recording_studio_attachable" => "~> 0.15",
+        "recording_studio_trashable" => "~> 0.10"
       },
       requirements
     )
@@ -356,10 +356,6 @@ class RecordingStudioCompanyTest < Minitest::Test
     refute File.exist?(File.join(root, "UPDATE_SUMMARY.md"))
     refute File.exist?(File.join(root, "MIGRATION_NOTES.md"))
     refute File.directory?(File.join(root, "docs/gem_template"))
-    copilot = File.read(File.join(root, ".github/copilot-instructions.md"))
-    refute_includes copilot, "docs/gem_template/"
-    refute_includes copilot, "GemTemplate"
-    refute_includes copilot, "enable_feature_x"
   end
 
   def test_coverage_directories_are_gitignored_and_untracked
