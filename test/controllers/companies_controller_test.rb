@@ -156,10 +156,10 @@ class CompaniesControllerTest < ActionDispatch::IntegrationTest
 
     assert_select "[role=separator]", count: 0
     assert_select ".fp-button-group-menu", count: 0
-    assert_select ".fp-button-group" do
+    assert_select "div.flex.flex-wrap.items-center.gap-3" do
       assert_select "button[type=submit][data-fp-style=?][data-flat-pack--unsaved-changes-target=?]",
                     "default", "submit", text: "Save"
-      assert_select ".fp-button-group__overflow", text: "Delete"
+      assert_select "button.ml-auto[form=delete-company][data-fp-style=?]", "danger", text: "Delete"
     end
     assert_select "form#delete-company[action=?] input[name=_method][value=delete]", routes.company_path(nike)
     assert_select "button", text: "Update", count: 0
@@ -281,7 +281,7 @@ class CompaniesControllerTest < ActionDispatch::IntegrationTest
     assert_select "p", text: "One image for the company.", count: 0
     assert_select "input[name=idempotency_key]", count: 0
     assert_select "[role=separator]", count: 0
-    assert_select ".fp-button-group__overflow", text: "Delete"
+    assert_select "button.ml-auto[data-fp-style=?]", "danger", text: "Delete"
 
     patch routes.company_path(nike), params: { company: { name: "Nike, Inc.", website_url: "https://about.nike.com" } }
 
@@ -315,7 +315,7 @@ class CompaniesControllerTest < ActionDispatch::IntegrationTest
 
     assert_select "[role=separator]", count: 0
     assert_select "form#delete-company[action=?] input[name=_method][value=delete]", routes.company_path(nike)
-    assert_select ".fp-button-group__overflow", text: "Delete"
+    assert_select "button.ml-auto[data-fp-style=?]", "danger", text: "Delete"
 
     delete routes.company_path(nike)
 
