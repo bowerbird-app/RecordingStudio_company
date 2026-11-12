@@ -24,7 +24,7 @@ module RecordingStudioCompany
 
       scope = Slots.children(parent, COMPANY_TYPE)
       scope = scope.where(trashed_at: nil) unless include_trashed
-      by_name(scope).preload(:recordable)
+      by_name(scope).preload(:recordable).to_a
     end
 
     # The company of a one-company parent, or nil. A trashed company is returned only with

@@ -95,7 +95,7 @@ class CompanyReadsTest < ActiveSupport::TestCase
     newsroom = press_centre
     nike = create_company(newsroom, "Nike, Inc.")
 
-    assert_equal [nike], RecordingStudioCompany.companies(newsroom).to_a
+    assert_equal [nike], RecordingStudioCompany.companies(newsroom)
     assert_raises(RecordingStudioCompany::ParentNotAllowed) { RecordingStudioCompany.companies(workspace) }
   end
 
@@ -121,7 +121,7 @@ class CompanyReadsTest < ActiveSupport::TestCase
     nike = create_company(newsroom, "Nike, Inc.")
 
     assert_equal nike, RecordingStudioCompany.company(newsroom)
-    assert_equal [nike], RecordingStudioCompany.companies(newsroom).to_a
+    assert_equal [nike], RecordingStudioCompany.companies(newsroom)
     assert_equal nike, RecordingStudioCompany.find(nike.id)
   end
 

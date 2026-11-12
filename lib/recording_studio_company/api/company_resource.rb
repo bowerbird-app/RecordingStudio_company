@@ -64,7 +64,9 @@ module RecordingStudioCompany
 
         def pagination_args(parent)
           {
-            relation: RecordingStudioCompany.companies(parent),
+            relation: RecordingStudio::Recording.unscoped.where(
+              id: RecordingStudioCompany.companies(parent).map(&:id)
+            ),
             resource: @context.resource_name,
             recordable_type: @context.recordable_type,
             api: @context.api_key,

@@ -213,7 +213,7 @@ When Recording Studio API is loaded, this gem registers `RecordingStudioCompany:
 | POST | `/recording_studio_api/api/v1/companies/:id/actions/set_logo` | `:edit` on the company |
 | POST | `/recording_studio_api/api/v1/companies/:id/actions/remove_logo` | `:edit` on the company |
 
-`parent_id` is required for index and create. Index paginates with `limit` and `pagination_token`. Writes send `name`, `description`, and `website_url` at the root of the body. `set_logo` takes `signed_blob_id`. `set_logo` and `remove_logo` are registered under capability `:attachable`, so Company records must enable `:attachable`.
+`parent_id` is required for index and create. Index paginates with `limit` and `pagination_token`. API index order follows the paginator, not the by-name company list. Writes send `name`, `description`, and `website_url` at the root of the body. `set_logo` takes `signed_blob_id`. `set_logo` and `remove_logo` are registered under capability `:attachable`, so Company records must enable `:attachable`.
 
 Creating needs Accessible `:edit` on the parent, and the host's `config.authorize_write` still runs inside `RecordingStudio.record!`. Within one parent, an idempotency key that already created a company returns that company. `create` raises these errors:
 
