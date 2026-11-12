@@ -15,9 +15,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `set_logo` and `remove_logo` API capability actions (`:edit`), the same writes as the company screens.
 - Dummy mounts Recording Studio API so hosts and MCP adapters can use the same Accessible-gated surface.
 
+### Fixed
+
+- Show and update look the company up in the API scope, so a company in another workspace is 404, matching the HTML screens.
+- Company index uses Recording Studio API pagination (`limit` and `pagination_token`).
+
 ### Upgrade
 
-Pin `v0.6.0`. There is no company migration. Hosts that already have Recording Studio API get companies when this gem loads. Install and mount API (and MCP, if you use it) as those gems document. Trash, restore, attach, and upload stay off the company resource.
+Pin `v0.6.0`. There is no company migration. Hosts that already have Recording Studio API get companies when this gem loads. Install and mount API (and MCP, if you use it) as those gems document. Trash, restore, attach, and upload stay off the company resource. Index paginates. `set_logo` and `remove_logo` need `:attachable` on Company.
 
 ## [0.5.0] - 2026-11-05
 

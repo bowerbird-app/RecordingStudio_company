@@ -18,7 +18,7 @@ class CompaniesApiTest < ActionDispatch::IntegrationTest
     @other = owned_root(PressCentre.create!(name: "Other newsroom #{SecureRandom.hex(4)}"), actor: @stranger)
     @editor_access = grant!(@newsroom, @editor, :edit)
     @viewer_access = grant!(@newsroom, @viewer, :view)
-    grant!(@agency, @editor, :edit)
+    @agency_editor_access = grant!(@agency, @editor, :edit)
     @editor_token, @editor_client = token_for(@editor_access)
     @viewer_token, = token_for(@viewer_access)
   end
@@ -89,14 +89,56 @@ class CompaniesApiTest < ActionDispatch::IntegrationTest
     assert_response :forbidden, response.body
   end
 
-  test "a company in another workspace is forbidden" do
+  test "a company in another workspace is not found" do
     stranger_company = RecordingStudioCompany.create(@other, actor: @stranger, name: "Elsewhere")
 
     call(:get, "/companies/#{stranger_company.id}", @editor_token)
-    assert_response :forbidden, response.body
+    assert_response :not_found, response.body
+
+    call(:patch, "/companies/#{stranger_company.id}", @editor_token, description: "Nope")
+    assert_response :not_found, response.body
 
     call(:get, "/companies", @editor_token, parent_id: @other.id)
     assert_response :not_found, response.body
+  end
+
+  test "index paginates companies across pages" do
+    first = RecordingStudioCompany.create(@agency, actor: @owner, name: "First Co")
+    second = RecordingStudioCompany.create(@agency, actor: @owner, name: "Second Co")
+    third = RecordingStudioCompany.create(@agency, actor: @owner, name: "Third Co")
+    now = Time.current
+    first.update_columns(created_at: now, updated_at: now)
+    second.update_columns(created_at: now, updated_at: now)
+    third.update_columns(created_at: now, updated_at: now)
+    agency_token, = token_for(@agency_editor_access)
+
+    first_page = call(:get, "/companies", agency_token, parent_id: @agency.id, limit: 2)
+    assert_response :success, response.body
+    first_meta = first_page.fetch("meta")
+    first_ids = first_page.fetch("records").map { |row| row.fetch("id") }
+
+    assert_equal 2, first_meta.fetch("limit")
+    assert_equal true, first_meta.fetch("has_more")
+    refute_nil first_meta.fetch("next_pagination_token")
+    assert_equal 2, first_ids.size
+
+    second_page = call(
+      :get,
+      "/companies",
+      agency_token,
+      parent_id: @agency.id,
+      limit: 2,
+      pagination_token: first_meta.fetch("next_pagination_token")
+    )
+    assert_response :success, response.body
+    second_meta = second_page.fetch("meta")
+    second_ids = second_page.fetch("records").map { |row| row.fetch("id") }
+
+    assert_equal false, second_meta.fetch("has_more")
+    assert_nil second_meta.fetch("next_pagination_token")
+    expected_ids = [first.id, second.id, third.id].sort
+    assert_equal expected_ids, (first_ids + second_ids).sort
+    assert_empty(first_ids & second_ids)
   end
 
   test "company api registration matches ui roles and skips trash attach helpers" do

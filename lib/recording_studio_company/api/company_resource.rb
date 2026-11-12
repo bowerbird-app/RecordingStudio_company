@@ -31,6 +31,13 @@ module RecordingStudioCompany
         parent
       end
 
+      def recording(context)
+        recording = context.scoped_recordings.find_by(id: context.id, recordable_type: Api::TYPE)
+        raise ::RecordingStudioApi::NotFoundError, "Resource was not found in this API scope" if recording.nil?
+
+        recording
+      end
+
       def fields(context)
         raw = payload(context)
         symbolized = raw.respond_to?(:deep_symbolize_keys) ? raw.deep_symbolize_keys : raw.to_h.transform_keys(&:to_sym)
@@ -49,15 +56,39 @@ module RecordingStudioCompany
         def payload
           parent = CompanyResource.parent_recording(@context)
           @context.access_grant.authorize!(recording: parent, role: :view)
-          recordings = RecordingStudioCompany.companies(parent)
-          { json: collection(recordings) }
+          pagination = ::RecordingStudioApi::Services::PaginateResourceCollection.call(**pagination_args(parent))
+          raise ::RecordingStudioApi::InvalidPaginationTokenError, pagination.error if pagination.failure?
+
+          { json: pagination.value.response_body { |recordings, meta| collection(recordings, meta) } }
         end
 
-        def collection(recordings)
+        def pagination_args(parent)
+          {
+            relation: RecordingStudioCompany.companies(parent),
+            resource: @context.resource_name,
+            recordable_type: @context.recordable_type,
+            api: @context.api_key,
+            scope_key: "client:#{@context.api_client.id}"
+          }.merge(page_params)
+        end
+
+        def page_params
+          params = @context.params
+          {
+            limit: params[:limit],
+            pagination_token: params[:pagination_token],
+            sort: params[:sort],
+            order: params[:order],
+            count: params[:count]
+          }
+        end
+
+        def collection(recordings, meta)
           {
             resource: @context.resource_name,
             type: @context.recordable_type.demodulize,
-            records: recordings.map { |recording| CompanyResource.serialize(recording, @context) }
+            records: recordings.map { |recording| CompanyResource.serialize(recording, @context) },
+            meta: meta
           }
         end
       end
@@ -65,7 +96,7 @@ module RecordingStudioCompany
       class Show
         def self.call(context)
           Errors.wrap do
-            company = RecordingStudioCompany.find(context.id)
+            company = CompanyResource.recording(context)
             context.access_grant.authorize!(recording: company, role: :view)
             { json: CompanyResource.serialize(company, context) }
           end
@@ -97,7 +128,7 @@ module RecordingStudioCompany
       class Update
         def self.call(context)
           Errors.wrap do
-            company = RecordingStudioCompany.find(context.id)
+            company = CompanyResource.recording(context)
             context.access_grant.authorize!(recording: company, role: :edit)
             updated = RecordingStudioCompany.update(
               company,

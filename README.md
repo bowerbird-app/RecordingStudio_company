@@ -89,7 +89,7 @@ Pin `v0.4.5`. There is no migration. Tags `v0.4.1` through `v0.4.4` only moved c
 
 ## Upgrade from 0.5.0
 
-Pin `v0.6.0`. There is no company migration. Company index, show, create, and update, plus `set_logo` and `remove_logo`, are on Recording Studio API. MCP uses that same registration. Access still matches the company screens: `:view` to list or show, `:edit` to create, update, or change the logo. Trash, restore, attach, and upload are not on this resource.
+Pin `v0.6.0`. There is no company migration. Company index, show, create, and update, plus `set_logo` and `remove_logo`, are on Recording Studio API. MCP uses that same registration. Access still matches the company screens: `:view` to list or show, `:edit` to create, update, or change the logo. Trash, restore, attach, and upload are not on this resource. Index paginates with `limit` and `pagination_token`. `set_logo` and `remove_logo` are registered under capability `:attachable`, so Company records must enable `:attachable`.
 
 Install Recording Studio API in the host if you want the JSON surface:
 
@@ -213,7 +213,7 @@ When Recording Studio API is loaded, this gem registers `RecordingStudioCompany:
 | POST | `/recording_studio_api/api/v1/companies/:id/actions/set_logo` | `:edit` on the company |
 | POST | `/recording_studio_api/api/v1/companies/:id/actions/remove_logo` | `:edit` on the company |
 
-`parent_id` is required for index and create. Writes send `name`, `description`, and `website_url` at the root of the body. `set_logo` takes `signed_blob_id`.
+`parent_id` is required for index and create. Index paginates with `limit` and `pagination_token`. Writes send `name`, `description`, and `website_url` at the root of the body. `set_logo` takes `signed_blob_id`. `set_logo` and `remove_logo` are registered under capability `:attachable`, so Company records must enable `:attachable`.
 
 Creating needs Accessible `:edit` on the parent, and the host's `config.authorize_write` still runs inside `RecordingStudio.record!`. Within one parent, an idempotency key that already created a company returns that company. `create` raises these errors:
 
