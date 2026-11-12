@@ -260,9 +260,14 @@ class RecordingStudioCompanyTest < Minitest::Test
     assert_includes initializer_source, <<~RUBY.gsub(/^/, "  ")
       config.recordable_types = [
         "Workspace", "Folder", "Page",
-        "PressCentre", "Agency", "Project",
+        "PressCentre", "Agency", "Project", "AdminRoot",
         "RecordingStudioCompany::Company",
-        "RecordingStudioAttachable::Attachment"
+        "RecordingStudioAttachable::Attachment",
+        "RecordingStudio::Access",
+        "RecordingStudioApi::ApiClient",
+        "RecordingStudioApi::ApiCredential",
+        "RecordingStudioApi::ApiAccessToken",
+        "RecordingStudioApi::AdminApi"
       ]
     RUBY
     refute_includes initializer_source, "config.include_children"
