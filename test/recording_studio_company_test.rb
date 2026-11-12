@@ -5,7 +5,7 @@ require "open3"
 
 class RecordingStudioCompanyTest < Minitest::Test
   def test_version_matches_release
-    assert_equal "0.5.0", ::RecordingStudioCompany::VERSION
+    assert_equal "0.6.0", ::RecordingStudioCompany::VERSION
   end
 
   def test_gemspec_points_at_the_company_repository
@@ -84,8 +84,14 @@ class RecordingStudioCompanyTest < Minitest::Test
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_root_switchable", tag: "v0.11.5"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_metrics", tag: "v0.7.2"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_cache", tag: "v0.6.2"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_api", tag: "v0.21.3"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_admin", tag: "v2.12.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_logs", tag: "v0.7.4"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_moveable", tag: "v4.1.1"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_icons", tag: "v0.2.1"'
     assert_includes gemfile, 'github: "bowerbird-app/flatpack", tag: "v0.1.341"'
     root_gemfile = File.read(File.expand_path("../Gemfile", __dir__))
+    assert_includes root_gemfile, 'github: "bowerbird-app/RecordingStudio_api", tag: "v0.21.3"'
     assert_includes root_gemfile, 'github: "bowerbird-app/RecordingStudio", tag: "v6.3.0"'
     assert_includes root_gemfile, 'github: "bowerbird-app/flatpack", tag: "v0.1.341"'
     refute_includes gemfile, 'RecordingStudio", tag: "v4.6.0"'
@@ -290,7 +296,8 @@ class RecordingStudioCompanyTest < Minitest::Test
     assert_includes readme, "People are not in this gem"
     assert_includes readme, "Locations are not in this gem"
     assert_includes readme, "# Not part of this gem. A future brand gem could list Unilever's brands here."
-    assert_includes readme, 'tag: "v0.5.0"'
+    assert_includes readme, 'tag: "v0.6.0"'
+    assert_includes readme, "recording_studio_api/api/v1/companies"
     assert_includes readme, "bin/rails generate recording_studio_company:install"
     assert_includes readme, "bundle exec rake test:all"
     assert_operator readme.index("## Install"), :<, readme.index("## Use companies")
@@ -348,6 +355,10 @@ class RecordingStudioCompanyTest < Minitest::Test
     assert_includes changelog, "8.1.4.1"
     assert_includes changelog, "docs/gem_template/"
     assert_includes changelog, "Pin `v0.5.0`"
+    assert_includes changelog, "## [0.6.0] - 2026-11-12"
+    assert_includes changelog, "RecordingStudioCompany.companies"
+    assert_includes changelog, "set_logo"
+    assert_includes changelog, "Pin `v0.6.0`"
   end
 
   def test_template_leftovers_are_gone

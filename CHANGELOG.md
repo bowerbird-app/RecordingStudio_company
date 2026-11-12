@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-11-12
+
+### Added
+
+- Company index, show, create, and update on Recording Studio API, with custom handlers that call `RecordingStudioCompany.companies`, `.find`, `.create`, and `.update`.
+- `set_logo` and `remove_logo` API capability actions (`:edit`), the same writes as the company screens.
+- Dummy mounts Recording Studio API so hosts and MCP adapters can use the same Accessible-gated surface.
+
+### Upgrade
+
+Pin `v0.6.0`. There is no company migration. Hosts that already have Recording Studio API get companies when this gem loads. Install and mount API (and MCP, if you use it) as those gems document. Trash, restore, attach, and upload stay off the company resource.
+
 ## [0.5.0] - 2026-11-05
 
 ### Changed
@@ -201,7 +213,8 @@ The first release of RecordingStudioCompany. The repository started from the Rec
 - The company index is titled "Companies and organisations". + Company sits under the title when another company can be added. Companies are names in a card, and each name opens that company. On a wide screen the list sits in the first column of a two-column grid. Names are vertically centered in the row.
 - On the edit page the logo sits with Upload logo, Change logo, and Remove logo. It has no card and no Logo heading.
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_company/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_company/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/bowerbird-app/RecordingStudio_company/releases/tag/v0.6.0
 [0.5.0]: https://github.com/bowerbird-app/RecordingStudio_company/releases/tag/v0.5.0
 [0.4.7]: https://github.com/bowerbird-app/RecordingStudio_company/releases/tag/v0.4.7
 [0.4.6]: https://github.com/bowerbird-app/RecordingStudio_company/releases/tag/v0.4.6

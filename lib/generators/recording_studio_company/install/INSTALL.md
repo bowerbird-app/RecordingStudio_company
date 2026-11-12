@@ -9,6 +9,8 @@ Before the company pages work:
 2. Install the Active Storage, Trashable, Attachable, Accessible, and company migrations, then run 'bin/rails db:migrate'
 3. Turn on companies for a parent type with 'include RecordingStudio::Capabilities::Companies.to(allow: :one)' or 'allow: :many'
 
+Optional: install Recording Studio API so company index, show, create, update, set_logo, and remove_logo are available over JSON and MCP.
+
 If you use Tailwind CSS:
 1. Run 'bin/rails tailwindcss:build' to rebuild your CSS with RecordingStudioCompany styles
 

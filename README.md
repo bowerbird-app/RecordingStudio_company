@@ -38,7 +38,7 @@ Add the gem. Recording Studio gems are not published to RubyGems, so resolve the
 
 ```ruby
 # Gemfile
-gem "recording_studio_company", github: "bowerbird-app/RecordingStudio_company", tag: "v0.5.0"
+gem "recording_studio_company", github: "bowerbird-app/RecordingStudio_company", tag: "v0.6.0"
 
 gem "flat_pack", github: "bowerbird-app/flatpack", tag: "v0.1.341"
 gem "recording_studio", github: "bowerbird-app/RecordingStudio", tag: "v6.3.0"
@@ -86,6 +86,20 @@ From 0.2.1, the edit button says Save, and Delete sits on that row. Hosts that r
 ## Upgrade from 0.4.0
 
 Pin `v0.4.5`. There is no migration. Tags `v0.4.1` through `v0.4.4` only moved companion gem pins while `VERSION` stayed at `0.4.0`. This release sets `VERSION` to `0.4.5` and records those tags in the changelog.
+
+## Upgrade from 0.5.0
+
+Pin `v0.6.0`. There is no company migration. Company index, show, create, and update, plus `set_logo` and `remove_logo`, are on Recording Studio API. MCP uses that same registration. Access still matches the company screens: `:view` to list or show, `:edit` to create, update, or change the logo. Trash, restore, attach, and upload are not on this resource.
+
+Install Recording Studio API in the host if you want the JSON surface:
+
+```sh
+bin/rails generate recording_studio_api:install
+bin/rails generate recording_studio_api:migrations
+bin/rails db:migrate
+```
+
+Turn on `:api_access_point` on roots that should hold API clients, and add `RecordingStudioApi::ApiClient` to `access_actor_types`. Recording Studio MCP needs no extra company code.
 
 ## Upgrade from 0.4.7
 
@@ -185,6 +199,21 @@ nike = RecordingStudioCompany.create(
 RecordingStudioCompany.create(press_centre, actor: Current.actor, name: "Converse")
 # raises RecordingStudioCompany::CompanyAlreadyExists, and error.company == nike
 ```
+
+### JSON API and MCP
+
+When Recording Studio API is loaded, this gem registers `RecordingStudioCompany::Company` on the public API. MCP hosts that wrap that API get the same actions. Default API create is not used, because it would skip `RecordingStudioCompany.create`.
+
+| Verb | Path | Accessible role |
+|---|---|---|
+| GET | `/recording_studio_api/api/v1/companies?parent_id=` | `:view` on the parent |
+| GET | `/recording_studio_api/api/v1/companies/:id` | `:view` on the company |
+| POST | `/recording_studio_api/api/v1/companies` | `:edit` on the parent |
+| PATCH | `/recording_studio_api/api/v1/companies/:id` | `:edit` on the company |
+| POST | `/recording_studio_api/api/v1/companies/:id/actions/set_logo` | `:edit` on the company |
+| POST | `/recording_studio_api/api/v1/companies/:id/actions/remove_logo` | `:edit` on the company |
+
+`parent_id` is required for index and create. Writes send `name`, `description`, and `website_url` at the root of the body. `set_logo` takes `signed_blob_id`.
 
 Creating needs Accessible `:edit` on the parent, and the host's `config.authorize_write` still runs inside `RecordingStudio.record!`. Within one parent, an idempotency key that already created a company returns that company. `create` raises these errors:
 
