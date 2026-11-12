@@ -13,7 +13,7 @@ class CompanyDeclarationTest < ActiveSupport::TestCase
     assert_equal false, declaration.root?
     assert_equal "Company", RecordingStudio.recordable_type_label(COMPANY_TYPE)
     refute_includes RecordingStudio.root_recordable_types, COMPANY_TYPE
-    assert_equal %w[Workspace PressCentre Agency], RecordingStudio.root_recordable_types
+    assert_equal %w[Workspace PressCentre Agency AdminRoot], RecordingStudio.root_recordable_types
   end
 
   test "company cannot be created as a root recording" do

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "api"
+
 module RecordingStudioCompany
   class Engine < ::Rails::Engine
     isolate_namespace RecordingStudioCompany
@@ -123,6 +125,10 @@ module RecordingStudioCompany
     # The helper lives in lib/ so including it at boot never autoloads a reloadable constant.
     initializer "recording_studio_company.display_helper" do
       ActiveSupport.on_load(:action_view) { include RecordingStudioCompany::DisplayHelper }
+    end
+
+    initializer "recording_studio_company.api" do
+      config.to_prepare { Api.register! }
     end
   end
 end

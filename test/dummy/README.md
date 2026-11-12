@@ -6,7 +6,7 @@ This Rails app is the host used to develop and test RecordingStudioCompany. It r
 
 - Devise sign-in with a seeded admin user, and `Current.actor` for Recording Studio events
 - A press centre that holds one company, an agency that holds many, and a project inside the agency that holds one
-- The company engine at `/recording_studio_company`, and Attachable at `/recording_studio_attachable` for logo previews
+- The company engine at `/recording_studio_company`, Attachable at `/recording_studio_attachable` for logo previews, and Recording Studio API at `/recording_studio_api`
 - Workspace, Folder, and Page recordables from the template, with companies left off Workspace
 - The Recording Studio default layout, FlatPack, and Tailwind source scanning
 - Dummy-only `/docs/*` pages
@@ -42,6 +42,7 @@ Those rows belong to the development database. The test database sets `seeds: fa
 - `/` shows the three company parents and links to their company pages
 - `/recording_studio_company/recordings/:recording_id/companies` lists the companies of a parent recording
 - `/recording_studio_company/companies/:id` shows one company
+- `/recording_studio_api/api/v1/companies` is the JSON company resource (pass `parent_id` to list or create)
 - `/recording_studio` redirects to `/` while the mounted Recording Studio engine stays available under that prefix for non-root routes
 - `/users/sign_in` is the Devise sign-in page
 - `/docs/install`, `/docs/config`, `/docs/recordable_types`, `/docs/recordings_tree`, `/docs/gem_views`, and `/docs/methods` are dummy-only reference pages

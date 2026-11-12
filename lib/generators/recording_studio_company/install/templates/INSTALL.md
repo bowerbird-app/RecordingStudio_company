@@ -18,3 +18,4 @@ Next steps:
 7. The company pages inherit your ApplicationController. Adjust auth, layout, and current actor integration to match your host app.
 8. Link to a parent's companies with `recording_studio_company.recording_companies_path(parent_recording)`.
 9. Run `bin/rails tailwindcss:build` if you use Tailwind CSS.
+10. Optional: install and mount Recording Studio API. This gem then registers companies, `set_logo`, and `remove_logo`. MCP uses that same API. Turn on `:api_access_point` on roots that hold API clients.
