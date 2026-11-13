@@ -46,6 +46,7 @@ class RootSwitchDropdownTest < ActionDispatch::IntegrationTest
 
     workspace = Workspace.create!(name: "Switch Page Workspace")
     RecordingStudio.root_recording_for(workspace)
+    grant_workspace_view!(user)
 
     get "/recording_studio_root_switchable/v1/root_switch?scope=all_workspaces"
 
@@ -66,6 +67,7 @@ class RootSwitchDropdownTest < ActionDispatch::IntegrationTest
     target_workspace = Workspace.create!(name: "Target Workspace")
     target_root_recording = RecordingStudio.root_recording_for(target_workspace)
     RecordingStudio.root_recording_for(source_workspace)
+    grant_workspace_view!(user)
 
     patch "/recording_studio_root_switchable/v1/root_switch", params: {
       scope: "all_workspaces",
@@ -90,6 +92,7 @@ class RootSwitchDropdownTest < ActionDispatch::IntegrationTest
     target_workspace = Workspace.create!(name: "Fallback Target Workspace")
     target_root_recording = RecordingStudio.root_recording_for(target_workspace)
     RecordingStudio.root_recording_for(source_workspace)
+    grant_workspace_view!(user)
 
     patch "/recording_studio_root_switchable/v1/root_switch", params: {
       scope: "all_workspaces",
@@ -100,5 +103,28 @@ class RootSwitchDropdownTest < ActionDispatch::IntegrationTest
     }
 
     assert_redirected_to "/"
+  end
+
+  private
+
+  # Root Switchable 0.15 forbids the switch page unless the actor has Accessible :view
+  # on the current root. The dummy scope lists every workspace, so the signed-in user
+  # needs that grant on each one.
+  def grant_workspace_view!(user)
+    Workspace.find_each do |workspace|
+      root = RecordingStudio.root_recording_for(workspace)
+      next if RecordingStudioAccessible.authorized?(actor: user, recording: root, role: :view)
+
+      bootstrapped = RecordingStudioAccessible.bootstrap_owner_access!(recording: root, actor: user)
+      next if bootstrapped.success?
+
+      manager = RecordingStudioAccessible.access_recordings_for(root).filter_map { |access|
+        access.recordable.actor
+      }.find { |actor| RecordingStudioAccessible.authorized?(actor: actor, recording: root, role: :admin) }
+      granted = RecordingStudioAccessible.grant_access(
+        recording: root, actor: user, role: "view", manager_actor: manager
+      )
+      raise "Workspace view grant failed: #{granted.error}" if granted.failure?
+    end
   end
 end
