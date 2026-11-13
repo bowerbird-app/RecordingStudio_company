@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Development pins move to Recording Studio `v6.7.0`, Accessible `v0.32.0`, Attachable `v0.23.0`, API `v0.23.0`, Logs `v0.7.4`, Moveable `v4.1.1`, Icons `v0.2.1`, Trashable `v0.14.0`, Metrics `v0.8.0`, Cache `v0.6.3`, Root Switchable `v0.15.0`, and FlatPack `v0.1.356`.
+- The dummy host sets `config.allow_unauthorized_writes` so Recording Studio 6.5 does not block seeds and tests. Company writes still check Accessible.
+- The dummy schema adds Trashable `purge_at` on `recording_studio_recordings`.
+
 ## [0.5.0] - 2026-11-05
 
 ### Changed

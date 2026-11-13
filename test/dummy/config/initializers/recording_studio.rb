@@ -15,6 +15,10 @@ RecordingStudio.configure do |config|
   # Shown in the shared default layout title fallback.
   config.app_name = "RecordingStudioCompany demo" if config.respond_to?(:app_name=)
 
+  # Recording Studio 6.5 denies record! unless authorize_write is set.
+  # Company writes still check Accessible. The dummy keeps the previous open writes.
+  config.allow_unauthorized_writes = true
+
   # Actor resolver for events when no actor is explicitly supplied
   config.actor = -> { Current.actor }
 

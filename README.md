@@ -40,15 +40,19 @@ Add the gem. Recording Studio gems are not published to RubyGems, so resolve the
 # Gemfile
 gem "recording_studio_company", github: "bowerbird-app/RecordingStudio_company", tag: "v0.5.0"
 
-gem "flat_pack", github: "bowerbird-app/flatpack", tag: "v0.1.341"
-gem "recording_studio", github: "bowerbird-app/RecordingStudio", tag: "v6.3.0"
-gem "recording_studio_accessible", github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.24.1"
-gem "recording_studio_attachable", github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.22.1"
-gem "recording_studio_metrics", github: "bowerbird-app/RecordingStudio_metrics", tag: "v0.7.2"
-gem "recording_studio_trashable", github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.12.2"
+gem "flat_pack", github: "bowerbird-app/flatpack", tag: "v0.1.356"
+gem "recording_studio", github: "bowerbird-app/RecordingStudio", tag: "v6.7.0"
+gem "recording_studio_accessible", github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.32.0"
+gem "recording_studio_attachable", github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.23.0"
+gem "recording_studio_api", github: "bowerbird-app/RecordingStudio_api", tag: "v0.23.0"
+gem "recording_studio_icons", github: "bowerbird-app/RecordingStudio_icons", tag: "v0.2.1"
+gem "recording_studio_logs", github: "bowerbird-app/RecordingStudio_logs", tag: "v0.7.4"
+gem "recording_studio_metrics", github: "bowerbird-app/RecordingStudio_metrics", tag: "v0.8.0"
+gem "recording_studio_moveable", github: "bowerbird-app/RecordingStudio_moveable", tag: "v4.1.1"
+gem "recording_studio_trashable", github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.14.0"
 ```
 
-Attachable depends on Recording Studio Metrics, which is not on RubyGems, so pin it from GitHub as above.
+Attachable 0.23 depends on Recording Studio API. API depends on Logs and Moveable, and Moveable depends on Icons. Metrics is required by Attachable and Trashable. None of those gems are on RubyGems, so pin them from GitHub as above.
 
 Run the install generators and the migrations.
 
